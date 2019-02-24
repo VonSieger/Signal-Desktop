@@ -163,12 +163,10 @@ exports.createTemplate = (options, messages) => {
     const fileMenu = template[0];
 
     // These are in reverse order, since we're prepending them one at a time
-    if (options.development) {
-      fileMenu.submenu.unshift({
-        label: messages.menuSetupAsStandalone.message,
-        click: setupAsStandalone,
-      });
-    }
+    fileMenu.submenu.unshift({
+      label: messages.menuSetupAsStandalone.message,
+      click: setupAsStandalone,
+    });
 
     fileMenu.submenu.unshift({
       type: 'separator',
@@ -225,12 +223,10 @@ function updateForMac(template, messages, options) {
       ],
     };
 
-    if (options.development) {
-      fileMenu.submenu.push({
-        label: messages.menuSetupAsStandalone.message,
-        click: setupAsStandalone,
-      });
-    }
+    fileMenu.submenu.push({
+      label: messages.menuSetupAsStandalone.message,
+      click: setupAsStandalone,
+    });
 
     template.unshift(fileMenu);
   }
