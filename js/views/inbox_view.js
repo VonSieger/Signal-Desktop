@@ -183,6 +183,7 @@
     },
     events: {
       click: 'onClick',
+      keydown : 'hotKey',
       'click #header': 'focusHeader',
       'click .conversation': 'focusConversation',
       'input input.search': 'filterContacts',
@@ -277,6 +278,39 @@
     },
     onClick(e) {
       this.closeRecording(e);
+    },
+    hotKey(e){
+      const keyCode = e.which || e.keyCode;
+      if(!e.altKey || (keyCode !== 38 && keyCode !== 40)){
+        return;
+      }
+      const activeConversation = ConversationController.findActive();
+      const activeConversationCID = activeConversation.cid;
+      if(activeConversation == null){
+        return;
+      }
+      const conversationsInbox = document.getElementsByClassName('conversation-list-item');
+      var activeIndex = 0;
+      for(activeIndex = 0; activeIndex < conversationsInbox.length; activeIndex++){
+        if(conversationsInbox[activeIndex].classList.contains(activeConversationCID)){
+          break;
+        }
+      }
+
+      var openCID = 0;
+      if(keyCode === 38){//up Arrow
+        if(activeIndex === 0){
+          return;
+        }
+        openCID = conversationsInbox[activeIndex -1].classList[2];
+        this.openConversation(ConversationController.getUnsafe(openCID));
+      }else if (keyCode === 40) {//down Arrow
+        if(activeIndex >= conversationsInbox.length -1){
+          return;
+        }
+        openCID = conversationsInbox[activeIndex +1].classList[2];
+        this.openConversation(ConversationController.getUnsafe(openCID));
+      }
     },
   });
 
