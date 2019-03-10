@@ -281,9 +281,16 @@
     },
     hotKey(e){
       const keyCode = e.which || e.keyCode;
-      if(!e.altKey || (keyCode !== 38 && keyCode !== 40)){
+      if(!e.altKey){
         return;
       }
+      if(keyCode === 38 || keyCode === 40){//up/down arrow
+        this.cycleConversations(keyCode);
+      }else if(49 <= keyCode && keyCode <= 57){//numbers from 0-9
+        this.jumpToConversation(keyCode);
+      }
+    },
+    cycleConversations(keyCode){
       const activeConversation = ConversationController.findActive();
       const activeConversationCID = activeConversation.cid;
       if(activeConversation == null){
@@ -311,6 +318,18 @@
         openCID = conversationsInbox[activeIndex +1].classList[2];
         this.openConversation(ConversationController.getUnsafe(openCID));
       }
+    },
+    jumpToConversation(keyCode){
+      var index = keyCode - 49;
+      const conversationsInbox = document.getElementsByClassName('conversation-list-item');
+      if(index === 8){
+        index = conversationsInbox.length -1;
+      }
+      if(conversationsInbox[index] == null){
+        return;
+      }
+      const openCID = conversationsInbox[index].classList[2];
+      this.openConversation(ConversationController.getUnsafe(openCID));
     },
   });
 
