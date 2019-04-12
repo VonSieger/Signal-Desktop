@@ -1,6 +1,7 @@
 /* global
   ConversationController,
   extension,
+  getConversations,
   getInboxCollection,
   i18n,
   Whisper,
@@ -108,8 +109,8 @@
     },
     setupLeftPane() {
       // Here we set up a full redux store with initial state for our LeftPane Root
-      const inboxCollection = getInboxCollection();
-      const conversations = inboxCollection.map(
+      const convoCollection = getConversations();
+      const conversations = convoCollection.map(
         conversation => conversation.cachedProps
       );
       const initialState = {
@@ -149,19 +150,19 @@
 
       this.openConversationAction = openConversationExternal;
 
-      this.listenTo(inboxCollection, 'remove', conversation => {
+      this.listenTo(convoCollection, 'remove', conversation => {
         const { id } = conversation || {};
         conversationRemoved(id);
       });
-      this.listenTo(inboxCollection, 'add', conversation => {
+      this.listenTo(convoCollection, 'add', conversation => {
         const { id, cachedProps } = conversation || {};
         conversationAdded(id, cachedProps);
       });
-      this.listenTo(inboxCollection, 'change', conversation => {
+      this.listenTo(convoCollection, 'change', conversation => {
         const { id, cachedProps } = conversation || {};
         conversationChanged(id, cachedProps);
       });
-      this.listenTo(inboxCollection, 'reset', removeAllConversations);
+      this.listenTo(convoCollection, 'reset', removeAllConversations);
 
       Whisper.events.on('messageExpired', messageExpired);
       Whisper.events.on('userChanged', userChanged);
