@@ -214,12 +214,5 @@
 
       return this._initialPromise;
     },
-    findActive(){
-      var activeConversation = conversations.find(function(conv){return conv.isSelected});
-      if(activeConversation == null){
-        return null;
-      }
-      return activeConversation;
-    },
   };
 })();
