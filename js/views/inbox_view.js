@@ -248,8 +248,15 @@
       if(!e.altKey){
         return;
       }
-      const conversationsSorted = Object.values(this.store.getState()["conversations"]["conversationLookup"]);
-      conversationsSorted.sort(function(a, b){return b.lastUpdated - a.lastUpdated});
+      console.log(this.store.getState()["conversations"]);
+      const conversationsAll = Object.values(this.store.getState()["conversations"]["conversationLookup"]);
+      var conversationsSorted = [];
+      conversationsAll.forEach(function(element){
+        if(element.activeAt != undefined){
+          conversationsSorted.push(element);
+        }
+      });
+      conversationsSorted.sort(function(a, b){return b.activeAt - a.activeAt});
 
       if(keyCode === 38 || keyCode === 40){//up/down arrow
         this.cycleConversations(keyCode, conversationsSorted);
