@@ -248,7 +248,6 @@
       if(!e.altKey){
         return;
       }
-      console.log(this.store.getState()["conversations"]);
       const conversationsAll = Object.values(this.store.getState()["conversations"]["conversationLookup"]);
       var conversationsSorted = [];
       conversationsAll.forEach(function(element){
@@ -256,8 +255,7 @@
           conversationsSorted.push(element);
         }
       });
-      conversationsSorted.sort(function(a, b){return b.activeAt - a.activeAt});
-
+      conversationsSorted.sort(function(a, b){return b.lastUpdated - a.lastUpdated});
       if(keyCode === 38 || keyCode === 40){//up/down arrow
         this.cycleConversations(keyCode, conversationsSorted);
       }else if(49 <= keyCode && keyCode <= 57){//numbers from 0-9
