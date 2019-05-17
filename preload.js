@@ -88,6 +88,10 @@ ipc.on('set-up-as-new-device', () => {
   Whisper.events.trigger('setupAsNewDevice');
 });
 
+ipc.on('add-device', () => {
+  Whisper.events.trigger('addDevice');
+});
+
 ipc.on('set-up-as-standalone', () => {
   Whisper.events.trigger('setupAsStandalone');
 });

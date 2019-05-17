@@ -102,6 +102,11 @@
         this.installView = null;
       }
     },
+    openAddDevice() {
+      this.resetViews();
+      this.addDeviceView = new Whisper.AddDeviceView();
+      this.openView(this.addDeviceView);
+    },
     openStandalone() {
       window.addSetupMenuItems();
       this.resetViews();

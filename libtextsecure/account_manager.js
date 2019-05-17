@@ -108,6 +108,48 @@
         await this.server.removeSignalingKey();
       }
     },
+
+    /*
+    * add an other device
+    * deviceIdentifier, deviceKey -> correspond to the other device
+    * identityKeyPair, profileKey, code -> information stored on this device
+    */
+    addDevice(deviceIdentifier, deviceKey){
+      if(!deviceIdentifier || !deviceKey){
+        return;
+      }
+      return this.server.getNewDeviceVerificationCode().then(response => {
+        Promise.all([
+          textsecure.storage.protocol.getIdentityKeyPair(),
+          textsecure.storage.protocol.getProfileKey(),
+          textsecure.storage.protocol.getNumber(),
+        ]).then(values => {
+          const identityKeyPair = values[0];
+          const profileKey = values[1];
+
+          deviceKey = window.StringView.base64ToBytes(deviceKey);
+
+          const code = response.verificationCode;
+          if(!code){
+            return;
+          }
+
+          const provisionMessage = new textsecure.protobuf.ProvisionMessage({
+            identityKeyPrivate: identityKeyPair.privKey,
+            number: values[2],
+            provisioningCode: code,
+            profileKey: profileKey,
+          });
+
+          const provisioningCipher = new libsignal.ProvisioningCipher();
+          provisioningCipher.encrypt(provisionMessage, deviceKey)
+          .then(provisionEnvelope => {
+            this.server.linkOtherDevice(deviceIdentifier, {body: provisionEnvelope.encode64()});
+          });
+        });
+      });
+    },
+
     registerSingleDevice(number, verificationCode) {
       const registerKeys = this.server.registerKeys.bind(this.server);
       const createAccount = this.createAccount.bind(this);
@@ -469,6 +511,7 @@
         nonblockingApproval: true,
       });
 
+      await textsecure.storage.put('id', number);
       await textsecure.storage.put('identityKey', identityKeyPair);
       await textsecure.storage.put('password', password);
       await textsecure.storage.put('registrationId', registrationId);

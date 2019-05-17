@@ -140,10 +140,26 @@
         window.log.error('Did not find #qr element in the DOM!');
         return;
       }
+      if ($('#url').length === 0) {
+        window.log.error('Did not find #url element in the DOM!');
+        return;
+      }
 
       this.$('#qr .container').hide();
+
       this.qr = new QRCode(this.$('#qr')[0]).makeCode(url);
       this.$('#qr').removeAttr('title');
+      
+      const queries = url.split('?')[1].split('&');
+      var params = {};
+      var i, l;
+      for( i = 0, l = queries.length; i < l; i++){
+        var split = queries[i].split("=");
+        params[split[0]] = split[1];
+      }
+      this.$('#url .deviceIdentifier').text(params["uuid"]);
+      this.$('#url .deviceKey').text(params["pub_key"]);
+
       this.$('#qr').addClass('ready');
     },
     setDeviceNameDefault() {

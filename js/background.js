@@ -420,6 +420,13 @@
     }
   });
 
+  Whisper.events.on('addDevice', () => {
+    const { appView } = window.owsDesktopApp;
+    if(appView) {
+      appView.openAddDevice();
+    }
+  });
+
   Whisper.events.on('setupAsStandalone', () => {
     const { appView } = window.owsDesktopApp;
     if (appView) {

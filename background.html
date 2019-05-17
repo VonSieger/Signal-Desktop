@@ -360,6 +360,17 @@
               <span class='dot'></span>
             </div>
           </div>
+          <div id="url">
+            <div class='body-text'>
+              Device Identifier:
+            </div>
+            <span class="deviceIdentifier" class='body-text'></span>
+            <div class='body-text'>
+              Device Key:
+            </div>
+            <span class="deviceKey" class='body-text'></span>
+          </div>
+          </div>
         </div>
         <div class='nav'>
           <div class='instructions'>
@@ -441,6 +452,24 @@
     {{/isError}}
   </script>
 
+  <script type='text/x-tmpl-mustache' id='addDevice'>
+    <div class='step'>
+      <div class='inner'>
+        <div class='step-body'>
+          <div class='header'>Link an Other Computer</div>
+          <div class='error'></div>
+          <div class='link-input-form' id='url'>
+            <input type='text' class='deviceIdentifier' placeholder='Device Identifier'/>
+            <input type='text' class='deviceKey' placeholder='Device Key'>
+          </div>
+          <div>
+            <a class="button", id="addDeviceButton">Link Device</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
+
   <script type='text/x-tmpl-mustache' id='standalone'>
     <div class='step'>
       <div class='inner'>
@@ -515,6 +544,7 @@
   <script type='text/javascript' src='js/views/banner_view.js'></script>
   <script type="text/javascript" src="js/views/phone-input-view.js"></script>
   <script type='text/javascript' src='js/views/standalone_registration_view.js'></script>
+  <script type='text/javascript' src='js/views/add_device_view.js'></script>
   <script type='text/javascript' src='js/views/app_view.js'></script>
   <script type='text/javascript' src='js/views/import_view.js'></script>
   <script type='text/javascript' src='js/views/clear_data_view.js'></script>
