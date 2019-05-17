@@ -422,9 +422,6 @@ MessageSender.prototype = {
   ) {
     const myNumber = textsecure.storage.user.getNumber();
     const myDevice = textsecure.storage.user.getDeviceId();
-    if (myDevice === 1 || myDevice === '1') {
-      return Promise.resolve();
-    }
 
     const dataMessage = textsecure.protobuf.DataMessage.decode(
       encodedDataMessage
