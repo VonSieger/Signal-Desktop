@@ -20,12 +20,17 @@
     onAdd(){
       this.$('.error').hide();
       const accountManager = getAccountManager();
-      accountManager.addDevice(decodeURIComponent(this.$('#url .deviceIdentifier')[0].value),
-        decodeURIComponent(this.$('#url .deviceKey')[0].value),
-      ).catch(e => {
+      const deviceIdentifier = decodeURIComponent(this.$('#url .deviceIdentifier')[0].value);
+      const deviceKey = decodeURIComponent(this.$('#url .deviceKey')[0].value);
+      const addDevicePromise = accountManager.addDevice(deviceIdentifier,
+        deviceKey,
+      );
+      addDevicePromise.then(function(){
+        window.log.info(`Succesfully added device with deviceKey:${deviceKey}`);
+      }, e => {
         this.$(".error").text(e.message.split(".")[0]);
         this.$(".error").show();
-        throw e;
+        window.log.error(`Failed to add device with deviceKey:${deviceKey}`);
       });
     }
   })

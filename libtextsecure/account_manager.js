@@ -115,11 +115,8 @@
     * identityKeyPair, profileKey, code -> information stored on this device
     */
     addDevice(deviceIdentifier, deviceKey){
-      if(!deviceIdentifier || !deviceKey){
-        return;
-      }
       return this.server.getNewDeviceVerificationCode().then(response => {
-        Promise.all([
+        return Promise.all([
           textsecure.storage.protocol.getIdentityKeyPair(),
           textsecure.storage.protocol.getProfileKey(),
           textsecure.storage.protocol.getNumber(),
@@ -142,9 +139,9 @@
           });
 
           const provisioningCipher = new libsignal.ProvisioningCipher();
-          provisioningCipher.encrypt(provisionMessage, deviceKey)
+          return provisioningCipher.encrypt(provisionMessage, deviceKey)
           .then(provisionEnvelope => {
-            this.server.linkOtherDevice(deviceIdentifier, {body: provisionEnvelope.encode64()});
+            return this.server.linkOtherDevice(deviceIdentifier, {body: provisionEnvelope.encode64()});
           });
         });
       });
