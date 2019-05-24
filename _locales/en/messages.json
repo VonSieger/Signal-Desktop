@@ -176,6 +176,26 @@
     "description":
       "Adding new device succeeded"
   },
+  "linkNewDevice": {
+    "message": "Link an Other Computer",
+    "description":
+      "Heading for add_device_view"
+  },
+  "linkNewDeviceButton": {
+    "message": "Link Device",
+    "description":
+      "Link Device Button in add_device_view"
+  },
+  "deviceIdentifier": {
+    "message": "Device Identifier",
+    "description":
+      "Placeholder in add_device_view for deviceIdentifier input field"
+  },
+  "deviceKey": {
+    "message": "DeviceKey",
+    "description":
+      "Placeholder in add_device_view for deviceKey input field"
+  },
   "loading": {
     "message": "Loading...",
     "description":

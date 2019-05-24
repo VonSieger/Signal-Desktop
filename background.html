@@ -457,14 +457,14 @@
       <a class='x close' alt='close addDevice' href='#'></a>
       <div class='inner'>
         <div class='step-body'>
-          <div class='header'>Link an Other Computer</div>
+          <div class='header'>{{linkNewDevice}}</div>
           <div class='statusMessage'></div>
           <div class='link-input-form' id='url'>
-            <input type='text' class='deviceIdentifier' placeholder='Device Identifier'/>
-            <input type='text' class='deviceKey' placeholder='Device Key'>
+            <input type='text' class='deviceIdentifier' placeholder='{{ deviceIdentifier }}'/>
+            <input type='text' class='deviceKey' placeholder='{{ deviceKey }}'/>
           </div>
           <div>
-            <a class="button", id="addDeviceButton">Link Device</a>
+            <a class="button", id="addDeviceButton">{{ linkNewDeviceButton }}</a>
           </div>
         </div>
       </div>

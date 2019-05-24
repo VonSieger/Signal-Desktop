@@ -14,6 +14,14 @@
       this.$('statusMessage').hide();
       this.render();
     },
+    render_attributes(){
+      return {
+        linkNewDevice: i18n('linkNewDevice'),
+        linkNewDeviceButton: i18n('linkNewDeviceButton'),
+        'deviceIdentifier': i18n('deviceIdentifier'),
+        'deviceKey': i18n('deviceKey'),
+      };
+    },
     events: {
       'click #addDeviceButton': 'onAdd',
       //TODO add validation for input parameters
