@@ -1,4 +1,4 @@
-/*global Whisper, $, getAccountManager */
+/*global Whisper, $, getAccountManager, i18n */
 
 /* eslint-disable more/no-then */
 
@@ -11,14 +11,17 @@
     templateName: 'addDevice',
     className: 'full-screen-flow',
     initialize() {
+      this.$('statusMessage').hide();
       this.render();
     },
     events: {
       'click #addDeviceButton': 'onAdd',
       //TODO add validation for input parameters
+      'click .x': 'onClose',
     },
     onAdd(){
-      this.$('.error').hide();
+      this.$('.statusMessage').hide();
+      this.$('.statusMessage').removeClass('success error');
       const accountManager = getAccountManager();
       const deviceIdentifier = decodeURIComponent(this.$('#url .deviceIdentifier')[0].value);
       const deviceKey = decodeURIComponent(this.$('#url .deviceKey')[0].value);
@@ -27,11 +30,19 @@
       );
       addDevicePromise.then(function(){
         window.log.info(`Succesfully added device with deviceKey:${deviceKey}`);
+        textsecure.storage.protocol.hydrateCaches();
+        this.$('statusMessage').addClass('success');
+        this.$('statusMessage').text(i18n('addDeviceSuccess'));
+        this.$('statusMessage').show();
       }, e => {
-        this.$(".error").text(e.message.split(".")[0]);
-        this.$(".error").show();
         window.log.error(`Failed to add device with deviceKey:${deviceKey}`);
+        this.$(".statusMessage").addClass("error");
+        this.$(".statusMessage").text(e.message.split(".")[0]);
+        this.$(".statusMessage").show();
       });
-    }
+    },
+    onClose(){
+      this.$el.trigger('openInbox');
+    },
   })
 })();

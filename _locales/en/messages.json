@@ -169,7 +169,12 @@
   "menuAddDevice": {
     "message": "Add an Other Device",
     "description":
-      "Open Window for linking an other device to this account."
+      "Open Window for linking an other device to this account"
+  },
+  "addDeviceSuccess": {
+    "message": "Adding new device succeeded",
+    "description":
+      "Adding new device succeeded"
   },
   "loading": {
     "message": "Loading...",
