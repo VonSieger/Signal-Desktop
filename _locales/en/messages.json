@@ -166,10 +166,10 @@
     "description":
       "Only available on development modes, menu option to open up the standalone device setup sequence"
   },
-  "menuAddDevice": {
-    "message": "Add an Other Device",
+  "menuManageDevices": {
+    "message": "Manage Devices",
     "description":
-      "Open Window for linking an other device to this account"
+      "Open Window for managing linked devices"
   },
   "addDeviceSuccess": {
     "message": "Adding new device succeeded",

@@ -36,7 +36,7 @@
       const addDevicePromise = accountManager.addDevice(deviceIdentifier,
         deviceKey,
       );
-      addDevicePromise.then(function(){
+      addDevicePromise.then(() => {
         window.log.info(`Succesfully added device with deviceKey:${deviceKey}`);
         textsecure.storage.protocol.hydrateCaches();
         this.$('statusMessage').addClass('success');

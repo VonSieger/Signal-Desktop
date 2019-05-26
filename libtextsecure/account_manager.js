@@ -619,6 +619,26 @@
 
       this.dispatchEvent(new Event('registration'));
     },
+    async getDevices(){
+      return this.server.getDevices().then(list => {
+        list = JSON.parse(list);
+        var deviceList = new Array();
+        list.devices.forEach(element => {
+          const name = element.name;
+          if(name === null){
+            return;
+          }
+          deviceList.push({
+            id: element.id,
+            name: this.decryptDeviceName(name),
+          });
+        });
+        return deviceList;
+      });
+    },
+    async removeDevice(id){
+      return this.server.removeDevice(id);
+    },
   });
   textsecure.AccountManager = AccountManager;
 })();

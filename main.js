@@ -427,9 +427,9 @@ function setupAsStandalone() {
   }
 }
 
-function addDevice(){
+function manageDevices(){
   if(mainWindow){
-    mainWindow.webContents.send('add-device');
+    mainWindow.webContents.send('manage-devices');
   }
 }
 
@@ -729,7 +729,7 @@ function setupMenu(options) {
     setupWithImport,
     setupAsNewDevice,
     setupAsStandalone,
-    addDevice,
+    manageDevices,
   });
   const template = createTemplate(menuOptions, locale.messages);
   const menu = Menu.buildFromTemplate(template);

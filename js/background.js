@@ -427,6 +427,13 @@
     }
   });
 
+  Whisper.events.on('manageDevices', () => {
+    const { appView } = window.owsDesktopApp;
+    if(appView){
+      appView.openManageDevices();
+    }
+  });
+
   Whisper.events.on('setupAsStandalone', () => {
     const { appView } = window.owsDesktopApp;
     if (appView) {

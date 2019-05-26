@@ -14,7 +14,7 @@ exports.createTemplate = (options, messages) => {
     platform,
     setupAsNewDevice,
     setupAsStandalone,
-    addDevice,
+    manageDevices,
     setupWithImport,
     showAbout,
     showDebugLog,
@@ -33,8 +33,8 @@ exports.createTemplate = (options, messages) => {
           type: 'separator',
         },
         {
-          label: messages.menuAddDevice.message,
-          click: addDevice,
+          label: messages.menuManageDevices.message,
+          click: manageDevices,
         },
         {
           type: 'separator',

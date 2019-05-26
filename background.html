@@ -464,11 +464,36 @@
             <input type='text' class='deviceKey' placeholder='{{ deviceKey }}'/>
           </div>
           <div>
-            <a class="button", id="addDeviceButton">{{ linkNewDeviceButton }}</a>
+            <a class="button" id="addDeviceButton">{{ linkNewDeviceButton }}</a>
           </div>
         </div>
       </div>
     </div>
+  </script>
+
+  <script type='text/x-tmpl-mustache' id='manageDevices'>
+    <div class='step'>
+    <a class='x close' alt='close addDevice' href='#'></a>
+    <div class='inner'>
+      <div class='step-body'>
+        <div class='header'>Linked Devices</div>
+        <table id='linkedDevicesTable'>
+        </table>
+      </div>
+      <div class='step-body'>
+        <a class="button">Link New Device</a>
+      </div>
+    </div>
+    </div>
+  </script>
+
+  <script type='text/x-tmpl-mustache' id='deviceListRow'>
+    <tr>
+      <td>
+      <span class='body-text tableElement'>{{name}}</span>
+      <button class="tableButton grey">Delete</button>
+      </td>
+    </tr>
   </script>
 
   <script type='text/x-tmpl-mustache' id='standalone'>
@@ -516,6 +541,7 @@
   <script type='text/javascript' src='js/models/messages.js'></script>
   <script type='text/javascript' src='js/models/conversations.js'></script>
   <script type='text/javascript' src='js/models/blockedNumbers.js'></script>
+  <script type='text/javascript' src='js/models/device.js'></script>
   <script type='text/javascript' src='js/expiring_messages.js'></script>
 
   <script type='text/javascript' src='js/chromium.js'></script>
@@ -546,6 +572,8 @@
   <script type="text/javascript" src="js/views/phone-input-view.js"></script>
   <script type='text/javascript' src='js/views/standalone_registration_view.js'></script>
   <script type='text/javascript' src='js/views/add_device_view.js'></script>
+  <script type='text/javascript' src='js/views/device_list_row_view.js'></script>
+  <script type='text/javascript' src='js/views/manage_devices_view.js'></script>
   <script type='text/javascript' src='js/views/app_view.js'></script>
   <script type='text/javascript' src='js/views/import_view.js'></script>
   <script type='text/javascript' src='js/views/clear_data_view.js'></script>

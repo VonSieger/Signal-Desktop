@@ -444,6 +444,7 @@ function initialize({
       getAttachment,
       getAvatar,
       getDevices,
+      removeDevice,
       getKeysForNumber,
       getKeysForNumberUnauth,
       getMessageSocket,
@@ -670,6 +671,13 @@ function initialize({
       });
     }
 
+    function removeDevice(id) {
+      return _ajax({
+        call: 'devices',
+        urlParameters: `/${id}`,
+        httpType: 'DELETE',
+      });
+    }
     function registerKeys(genKeys) {
       const keys = {};
       keys.identityKey = _btoa(_getString(genKeys.identityKey));

@@ -1,0 +1,48 @@
+/*global Whisper, $, getAccountManager, i18n */
+
+/* eslint-disable more/no-then */
+
+// eslint-disable-next-line func-names
+
+(function(){
+  'use strict';
+  window.Whisper = window.Whisper || {};
+
+  Whisper.ManageDevicesView = Whisper.View.extend({
+    templateName: 'manageDevices',
+    className: 'full-screen-flow',
+    initialize(){
+      this._outer_render();
+    },
+    _outer_render(){
+      Whisper.View.prototype.render.call(this);
+      this.render();
+    },
+    render(){
+      const accountManager = getAccountManager();
+      accountManager.getDevices().then(devices => {
+        devices.forEach(device => {
+          device.name.then(name => {
+            const deviceModel = new Whisper.Device({id: device.id,
+              name: name,
+              accountManager: accountManager,
+            });
+            deviceModel.on("removeDevice", this.render);
+            var deviceListRow = new Whisper.DeviceListRowView({model: deviceModel}).render();
+            this.$('#linkedDevicesTable').append(deviceListRow.el);
+          });
+        });
+      });
+    },
+    events:{
+      'click .close': 'onClose',
+      'click .button': 'onAddNewDevice',
+    },
+    onAddNewDevice(){
+      Whisper.events.trigger('addDevice');
+    },
+    onClose(){
+      this.$el.trigger('openInbox');
+    },
+  })
+})();
