@@ -39,9 +39,9 @@
       addDevicePromise.then(() => {
         window.log.info(`Succesfully added device with deviceKey:${deviceKey}`);
         textsecure.storage.protocol.hydrateCaches();
-        this.$('statusMessage').addClass('success');
-        this.$('statusMessage').text(i18n('addDeviceSuccess'));
-        this.$('statusMessage').show();
+        this.$('.statusMessage').addClass('success');
+        this.$('.statusMessage').text(i18n('addDeviceSuccess'));
+        this.$('.statusMessage').show();
       }, e => {
         window.log.error(`Failed to add device with deviceKey:${deviceKey}`);
         this.$(".statusMessage").addClass("error");
