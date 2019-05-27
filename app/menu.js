@@ -33,13 +33,6 @@ exports.createTemplate = (options, messages) => {
           type: 'separator',
         },
         {
-          label: messages.menuManageDevices.message,
-          click: manageDevices,
-        },
-        {
-          type: 'separator',
-        },
-        {
           role: 'quit',
           label: messages.appMenuQuit.message,
         },
@@ -186,6 +179,15 @@ exports.createTemplate = (options, messages) => {
     fileMenu.submenu.unshift({
       label: messages.menuSetupWithImport.message,
       click: setupWithImport,
+    });
+  }else {
+    const fileMenu = template[0];
+    fileMenu.submenu.unshift({
+      label: messages.menuManageDevices.message,
+      click: manageDevices,
+    },
+    {
+      type: 'separator',
     });
   }
 
