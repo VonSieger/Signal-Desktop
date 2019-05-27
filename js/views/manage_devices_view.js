@@ -20,6 +20,9 @@
     },
     render(){
       const accountManager = getAccountManager();
+      if(!accountManager.isStandaloneDevice()){
+        this.$('.button').hide();
+      }
       accountManager.getDevices().then(devices => {
         devices.forEach(device => {
           device.name.then(name => {
@@ -28,7 +31,7 @@
               accountManager: accountManager,
             });
             deviceModel.on("removeDevice", this.render);
-            var deviceListRow = new Whisper.DeviceListRowView({model: deviceModel}).render();
+            var deviceListRow = new Whisper.DeviceListRowView({model: deviceModel});
             this.$('#linkedDevicesTable').append(deviceListRow.el);
           });
         });

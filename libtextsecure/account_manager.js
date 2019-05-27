@@ -639,6 +639,10 @@
     async removeDevice(id){
       return this.server.removeDevice(id);
     },
+    isStandaloneDevice(){
+      const name = textsecure.storage.user.getDeviceName();
+      return name == undefined || name == null;
+    }
   });
   textsecure.AccountManager = AccountManager;
 })();
