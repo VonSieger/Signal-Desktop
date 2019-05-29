@@ -37,6 +37,12 @@
         });
       });
     },
+    render_attributes(){
+      return {
+        linkedDevices: i18n('linkedDevices'),
+        linkNewDevice: i18n('linkNewDevice'),
+      };
+    },
     events:{
       'click .close': 'onClose',
       'click .button': 'onAddNewDevice',

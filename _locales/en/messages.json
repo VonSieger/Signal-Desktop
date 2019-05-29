@@ -1113,7 +1113,7 @@
   "linkedDevices": {
     "message": "Linked Devices",
     "description":
-      "Used in the guidance to help people find the 'link new device' area of their Signal mobile app"
+      "Used in the guidance to help people find the 'link new device' area of their Signal mobile app and in the manage devices area as a heading"
   },
   "plusButton": {
     "message": "'+' Button",
@@ -1123,7 +1123,7 @@
   "linkNewDevice": {
     "message": "Link New Device",
     "description":
-      "The menu option shown in Signal iOS to add a new linked device"
+      "The menu option shown in Signal iOS and Signal-Desktop to add a new linked device"
   },
   "deviceName": {
     "message": "Device name",
