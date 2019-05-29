@@ -420,6 +420,20 @@
     }
   });
 
+  Whisper.events.on('addDevice', () => {
+    const { appView } = window.owsDesktopApp;
+    if(appView) {
+      appView.openAddDevice();
+    }
+  });
+
+  Whisper.events.on('manageDevices', () => {
+    const { appView } = window.owsDesktopApp;
+    if(appView){
+      appView.openManageDevices();
+    }
+  });
+
   Whisper.events.on('setupAsStandalone', () => {
     const { appView } = window.owsDesktopApp;
     if (appView) {
@@ -776,6 +790,8 @@
   }
   function onEmpty() {
     initialLoadComplete = true;
+
+    window.readyForUpdates();
 
     let interval = setInterval(() => {
       const view = window.owsDesktopApp.appView;

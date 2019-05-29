@@ -14,6 +14,7 @@ exports.createTemplate = (options, messages) => {
     platform,
     setupAsNewDevice,
     setupAsStandalone,
+    manageDevices,
     setupWithImport,
     showAbout,
     showDebugLog,
@@ -85,6 +86,7 @@ exports.createTemplate = (options, messages) => {
           label: messages.viewMenuResetZoom.message,
         },
         {
+          accelerator: platform === 'darwin' ? 'Command+=' : 'Control+Plus',
           role: 'zoomin',
           label: messages.viewMenuZoomIn.message,
         },
@@ -178,6 +180,15 @@ exports.createTemplate = (options, messages) => {
     fileMenu.submenu.unshift({
       label: messages.menuSetupWithImport.message,
       click: setupWithImport,
+    });
+  }else {
+    const fileMenu = template[0];
+    fileMenu.submenu.unshift({
+      label: messages.menuManageDevices.message,
+      click: manageDevices,
+    },
+    {
+      type: 'separator',
     });
   }
 

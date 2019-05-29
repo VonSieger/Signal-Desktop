@@ -396,6 +396,8 @@ const URL_CALLS = {
   messages: 'v1/messages',
   profile: 'v1/profile',
   signed: 'v2/keys/signed',
+  newDeviceVerificationCode : 'v1/devices/provisioning/code',
+  provisioningLink : 'v1/provisioning'
 };
 
 module.exports = {
@@ -442,15 +444,18 @@ function initialize({
       getAttachment,
       getAvatar,
       getDevices,
+      removeDevice,
       getKeysForNumber,
       getKeysForNumberUnauth,
       getMessageSocket,
       getMyKeys,
+      getNewDeviceVerificationCode,
       getProfile,
       getProfileUnauth,
       getProvisioningSocket,
       getProxiedSize,
       getSenderCertificate,
+      linkOtherDevice,
       makeProxiedRequest,
       putAttachment,
       registerKeys,
@@ -666,6 +671,13 @@ function initialize({
       });
     }
 
+    function removeDevice(id) {
+      return _ajax({
+        call: 'devices',
+        urlParameters: `/${id}`,
+        httpType: 'DELETE',
+      });
+    }
     function registerKeys(genKeys) {
       const keys = {};
       keys.identityKey = _btoa(_getString(genKeys.identityKey));
@@ -763,6 +775,24 @@ function initialize({
         responseType: 'json',
         validateResponse: { identityKey: 'string', devices: 'object' },
       }).then(handleKeys);
+    }
+
+    function getNewDeviceVerificationCode(){
+      return _ajax({
+        call: 'newDeviceVerificationCode',
+        httpType: 'GET',
+        responseType: 'json'
+      });
+    }
+
+    function linkOtherDevice(destination, data){
+      return _ajax({
+        call: 'provisioningLink',
+        urlParameters: `/${destination}`,
+        responseType : 'json',
+        httpType: 'PUT',
+        jsonData: data,
+      });
     }
 
     function getKeysForNumberUnauth(
@@ -925,8 +955,7 @@ function initialize({
         { certificateAuthority, proxyUrl }
       );
     }
-
-    function getProvisioningSocket() {
+    function getProvisioningSocket(destination) {
       log.info('opening provisioning socket', url);
       const fixedScheme = url
         .replace('https://', 'wss://')

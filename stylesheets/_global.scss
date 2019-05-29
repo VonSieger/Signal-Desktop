@@ -66,6 +66,11 @@ audio {
   display: none;
 }
 
+.tableButton{
+  margin: 0em !important;
+  padding: 0em !important;
+}
+
 button {
   cursor: pointer;
   font-size: inherit;
@@ -426,6 +431,23 @@ $loading-height: 16px;
     &.android {
       @include color-svg('../images/android.svg', black);
     }
+  }
+
+  .statusMessage {
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+
+    font-size: 27px;
+  }
+
+  .error {
+    color: #D8000C;
+    background-color: #FFD2D2;
+  }
+
+  .success{
+    background-color: #00e600;
+    color: #006600;
   }
 
   .header {

@@ -422,9 +422,6 @@ MessageSender.prototype = {
   ) {
     const myNumber = textsecure.storage.user.getNumber();
     const myDevice = textsecure.storage.user.getDeviceId();
-    if (myDevice === 1 || myDevice === '1') {
-      return Promise.resolve();
-    }
 
     const dataMessage = textsecure.protobuf.DataMessage.decode(
       encodedDataMessage
@@ -1085,13 +1082,8 @@ MessageSender.prototype = {
 
 window.textsecure = window.textsecure || {};
 
-textsecure.MessageSender = function MessageSenderWrapper(
-  url,
-  username,
-  password,
-  cdnUrl
-) {
-  const sender = new MessageSender(url, username, password, cdnUrl);
+textsecure.MessageSender = function MessageSenderWrapper(username, password) {
+  const sender = new MessageSender(username, password);
 
   this.sendExpirationTimerUpdateToNumber = sender.sendExpirationTimerUpdateToNumber.bind(
     sender

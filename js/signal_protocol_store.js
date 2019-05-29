@@ -193,7 +193,22 @@
         ),
       ]);
     },
+    async getNumber(){
+      const item = await window.Signal.Data.getItemById('id');
+      if (item) {
+        return item.value;
+      }
 
+      return undefined;
+    },
+    async getProfileKey(){
+      const item = await window.Signal.Data.getItemById('profileKey');
+      if (item) {
+        return item.value;
+      }
+
+      return undefined;
+    },
     async getIdentityKeyPair() {
       const item = await window.Signal.Data.getItemById('identityKey');
       if (item) {

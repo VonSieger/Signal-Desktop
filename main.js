@@ -61,7 +61,7 @@ const development = config.environment === 'development';
 //   data directory has been set.
 const attachments = require('./app/attachments');
 const attachmentChannel = require('./app/attachment_channel');
-const autoUpdate = require('./app/auto_update');
+const updater = require('./ts/updater/index');
 const createTrayIcon = require('./app/tray_icon');
 const ephemeralConfig = require('./app/ephemeral_config');
 const logging = require('./app/logging');
@@ -383,11 +383,28 @@ function createWindow() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
-
-  ipc.on('show-window', () => {
-    showWindow();
-  });
 }
+
+ipc.on('show-window', () => {
+  showWindow();
+});
+
+let updatesStarted = false;
+ipc.on('ready-for-updates', async () => {
+  if (updatesStarted) {
+    return;
+  }
+  updatesStarted = true;
+
+  try {
+    await updater.start(getMainWindow, locale.messages, logger);
+  } catch (error) {
+    logger.error(
+      'Error starting update checks:',
+      error && error.stack ? error.stack : error
+    );
+  }
+});
 
 function openReleaseNotes() {
   shell.openExternal(
@@ -424,6 +441,12 @@ function setupAsNewDevice() {
 function setupAsStandalone() {
   if (mainWindow) {
     mainWindow.webContents.send('set-up-as-standalone');
+  }
+}
+
+function manageDevices(){
+  if(mainWindow){
+    mainWindow.webContents.send('manage-devices');
   }
 }
 
@@ -636,6 +659,7 @@ app.on('ready', async () => {
   await logging.initialize();
   logger = logging.getLogger();
   logger.info('app ready');
+  logger.info(`starting version ${packageJson.version}`);
 
   if (!locale) {
     const appLocale = process.env.NODE_ENV === 'test' ? 'en' : app.getLocale();
@@ -696,8 +720,6 @@ app.on('ready', async () => {
 
   ready = true;
 
-  autoUpdate.initialize(getMainWindow, locale.messages);
-
   createWindow();
 
   if (usingTrayIcon) {
@@ -723,6 +745,7 @@ function setupMenu(options) {
     setupWithImport,
     setupAsNewDevice,
     setupAsStandalone,
+    manageDevices,
   });
   const template = createTemplate(menuOptions, locale.messages);
   const menu = Menu.buildFromTemplate(template);
