@@ -93,14 +93,14 @@ export class ConversationHeader extends React.Component<Props> {
 
     if (isMe) {
       return (
-        <div className="module-conversation-header__title">
+        <div className="module-conversation-header__title" id='titleShow'>
           {i18n('noteToSelf')}
         </div>
       );
     }
 
     return (
-      <div className="module-conversation-header__title">
+      <div className="module-conversation-header__title" id='titleShow'>
         {name ? <Emojify text={name} i18n={i18n} /> : null}
         {name && phoneNumber ? ' · ' : null}
         {phoneNumber ? phoneNumber : null}{' '}
@@ -245,6 +245,12 @@ export class ConversationHeader extends React.Component<Props> {
     );
   }
 
+  public renderTitleInput() {
+    return (
+      <input type='text' style={{display: 'none'}} id='titleInput' />
+    );
+  }
+
   public render() {
     const { id } = this.props;
     const triggerId = `conversation-${id}`;
@@ -256,6 +262,7 @@ export class ConversationHeader extends React.Component<Props> {
           <div className="module-conversation-header__title-flex">
             {this.renderAvatar()}
             {this.renderTitle()}
+            {this.renderTitleInput()}
           </div>
         </div>
         {this.renderExpirationLength()}
