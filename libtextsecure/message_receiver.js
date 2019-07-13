@@ -1098,8 +1098,7 @@ MessageReceiver.prototype.extend({
     } else if (syncMessage.blocked) {
       return this.handleBlocked(envelope, syncMessage.blocked);
     } else if (syncMessage.request) {
-      window.log.info('Got SyncMessage Request');
-      return this.removeFromCache(envelope);
+      return this.handleSyncRequest(envelope, syncMessage.request);
     } else if (syncMessage.read && syncMessage.read.length) {
       window.log.info('read messages from', this.getEnvelopeId(envelope));
       return this.handleRead(envelope, syncMessage.read);
@@ -1109,6 +1108,22 @@ MessageReceiver.prototype.extend({
       return this.handleConfiguration(envelope, syncMessage.configuration);
     }
     throw new Error('Got empty SyncMessage');
+  },
+  handleSyncRequest(envelope, request){
+    if(request.type == 1){//contactsSyncRequest
+      const ev = new Event("contactSyncRequest");  
+    }else if(request.type == 2){//groupsSyncRequset
+      const ev = new Event("groupSyncRequest");
+    }else if(request.type == 3){//blockedListSyncRequest
+      const ev = new Event("blockedListSyncRequest");
+    }else if(request.type == 4){//configurationSyncRequest
+      const ev = new Event("configurationSyncRequest");
+    }
+
+    return Promise.all([
+      this.dispatchAndWait(ev),
+      this.removeFromCache(envelope);
+    ]);
   },
   handleConfiguration(envelope, configuration) {
     window.log.info('got configuration sync message');

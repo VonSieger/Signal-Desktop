@@ -689,6 +689,10 @@
     messageReceiver.addEventListener('progress', onProgress);
     messageReceiver.addEventListener('configuration', onConfiguration);
     messageReceiver.addEventListener('typing', onTyping);
+    messageReceiver.addEventListener('contactSyncRequest', onContactSyncRequest);
+    messageReceiver.addEventListener('groupSyncRequest', onGroupSyncRequest);
+    messageReceiver.addEventListener('blockedListSyncRequest', onBlockedListSyncRequest);
+    messageReceiver.addEventListener('configurationSyncRequest', onConfigurationSyncRequest);
 
     window.Signal.AttachmentDownloads.start({
       getMessageReceiver: () => messageReceiver,
@@ -870,6 +874,22 @@
         senderDevice,
       });
     }
+  }
+
+  function onContactSyncRequest(ev) {
+
+  }
+
+  function onGroupSyncRequest(ev) {
+
+  }
+
+  function onBlockedListSyncRequest(ev) {
+
+  }
+
+  function onConfigurationSyncRequest(ev) {
+
   }
 
   async function onContactReceived(ev) {
