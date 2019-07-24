@@ -877,7 +877,60 @@
   }
 
   function onContactSyncRequest(ev) {
+    /*
+    * Need for an updated of UnidentifiedDeliveryEnabled?
+    * As in https://github.com/signalapp/Signal-Android/blob/e603162ee767d56fa16f56701cd29010f22ed22d/src/org/thoughtcrime/securesms/jobs/PushDecryptJob.java#L617
+    */
+    window.Signal.Data.getAllConversations(
+      {ConversationCollection: Whisper.ConversationCollection}
+    ).then(async function(allConversations){
+      let contacts = [];
+      for(var i = 0; i < allConversations.length; i++) {
+        const conversation = allConversations.at(i);
+        let attributes = conversation.attributes;
+        if(attributes.type != "private" && attributes.type != "direct" ){
+          continue;
+        }
 
+        await window.Signal.Data.getIdentityKeyById(attributes.id).then(idKey => {
+
+          contacts.push(
+            /*
+            * Not able to include the avatar, because the file cannot be opened,
+            * due to the Content-Security-Policy
+            */
+            new textsecure.protobuf.ContactDetails({
+              number : attributes.id,
+              name: attributes.name ? attributes.name : undefined,
+              color: attributes.color ? attributes.colol : undefined,
+              verified: attributes.verified ? function() {
+                if(idKey.publicKey){
+                  return new textsecure.protobuf.Verified({
+                    state : attributes.verified,
+                    identityKey : idKey.publicKey,
+                    destination: attributes.id,
+                  });
+                }else {
+                  return new textsecure.protobuf.Verified({
+                    state: attributes.verified,
+                    destination: attributes.id,
+                  });
+                }
+              }() : undefined,
+              profileKey : attributes.profileKey ?
+                window.StringView.base64ToBytes(attributes.profileKey) : undefined,
+              blocked : attributes.blocked ? attributes.blocked : false,
+              expireTimer : attributes.expireTimer && attributes.expireTimer > 0 ?
+                attributes.expireTimer : undefined,
+            })
+          );
+        });
+      }
+      textsecure.messaging.sendSyncMessageResponse({
+        contactDetailsList: contacts,
+        complete: true,
+      }).catch(err => window.log.error("Failed to send syncMessage.contacts: " + err));
+    });
   }
 
   function onGroupSyncRequest(ev) {

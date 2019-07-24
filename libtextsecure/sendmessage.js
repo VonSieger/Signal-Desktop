@@ -410,6 +410,58 @@ MessageSender.prototype = {
 
     return syncMessage;
   },
+  async sendSyncMessageResponse(syncOptions){
+    const content = new textsecure.protobuf.Content();
+    const timestamp = undefined;
+
+    if(syncOptions.contactDetailsList){
+      const contacts = syncOptions.contactDetailsList;
+      var byteBuffer = new dcodeIO.ByteBuffer(contacts.length * 50);
+      var position = 0;
+      contacts.forEach(contact => {
+        const contactBytes = contact.toArrayBuffer();
+        byteBuffer.writeVarint32(contactBytes.byteLength);
+        byteBuffer.append(contactBytes);
+      });
+      byteBuffer.limit = byteBuffer.offset;
+      byteBuffer.offset = 0;
+      const attachment = byteBuffer.toArrayBuffer();
+
+      const contactBuffer = new ContactBuffer(attachment);
+      let contactDetails = contactBuffer.next();
+      while (contactDetails !== undefined) {
+        contactDetails = contactBuffer.next();
+      }
+
+      const attachmentPointer = await this.makeAttachmentPointer({
+        data: attachment,
+        size: attachment.byteLength,
+        contentType: "application/octet-stream",
+      });
+      const syncMessage = new textsecure.protobuf.SyncMessage({
+        contacts : new textsecure.protobuf.SyncMessage.Contacts({
+          blob : attachmentPointer,
+          complete: syncOptions.complete ? syncOptions.complete : undefined,
+        }),
+      });
+      content.syncMessage = syncMessage;
+    }
+
+    const ourNumber = textsecure.storage.user.getNumber();
+    const sendOptions = ConversationController.prepareForSend(
+      ourNumber,
+      {syncMessage: true}
+    );
+    sendOptions.online = false;
+
+    return this.sendIndividualProto(
+      ourNumber,
+      content,
+      timestamp,
+      true,
+      sendOptions
+    );
+  },
 
   sendSyncMessage(
     encodedDataMessage,
@@ -1111,6 +1163,7 @@ textsecure.MessageSender = function MessageSenderWrapper(username, password) {
   this.setGroupName = sender.setGroupName.bind(sender);
   this.setGroupAvatar = sender.setGroupAvatar.bind(sender);
   this.leaveGroup = sender.leaveGroup.bind(sender);
+  this.sendSyncMessageResponse = sender.sendSyncMessageResponse.bind(sender);
   this.sendSyncMessage = sender.sendSyncMessage.bind(sender);
   this.getProfile = sender.getProfile.bind(sender);
   this.getAvatar = sender.getAvatar.bind(sender);

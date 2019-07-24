@@ -1110,19 +1110,26 @@ MessageReceiver.prototype.extend({
     throw new Error('Got empty SyncMessage');
   },
   handleSyncRequest(envelope, request){
+    var ev = null;
     if(request.type == 1){//contactsSyncRequest
-      const ev = new Event("contactSyncRequest");  
+      window.log.info("got contact sync request");
+      ev = new Event("contactSyncRequest");
     }else if(request.type == 2){//groupsSyncRequset
-      const ev = new Event("groupSyncRequest");
+      window.log.info("got group sync request");
+      ev = new Event("groupSyncRequest");
     }else if(request.type == 3){//blockedListSyncRequest
-      const ev = new Event("blockedListSyncRequest");
+      window.log.info("got blocked list sync request");
+      ev = new Event("blockedListSyncRequest");
     }else if(request.type == 4){//configurationSyncRequest
-      const ev = new Event("configurationSyncRequest");
+      window.log.info("got configuration sync request");
+      ev = new Event("configurationSyncRequest");
+    }else{
+      return;
     }
 
     return Promise.all([
       this.dispatchAndWait(ev),
-      this.removeFromCache(envelope);
+      this.removeFromCache(envelope),
     ]);
   },
   handleConfiguration(envelope, configuration) {
