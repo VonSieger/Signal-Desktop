@@ -417,6 +417,8 @@ MessageSender.prototype = {
     if(syncOptions.contactDetailsList || syncOptions.groupDetailsList){
       const detailsList = syncOptions.contactDetailsList || syncOptions.groupDetailsList;
 
+      if(!detailsList.length || detailsList.length == 0) return;
+
       var byteBuffer = new dcodeIO.ByteBuffer(detailsList.length * 50);
       var position = 0;
       detailsList.forEach(details => {
