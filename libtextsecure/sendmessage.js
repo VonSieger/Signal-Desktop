@@ -414,36 +414,37 @@ MessageSender.prototype = {
     const content = new textsecure.protobuf.Content();
     const timestamp = undefined;
 
-    if(syncOptions.contactDetailsList){
-      const contacts = syncOptions.contactDetailsList;
-      var byteBuffer = new dcodeIO.ByteBuffer(contacts.length * 50);
+    if(syncOptions.contactDetailsList || syncOptions.groupDetailsList){
+      const detailsList = syncOptions.contactDetailsList || syncOptions.groupDetailsList;
+
+      var byteBuffer = new dcodeIO.ByteBuffer(detailsList.length * 50);
       var position = 0;
-      contacts.forEach(contact => {
-        const contactBytes = contact.toArrayBuffer();
-        byteBuffer.writeVarint32(contactBytes.byteLength);
-        byteBuffer.append(contactBytes);
+      detailsList.forEach(details => {
+        const detailsBytes = details.toArrayBuffer();
+        byteBuffer.writeVarint32(detailsBytes.byteLength);
+        byteBuffer.append(detailsBytes);
       });
       byteBuffer.limit = byteBuffer.offset;
       byteBuffer.offset = 0;
       const attachment = byteBuffer.toArrayBuffer();
-
-      const contactBuffer = new ContactBuffer(attachment);
-      let contactDetails = contactBuffer.next();
-      while (contactDetails !== undefined) {
-        contactDetails = contactBuffer.next();
-      }
 
       const attachmentPointer = await this.makeAttachmentPointer({
         data: attachment,
         size: attachment.byteLength,
         contentType: "application/octet-stream",
       });
-      const syncMessage = new textsecure.protobuf.SyncMessage({
-        contacts : new textsecure.protobuf.SyncMessage.Contacts({
+
+      const syncMessage = new textsecure.protobuf.SyncMessage();
+      if(syncOptions.contactDetailsList){
+        syncMessage.contacts = new textsecure.protobuf.SyncMessage.Contacts({
           blob : attachmentPointer,
           complete: syncOptions.complete ? syncOptions.complete : undefined,
-        }),
-      });
+        });
+      }else{
+        syncMessage.groups = new textsecure.protobuf.SyncMessage.Groups({
+          blob: attachmentPointer,
+        })
+      }
       content.syncMessage = syncMessage;
     }
 
