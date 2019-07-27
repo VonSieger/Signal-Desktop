@@ -2,6 +2,7 @@ const path = require('path');
 
 const fs = require('fs');
 const { app, Menu, Tray } = require('electron');
+const dockIcon = require('./dock_icon');
 
 let trayContextMenu = null;
 let tray = null;
@@ -34,8 +35,10 @@ function createTrayIcon(getMainWindow, messages) {
     if (mainWindow) {
       if (mainWindow.isVisible()) {
         mainWindow.hide();
+        dockIcon.hide();
       } else {
         mainWindow.show();
+        dockIcon.show();
 
         tray.forceOnTop(mainWindow);
       }
@@ -92,7 +95,14 @@ function createTrayIcon(getMainWindow, messages) {
       console.log('tray.updateIcon: Image for tray update does not exist!');
       return;
     }
-    tray.setImage(image);
+    try {
+      tray.setImage(image);
+    } catch (error) {
+      console.log(
+        'tray.setImage error:',
+        error && error.stack ? error.stack : error
+      );
+    }
   };
 
   tray.on('click', tray.showWindow);

@@ -1,6 +1,14 @@
-/* global Whisper, Signal, setTimeout, clearTimeout, MessageController */
+/* global
+  ConversationController,
+  Whisper,
+  Signal,
+  setTimeout,
+  clearTimeout,
+  MessageController
+*/
 
 const { isFunction, isNumber, omit } = require('lodash');
+const { computeHash } = require('./types/conversation');
 const getGuid = require('uuid/v4');
 const {
   getMessageById,
@@ -102,6 +110,11 @@ async function addJob(attachment, job = {}) {
 }
 
 async function _tick() {
+  if (timeout) {
+    clearTimeout(timeout);
+    timeout = null;
+  }
+
   _maybeStartJob();
   timeout = setTimeout(_tick, TICK_INTERVAL);
 }
@@ -356,17 +369,44 @@ async function _addAttachmentToMessage(message, attachment, { type, index }) {
   }
 
   if (type === 'group-avatar') {
-    const group = message.get('group');
-    if (!group) {
-      throw new Error("_addAttachmentToMessage: group didn't exist");
+    const conversationId = message.get('conversationId');
+    const conversation = ConversationController.get(conversationId);
+    if (!conversation) {
+      logger.warn("_addAttachmentToMessage: conversation didn't exist");
+      return;
     }
 
-    const existingAvatar = group.avatar;
+    const existingAvatar = conversation.get('avatar');
     if (existingAvatar && existingAvatar.path) {
       await Signal.Migrations.deleteAttachmentData(existingAvatar.path);
     }
 
-    _replaceAttachment(group, 'avatar', attachment, logPrefix);
+    const loadedAttachment = await Signal.Migrations.loadAttachmentData(
+      attachment
+    );
+    conversation.set({
+      avatar: {
+        ...attachment,
+        hash: await computeHash(loadedAttachment.data),
+      },
+    });
+    await Signal.Data.updateConversation(
+      conversationId,
+      conversation.attributes,
+      {
+        Conversation: Whisper.Conversation,
+      }
+    );
+    return;
+  }
+
+  if (type === 'sticker') {
+    const sticker = message.get('sticker');
+    if (!sticker) {
+      throw new Error("_addAttachmentToMessage: sticker didn't exist");
+    }
+
+    _replaceAttachment(sticker, 'data', attachment, logPrefix);
     return;
   }
 
