@@ -21,6 +21,97 @@
     getAbsoluteAttachmentPath,
   } = window.Signal.Migrations;
 
+  Whisper.ConversationHeaderView = Whisper.View.extend({
+    initialize(options){
+      this.render();
+      this.listenTo(this.model, 'change', () => {
+        this.titleViewWrapper.update(this._getHeaderProps());
+        this.titleViewWrapper.render();
+      });
+    },
+    render(){
+      this.titleViewWrapper = new Whisper.ReactWrapperView({
+        className: 'title-wrapper',
+        Component: window.Signal.Components.ConversationHeader,
+        props: this._getHeaderProps(),
+        events: this.model.isPrivate() ? {
+          'click #titleShow': () => {
+            this.$('#titleShow').hide();
+            this.$('#titleInput').css('display', '');
+            this.$('#titleInput').focus();
+          },
+          'blur #titleInput': () => {
+            this.model.setName($('<div>').html(this.$('#titleInput').val()).text());
+
+            this.$('#titleInput').hide();
+            this.$('#titleShow').css('display', '');
+          },
+        } : null,
+      });
+      this.$el.empty();
+      this.$el.append(this.titleViewWrapper.el);
+    },
+    _getHeaderProps(){
+      const expireTimer = this.model.get('expireTimer');
+        const expirationSettingName = expireTimer
+          ? Whisper.ExpirationTimerOptions.getName(expireTimer || 0)
+          : null;
+
+        return {
+          id: this.model.id,
+          name: this.model.getName(),
+          phoneNumber: this.model.getNumber(),
+          profileName: this.model.getProfileName(),
+          color: this.model.getColor(),
+          avatarPath: this.model.getAvatarPath(),
+
+          isVerified: this.model.isVerified(),
+          isMe: this.model.isMe(),
+          isGroup: !this.model.isPrivate(),
+          isArchived: this.model.get('isArchived'),
+
+          expirationSettingName,
+          showBackButton: Boolean(this.panels && this.panels.length),
+          timerOptions: Whisper.ExpirationTimerOptions.map(item => ({
+            name: item.getName(),
+            value: item.get('seconds'),
+          })),
+
+          onSetDisappearingMessages: seconds =>
+            this.setDisappearingMessages(seconds),
+          onDeleteMessages: () => this.destroyMessages(),
+          onResetSession: () => this.endSession(),
+
+          // These are view only and don't update the Conversation model, so they
+          //   need a manual update call.
+          onShowSafetyNumber: () => {
+            this.showSafetyNumber();
+          },
+          onShowAllMedia: async () => {
+            await this.showAllMedia();
+            this.updateHeader();
+          },
+          onShowGroupMembers: async () => {
+            await this.showMembers();
+            this.updateHeader();
+          },
+          onGoBack: () => {
+            this.resetPanel();
+            this.updateHeader();
+          },
+
+          onArchive: () => {
+            this.unload('archive');
+            this.model.setArchived(true);
+          },
+          onMoveToInbox: () => {
+            this.model.setArchived(false);
+          },
+          onChangeName: (value) => {},
+        };
+    }
+  });
+
   Whisper.ExpiredToast = Whisper.ToastView.extend({
     render_attributes() {
       return { toastMessage: i18n('expiredWarning') };
@@ -188,6 +279,9 @@
         }
       });
 
+      this.titleView = new Whisper.ConversationHeaderView({model: this.model});
+      this.$('.conversation-header').append(this.titleView.el);
+
       this.view = new Whisper.MessageListView({
         collection: this.model.messageCollection,
         window: this.window,
@@ -216,7 +310,6 @@
       this.$('.send-message').focus(this.focusBottomBar.bind(this));
       this.$('.send-message').blur(this.unfocusBottomBar.bind(this));
 
-      this.setupHeader();
       this.setupEmojiPickerButton();
       this.setupStickerPickerButton();
 
@@ -257,74 +350,6 @@
       paste: 'onPaste',
     },
 
-    setupHeader() {
-      const getHeaderProps = () => {
-        const expireTimer = this.model.get('expireTimer');
-        const expirationSettingName = expireTimer
-          ? Whisper.ExpirationTimerOptions.getName(expireTimer || 0)
-          : null;
-
-        return {
-          id: this.model.id,
-          name: this.model.getName(),
-          phoneNumber: this.model.getNumber(),
-          profileName: this.model.getProfileName(),
-          color: this.model.getColor(),
-          avatarPath: this.model.getAvatarPath(),
-
-          isVerified: this.model.isVerified(),
-          isMe: this.model.isMe(),
-          isGroup: !this.model.isPrivate(),
-          isArchived: this.model.get('isArchived'),
-
-          expirationSettingName,
-          showBackButton: Boolean(this.panels && this.panels.length),
-          timerOptions: Whisper.ExpirationTimerOptions.map(item => ({
-            name: item.getName(),
-            value: item.get('seconds'),
-          })),
-
-          onSetDisappearingMessages: seconds =>
-            this.setDisappearingMessages(seconds),
-          onDeleteMessages: () => this.destroyMessages(),
-          onResetSession: () => this.endSession(),
-
-          // These are view only and don't update the Conversation model, so they
-          //   need a manual update call.
-          onShowSafetyNumber: () => {
-            this.showSafetyNumber();
-          },
-          onShowAllMedia: async () => {
-            await this.showAllMedia();
-            this.updateHeader();
-          },
-          onShowGroupMembers: async () => {
-            await this.showMembers();
-            this.updateHeader();
-          },
-          onGoBack: () => {
-            this.resetPanel();
-            this.updateHeader();
-          },
-
-          onArchive: () => {
-            this.unload('archive');
-            this.model.setArchived(true);
-          },
-          onMoveToInbox: () => {
-            this.model.setArchived(false);
-          },
-        };
-      };
-      this.titleView = new Whisper.ReactWrapperView({
-        className: 'title-wrapper',
-        Component: window.Signal.Components.ConversationHeader,
-        props: getHeaderProps(this.model),
-      });
-      this.updateHeader = () => this.titleView.update(getHeaderProps());
-      this.listenTo(this.model, 'change', this.updateHeader);
-      this.$('.conversation-header').append(this.titleView.el);
-    },
 
     setupEmojiPickerButton() {
       const props = {
