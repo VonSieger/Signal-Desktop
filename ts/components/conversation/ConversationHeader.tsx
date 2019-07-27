@@ -246,8 +246,9 @@ export class ConversationHeader extends React.Component<Props> {
   }
 
   public renderTitleInput() {
+    const {name} = this.props;
     return (
-      <input type='text' style={{display: 'none'}} id='titleInput' />
+      <input type='text' style={{display: 'none'}} id='titleInput' defaultValue={name}/>
     );
   }
 
