@@ -36,7 +36,7 @@
         className: 'title-wrapper',
         Component: window.Signal.Components.ConversationHeader,
         props: this._getHeaderProps(),
-        events: {
+        events: this.model.isPrivate() ? {
           'click #titleShow': () => {
             this.$('#titleShow').hide();
             this.$('#titleInput').css('display', '');
@@ -48,7 +48,7 @@
             this.$('#titleInput').hide();
             this.$('#titleShow').css('display', '');
           },
-        },
+        } : null,
       });
       this.$el.empty();
       this.$el.append(this.titleViewWrapper.el);

@@ -246,10 +246,13 @@ export class ConversationHeader extends React.Component<Props> {
   }
 
   public renderTitleInput() {
-    const {name} = this.props;
-    return (
+    const {
+      name,
+      isGroup,
+    } = this.props;
+    return !isGroup ? (
       <input type='text' style={{display: 'none'}} id='titleInput' defaultValue={name}/>
-    );
+    ) : null;
   }
 
   public render() {
