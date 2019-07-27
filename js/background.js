@@ -894,10 +894,6 @@
         await window.Signal.Data.getIdentityKeyById(attributes.id).then(idKey => {
 
           contacts.push(
-            /*
-            * Not able to include the avatar, because the file cannot be opened,
-            * due to the Content-Security-Policy
-            */
             new textsecure.protobuf.ContactDetails({
               number : attributes.id,
               name: attributes.name ? attributes.name : undefined,
