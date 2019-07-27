@@ -3,6 +3,7 @@
   _,
   Backbone,
   ConversationController,
+  MessageController,
   getAccountManager,
   Signal,
   storage,
@@ -14,6 +15,8 @@
 // eslint-disable-next-line func-names
 (async function() {
   'use strict';
+
+  const eventHandlerQueue = new window.PQueue({ concurrency: 1 });
 
   // Globally disable drag and drop
   document.body.addEventListener(
@@ -34,6 +37,7 @@
   );
 
   // Load these images now to ensure that they don't flicker on first use
+  window.Signal.EmojiLib.preloadImages();
   const images = [];
   function preload(list) {
     for (let index = 0, max = list.length; index < max; index += 1) {
@@ -193,11 +197,15 @@
 
   const cancelInitializationMessage = Views.Initialization.setMessage();
 
-  const isIndexedDBPresent = await doesDatabaseExist();
-  if (isIndexedDBPresent) {
-    window.installStorage(window.legacyStorage);
-    window.log.info('Start IndexedDB migrations');
-    await runMigrations();
+  const version = await window.Signal.Data.getItemById('version');
+  let isIndexedDBPresent = false;
+  if (!version) {
+    isIndexedDBPresent = await doesDatabaseExist();
+    if (isIndexedDBPresent) {
+      window.installStorage(window.legacyStorage);
+      window.log.info('Start IndexedDB migrations');
+      await runMigrations();
+    }
   }
 
   window.log.info('Storage fetch');
@@ -207,6 +215,7 @@
     switch (theme) {
       case 'dark':
       case 'light':
+      case 'system':
         return theme;
       case 'android-dark':
         return 'dark';
@@ -230,7 +239,11 @@
     window.Events = {
       getDeviceName: () => textsecure.storage.user.getDeviceName(),
 
-      getThemeSetting: () => storage.get('theme-setting', 'light'),
+      getThemeSetting: () =>
+        storage.get(
+          'theme-setting',
+          window.platform === 'darwin' ? 'system' : 'light'
+        ),
       setThemeSetting: value => {
         storage.put('theme-setting', value);
         onChangeTheme();
@@ -295,26 +308,28 @@
         // Shut down the data interface cleanly
         await window.Signal.Data.shutdown();
       },
+
+      showStickerPack: async (packId, key) => {
+        // Kick off the download
+        window.Signal.Stickers.downloadEphemeralPack(packId, key);
+
+        const props = {
+          packId,
+          onClose: async () => {
+            stickerPreviewModalView.remove();
+            await window.Signal.Stickers.removeEphemeralPack(packId);
+          },
+        };
+
+        const stickerPreviewModalView = new Whisper.ReactWrapperView({
+          className: 'sticker-preview-modal-wrapper',
+          JSX: Signal.State.Roots.createStickerPreviewModal(
+            window.reduxStore,
+            props
+          ),
+        });
+      },
     };
-
-    const currentVersion = window.getVersion();
-    const lastVersion = storage.get('version');
-    newVersion = !lastVersion || currentVersion !== lastVersion;
-    await storage.put('version', currentVersion);
-
-    if (newVersion) {
-      if (
-        lastVersion &&
-        window.isBeforeVersion(lastVersion, 'v1.15.0-beta.5')
-      ) {
-        await window.Signal.Logs.deleteAll();
-        window.restart();
-      }
-
-      window.log.info(
-        `New version detected: ${currentVersion}; previous: ${lastVersion}`
-      );
-    }
 
     if (isIndexedDBPresent) {
       await mandatoryMessageUpgrade({ upgradeMessageSchema });
@@ -332,6 +347,45 @@
       window.installStorage(window.newStorage);
       await window.storage.fetch();
       await storage.put('indexeddb-delete-needed', true);
+    }
+
+    const currentVersion = window.getVersion();
+    const lastVersion = storage.get('version');
+    newVersion = !lastVersion || currentVersion !== lastVersion;
+    await storage.put('version', currentVersion);
+
+    if (newVersion && lastVersion) {
+      window.log.info(
+        `New version detected: ${currentVersion}; previous: ${lastVersion}`
+      );
+
+      const themeSetting = window.Events.getThemeSetting();
+      const newThemeSetting = mapOldThemeToNew(themeSetting);
+
+      if (
+        window.isBeforeVersion(lastVersion, 'v1.25.0') &&
+        window.platform === 'darwin' &&
+        newThemeSetting === window.systemTheme
+      ) {
+        window.Events.setThemeSetting('system');
+      } else {
+        window.Events.setThemeSetting(newThemeSetting);
+      }
+
+      if (window.isBeforeVersion(lastVersion, 'v1.25.0')) {
+        // Stickers flags
+        await Promise.all([
+          storage.put('showStickersIntroduction', true),
+          storage.put('showStickerPickerHint', true),
+        ]);
+      }
+
+      // This one should always be last - it could restart the app
+      if (window.isBeforeVersion(lastVersion, 'v1.15.0-beta.5')) {
+        await window.Signal.Logs.deleteAll();
+        window.restart();
+        return;
+      }
     }
 
     Views.Initialization.setMessage(window.i18n('optimizingApplication'));
@@ -387,13 +441,11 @@
     };
     startSpellCheck();
 
-    const themeSetting = window.Events.getThemeSetting();
-    const newThemeSetting = mapOldThemeToNew(themeSetting);
-    window.Events.setThemeSetting(newThemeSetting);
-
     try {
       await Promise.all([
         ConversationController.load(),
+        Signal.Stickers.load(),
+        Signal.Emojis.load(),
         textsecure.storage.protocol.hydrateCaches(),
       ]);
     } catch (error) {
@@ -402,9 +454,110 @@
         error && error.stack ? error.stack : error
       );
     } finally {
+      initializeRedux();
       start();
     }
   });
+
+  function initializeRedux() {
+    // Here we set up a full redux store with initial state for our LeftPane Root
+    const convoCollection = window.getConversations();
+    const conversations = convoCollection.map(
+      conversation => conversation.cachedProps
+    );
+    const initialState = {
+      conversations: {
+        conversationLookup: Signal.Util.makeLookup(conversations, 'id'),
+      },
+      emojis: Signal.Emojis.getInitialState(),
+      items: storage.getItemsState(),
+      stickers: Signal.Stickers.getInitialState(),
+      user: {
+        attachmentsPath: window.baseAttachmentsPath,
+        stickersPath: window.baseStickersPath,
+        tempPath: window.baseTempPath,
+        regionCode: window.storage.get('regionCode'),
+        ourNumber: textsecure.storage.user.getNumber(),
+        i18n: window.i18n,
+      },
+    };
+
+    const store = Signal.State.createStore(initialState);
+    window.reduxStore = store;
+
+    const actions = {};
+    window.reduxActions = actions;
+
+    // Binding these actions to our redux store and exposing them allows us to update
+    //   redux when things change in the backbone world.
+    actions.conversations = Signal.State.bindActionCreators(
+      Signal.State.Ducks.conversations.actions,
+      store.dispatch
+    );
+    actions.emojis = Signal.State.bindActionCreators(
+      Signal.State.Ducks.emojis.actions,
+      store.dispatch
+    );
+    actions.items = Signal.State.bindActionCreators(
+      Signal.State.Ducks.items.actions,
+      store.dispatch
+    );
+    actions.user = Signal.State.bindActionCreators(
+      Signal.State.Ducks.user.actions,
+      store.dispatch
+    );
+    actions.stickers = Signal.State.bindActionCreators(
+      Signal.State.Ducks.stickers.actions,
+      store.dispatch
+    );
+
+    const {
+      conversationAdded,
+      conversationChanged,
+      conversationRemoved,
+      removeAllConversations,
+      messageExpired,
+    } = actions.conversations;
+    const { userChanged } = actions.user;
+
+    convoCollection.on('remove', conversation => {
+      const { id } = conversation || {};
+      conversationRemoved(id);
+    });
+    convoCollection.on('add', conversation => {
+      const { id, cachedProps } = conversation || {};
+      conversationAdded(id, cachedProps);
+    });
+    convoCollection.on('change', conversation => {
+      const { id, cachedProps } = conversation || {};
+      conversationChanged(id, cachedProps);
+    });
+    convoCollection.on('reset', removeAllConversations);
+
+    Whisper.events.on('messageExpired', messageExpired);
+    Whisper.events.on('userChanged', userChanged);
+
+    // In the future this listener will be added by the conversation view itself. But
+    //   because we currently have multiple converations open at once, we install just
+    //   one global handler.
+    // $(document).on('keydown', event => {
+    //   const { ctrlKey, key } = event;
+
+    // We can add Command-E as the Mac shortcut when we add it to our Electron menus:
+    //   https://stackoverflow.com/questions/27380018/when-cmd-key-is-kept-pressed-keyup-is-not-triggered-for-any-other-key
+    // For now, it will stay as CTRL-E only
+    //   if (key === 'e' && ctrlKey) {
+    //     const state = store.getState();
+    //     const selectedId = state.conversations.selectedConversation;
+    //     const conversation = ConversationController.get(selectedId);
+
+    //     if (conversation && !conversation.get('isArchived')) {
+    //       conversation.setArchived(true);
+    //       conversation.trigger('unload');
+    //     }
+    //   }
+    // });
+  }
 
   Whisper.events.on('setupWithImport', () => {
     const { appView } = window.owsDesktopApp;
@@ -675,24 +828,32 @@
       mySignalingKey,
       options
     );
-    messageReceiver.addEventListener('message', onMessageReceived);
-    messageReceiver.addEventListener('delivery', onDeliveryReceipt);
-    messageReceiver.addEventListener('contact', onContactReceived);
-    messageReceiver.addEventListener('group', onGroupReceived);
-    messageReceiver.addEventListener('sent', onSentMessage);
-    messageReceiver.addEventListener('readSync', onReadSync);
-    messageReceiver.addEventListener('read', onReadReceipt);
-    messageReceiver.addEventListener('verified', onVerified);
-    messageReceiver.addEventListener('error', onError);
-    messageReceiver.addEventListener('empty', onEmpty);
-    messageReceiver.addEventListener('reconnect', onReconnect);
-    messageReceiver.addEventListener('progress', onProgress);
-    messageReceiver.addEventListener('configuration', onConfiguration);
-    messageReceiver.addEventListener('typing', onTyping);
-    messageReceiver.addEventListener('contactSyncRequest', onContactSyncRequest);
-    messageReceiver.addEventListener('groupSyncRequest', onGroupSyncRequest);
-    messageReceiver.addEventListener('blockedListSyncRequest', onBlockedListSyncRequest);
-    messageReceiver.addEventListener('configurationSyncRequest', onConfigurationSyncRequest);
+
+    function addQueuedEventListener(name, handler) {
+      messageReceiver.addEventListener(name, (...args) =>
+        eventHandlerQueue.add(() => handler(...args))
+      );
+    }
+
+    addQueuedEventListener('message', onMessageReceived);
+    addQueuedEventListener('delivery', onDeliveryReceipt);
+    addQueuedEventListener('contact', onContactReceived);
+    addQueuedEventListener('group', onGroupReceived);
+    addQueuedEventListener('sent', onSentMessage);
+    addQueuedEventListener('readSync', onReadSync);
+    addQueuedEventListener('read', onReadReceipt);
+    addQueuedEventListener('verified', onVerified);
+    addQueuedEventListener('error', onError);
+    addQueuedEventListener('empty', onEmpty);
+    addQueuedEventListener('reconnect', onReconnect);
+    addQueuedEventListener('progress', onProgress);
+    addQueuedEventListener('configuration', onConfiguration);
+    addQueuedEventListener('typing', onTyping);
+    addQueuedEventListener('sticker-pack', onStickerPack);
+    addQueuedEventListener('contactSyncRequest', onContactSyncRequest);
+    addQueuedEventListener('groupSyncRequest', onGroupSyncRequest);
+    addQueuedEventListener('blockedListSyncRequest', onBlockedListSyncRequest);
+    addQueuedEventListener('configurationSyncRequest', onConfigurationSyncRequest);
 
     window.Signal.AttachmentDownloads.start({
       getMessageReceiver: () => messageReceiver,
@@ -703,6 +864,10 @@
       USERNAME,
       PASSWORD
     );
+
+    if (connectCount === 1) {
+      window.Signal.Stickers.downloadQueuedPacks();
+    }
 
     // On startup after upgrading to a new version, request a contact sync
     //   (but only if we're not the primary device)
@@ -765,11 +930,34 @@
         Whisper.events.trigger('contactsync');
       });
 
+      const ourNumber = textsecure.storage.user.getNumber();
+      const { wrap, sendOptions } = ConversationController.prepareForSend(
+        ourNumber,
+        { syncMessage: true }
+      );
+
+      const installedStickerPacks = window.Signal.Stickers.getInstalledStickerPacks();
+      if (installedStickerPacks.length) {
+        const operations = installedStickerPacks.map(pack => ({
+          packId: pack.id,
+          packKey: pack.key,
+          installed: true,
+        }));
+
+        wrap(
+          window.textsecure.messaging.sendStickerPackSync(
+            operations,
+            sendOptions
+          )
+        ).catch(error => {
+          window.log.error(
+            'Failed to send installed sticker packs via sync message',
+            error && error.stack ? error.stack : error
+          );
+        });
+      }
+
       if (Whisper.Import.isComplete()) {
-        const { wrap, sendOptions } = ConversationController.prepareForSend(
-          textsecure.storage.user.getNumber(),
-          { syncMessage: true }
-        );
         wrap(
           textsecure.messaging.sendRequestConfigurationSyncMessage(sendOptions)
         ).catch(error => {
@@ -866,8 +1054,17 @@
     }
 
     const conversation = ConversationController.get(groupId || sender);
+    const ourNumber = textsecure.storage.user.getNumber();
 
     if (conversation) {
+      // We drop typing notifications in groups we're not a part of
+      if (!conversation.isPrivate() && !conversation.hasMember(ourNumber)) {
+        window.log.warn(
+          `Received typing indicator for group ${conversation.idForLogging()}, which we're not a part of. Dropping.`
+        );
+        return;
+      }
+
       conversation.notifyTyping({
         isTyping: started,
         sender,
@@ -961,7 +1158,43 @@
   }
 
   function onConfigurationSyncRequest(ev) {
+    
+  }
 
+  async function onStickerPack(ev) {
+    const packs = ev.stickerPacks || [];
+
+    packs.forEach(pack => {
+      const { id, key, isInstall, isRemove } = pack || {};
+
+      if (!id || !key || (!isInstall && !isRemove)) {
+        window.log.warn(
+          'Received malformed sticker pack operation sync message'
+        );
+        return;
+      }
+
+      const status = window.Signal.Stickers.getStickerPackStatus(id);
+
+      if (status === 'installed' && isRemove) {
+        window.reduxActions.stickers.uninstallStickerPack(id, key, {
+          fromSync: true,
+        });
+      } else if (isInstall) {
+        if (status === 'downloaded') {
+          window.reduxActions.stickers.installStickerPack(id, key, {
+            fromSync: true,
+          });
+        } else {
+          window.Signal.Stickers.downloadStickerPack(id, key, {
+            finalStatus: 'installed',
+            fromSync: true,
+          });
+        }
+      }
+    });
+
+    ev.confirm();
   }
 
   async function onContactReceived(ev) {
@@ -1007,6 +1240,8 @@
           details.profileKey
         );
         conversation.setProfileKey(profileKey);
+      } else {
+        conversation.dropProfileKey();
       }
 
       if (typeof details.blocked !== 'undefined') {
@@ -1157,40 +1392,6 @@
       ? getGroupDescriptor(message.group)
       : { type: Message.PRIVATE, id: source };
 
-  function createMessageHandler({
-    createMessage,
-    getMessageDescriptor,
-    handleProfileUpdate,
-  }) {
-    return async event => {
-      const { data, confirm } = event;
-
-      const messageDescriptor = getMessageDescriptor(data);
-
-      const { PROFILE_KEY_UPDATE } = textsecure.protobuf.DataMessage.Flags;
-      // eslint-disable-next-line no-bitwise
-      const isProfileUpdate = Boolean(data.message.flags & PROFILE_KEY_UPDATE);
-      if (isProfileUpdate) {
-        return handleProfileUpdate({ data, confirm, messageDescriptor });
-      }
-
-      const message = await createMessage(data);
-      const isDuplicate = await isMessageDuplicate(message);
-      if (isDuplicate) {
-        window.log.warn('Received duplicate message', message.idForLogging());
-        return event.confirm();
-      }
-
-      await ConversationController.getOrCreateAndWait(
-        messageDescriptor.id,
-        messageDescriptor.type
-      );
-      return message.handleDataMessage(data.message, event.confirm, {
-        initialLoadComplete,
-      });
-    };
-  }
-
   // Received:
   async function handleMessageReceivedProfileUpdate({
     data,
@@ -1209,11 +1410,58 @@
     return confirm();
   }
 
-  const onMessageReceived = createMessageHandler({
-    handleProfileUpdate: handleMessageReceivedProfileUpdate,
-    getMessageDescriptor: getDescriptorForReceived,
-    createMessage: initIncomingMessage,
-  });
+  async function onMessageReceived(event) {
+    const { data, confirm } = event;
+
+    const messageDescriptor = getDescriptorForReceived(data);
+
+    const { PROFILE_KEY_UPDATE } = textsecure.protobuf.DataMessage.Flags;
+    // eslint-disable-next-line no-bitwise
+    const isProfileUpdate = Boolean(data.message.flags & PROFILE_KEY_UPDATE);
+    if (isProfileUpdate) {
+      return handleMessageReceivedProfileUpdate({
+        data,
+        confirm,
+        messageDescriptor,
+      });
+    }
+
+    const message = await initIncomingMessage(data);
+    const isDuplicate = await isMessageDuplicate(message);
+    if (isDuplicate) {
+      window.log.warn('Received duplicate message', message.idForLogging());
+      return event.confirm();
+    }
+
+    const ourNumber = textsecure.storage.user.getNumber();
+    const isGroupUpdate =
+      data.message.group &&
+      data.message.group.type !== textsecure.protobuf.GroupContext.Type.DELIVER;
+    const conversation = ConversationController.get(messageDescriptor.id);
+
+    // We drop messages for groups we already know about, which we're not a part of,
+    //   except for group updates
+    if (
+      conversation &&
+      !conversation.isPrivate() &&
+      !conversation.hasMember(ourNumber) &&
+      !isGroupUpdate
+    ) {
+      window.log.warn(
+        `Received message destined for group ${conversation.idForLogging()}, which we're not a part of. Dropping.`
+      );
+      return event.confirm();
+    }
+
+    await ConversationController.getOrCreateAndWait(
+      messageDescriptor.id,
+      messageDescriptor.type
+    );
+
+    return message.handleDataMessage(data.message, event.confirm, {
+      initialLoadComplete,
+    });
+  }
 
   // Sent:
   async function handleMessageSentProfileUpdate({
@@ -1274,24 +1522,91 @@
     });
   }
 
-  const onSentMessage = createMessageHandler({
-    handleProfileUpdate: handleMessageSentProfileUpdate,
-    getMessageDescriptor: getDescriptorForSent,
-    createMessage: createSentMessage,
-  });
+  async function onSentMessage(event) {
+    const { data, confirm } = event;
 
-  async function isMessageDuplicate(message) {
+    const messageDescriptor = getDescriptorForSent(data);
+
+    const { PROFILE_KEY_UPDATE } = textsecure.protobuf.DataMessage.Flags;
+    // eslint-disable-next-line no-bitwise
+    const isProfileUpdate = Boolean(data.message.flags & PROFILE_KEY_UPDATE);
+    if (isProfileUpdate) {
+      await handleMessageSentProfileUpdate({
+        data,
+        confirm,
+        messageDescriptor,
+      });
+      return;
+    }
+
+    const message = await createSentMessage(data);
+    const existing = await getExistingMessage(message);
+    const isUpdate = Boolean(data.isRecipientUpdate);
+
+    if (isUpdate && existing) {
+      event.confirm();
+
+      let sentTo = [];
+      let unidentifiedDeliveries = [];
+      if (Array.isArray(data.unidentifiedStatus)) {
+        sentTo = data.unidentifiedStatus.map(item => item.destination);
+
+        const unidentified = _.filter(data.unidentifiedStatus, item =>
+          Boolean(item.unidentified)
+        );
+        unidentifiedDeliveries = unidentified.map(item => item.destination);
+      }
+
+      existing.set({
+        sent_to: _.union(existing.get('sent_to'), sentTo),
+        unidentifiedDeliveries: _.union(
+          existing.get('unidentifiedDeliveries'),
+          unidentifiedDeliveries
+        ),
+      });
+      await window.Signal.Data.saveMessage(existing.attributes, {
+        Message: Whisper.Message,
+      });
+    } else if (isUpdate) {
+      window.log.warn(
+        `onSentMessage: Received update transcript, but no existing entry for message ${message.idForLogging()}. Dropping.`
+      );
+    } else if (existing) {
+      window.log.warn(
+        `onSentMessage: Received duplicate transcript for message ${message.idForLogging()}, but it was not an update transcript. Dropping.`
+      );
+    } else {
+      await ConversationController.getOrCreateAndWait(
+        messageDescriptor.id,
+        messageDescriptor.type
+      );
+      await message.handleDataMessage(data.message, event.confirm, {
+        initialLoadComplete,
+      });
+    }
+  }
+
+  async function getExistingMessage(message) {
     try {
       const { attributes } = message;
       const result = await window.Signal.Data.getMessageBySender(attributes, {
         Message: Whisper.Message,
       });
 
-      return Boolean(result);
+      if (result) {
+        return MessageController.register(result.id, result);
+      }
+
+      return null;
     } catch (error) {
-      window.log.error('isMessageDuplicate error:', Errors.toLogFormat(error));
+      window.log.error('getExistingMessage error:', Errors.toLogFormat(error));
       return false;
     }
+  }
+
+  async function isMessageDuplicate(message) {
+    const result = await getExistingMessage(message);
+    return Boolean(result);
   }
 
   async function initIncomingMessage(data, options = {}) {
@@ -1426,11 +1741,24 @@
       }
       const envelope = ev.proto;
       const message = await initIncomingMessage(envelope, { isError: true });
+      const isDuplicate = await isMessageDuplicate(message);
+      if (isDuplicate) {
+        ev.confirm();
+        window.log.warn(
+          `Got duplicate error for message ${message.idForLogging()}`
+        );
+        return;
+      }
 
+      const id = await window.Signal.Data.saveMessage(message.attributes, {
+        Message: Whisper.Message,
+      });
+      message.set({ id });
       await message.saveErrors(error || new Error('Error was null'));
-      const id = message.get('conversationId');
+
+      const conversationId = message.get('conversationId');
       const conversation = await ConversationController.getOrCreateAndWait(
-        id,
+        conversationId,
         'private'
       );
       conversation.set({
@@ -1451,9 +1779,13 @@
         ev.confirm();
       }
 
-      await window.Signal.Data.updateConversation(id, conversation.attributes, {
-        Conversation: Whisper.Conversation,
-      });
+      await window.Signal.Data.updateConversation(
+        conversationId,
+        conversation.attributes,
+        {
+          Conversation: Whisper.Conversation,
+        }
+      );
     }
 
     throw error;

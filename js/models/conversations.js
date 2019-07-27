@@ -35,12 +35,14 @@
     PhoneNumber,
   } = window.Signal.Types;
   const {
-    upgradeMessageSchema,
-    loadAttachmentData,
-    getAbsoluteAttachmentPath,
-    writeNewAttachmentData,
     deleteAttachmentData,
+    getAbsoluteAttachmentPath,
+    loadAttachmentData,
+    readStickerData,
+    upgradeMessageSchema,
+    writeNewAttachmentData,
   } = window.Signal.Migrations;
+  const { addStickerPackReference } = window.Signal.Data;
 
   const COLORS = [
     'red',
@@ -761,7 +763,7 @@
       return _.without(this.get('members'), me);
     },
 
-    async getQuoteAttachment(attachments, preview) {
+    async getQuoteAttachment(attachments, preview, sticker) {
       if (attachments && attachments.length) {
         return Promise.all(
           attachments
@@ -817,6 +819,23 @@
         );
       }
 
+      if (sticker && sticker.data && sticker.data.path) {
+        const { path, contentType } = sticker.data;
+
+        return [
+          {
+            contentType,
+            // Our protos library complains about this field being undefined, so we
+            //   force it to null
+            fileName: null,
+            thumbnail: {
+              ...(await loadAttachmentData(sticker.data)),
+              objectUrl: getAbsoluteAttachmentPath(path),
+            },
+          },
+        ];
+      }
+
       return [];
     },
 
@@ -825,6 +844,7 @@
       const contact = quotedMessage.getContact();
       const attachments = quotedMessage.get('attachments');
       const preview = quotedMessage.get('preview');
+      const sticker = quotedMessage.get('sticker');
 
       const body = quotedMessage.get('body');
       const embeddedContact = quotedMessage.get('contact');
@@ -837,11 +857,50 @@
         author: contact.id,
         id: quotedMessage.get('sent_at'),
         text: body || embeddedContactName,
-        attachments: await this.getQuoteAttachment(attachments, preview),
+        attachments: await this.getQuoteAttachment(
+          attachments,
+          preview,
+          sticker
+        ),
       };
     },
 
-    sendMessage(body, attachments, quote, preview) {
+    async sendStickerMessage(packId, stickerId) {
+      if (!window.ENABLE_STICKER_SEND) {
+        return;
+      }
+
+      const packData = window.Signal.Stickers.getStickerPack(packId);
+      const stickerData = window.Signal.Stickers.getSticker(packId, stickerId);
+      if (!stickerData || !packData) {
+        window.log.warn(
+          `Attempted to send nonexistent (${packId}, ${stickerId}) sticker!`
+        );
+        return;
+      }
+
+      const { key } = packData;
+      const { path, width, height } = stickerData;
+      const arrayBuffer = await readStickerData(path);
+
+      const sticker = {
+        packId,
+        stickerId,
+        packKey: key,
+        data: {
+          size: arrayBuffer.byteLength,
+          data: arrayBuffer,
+          contentType: 'image/webp',
+          width,
+          height,
+        },
+      };
+
+      this.sendMessage(null, [], null, [], sticker);
+      window.reduxActions.stickers.useSticker(packId, stickerId);
+    },
+
+    sendMessage(body, attachments, quote, preview, sticker) {
       this.clearTypingTimers();
 
       const destination = this.id;
@@ -863,6 +922,7 @@
           now
         );
 
+        // Here we move attachments to disk
         const messageWithSchema = await upgradeMessageSchema({
           type: 'outgoing',
           body,
@@ -874,6 +934,7 @@
           received_at: now,
           expireTimer,
           recipients,
+          sticker,
         });
 
         if (this.isPrivate()) {
@@ -885,6 +946,9 @@
         };
 
         const model = this.addSingleMessage(attributes);
+        if (sticker) {
+          await addStickerPackReference(model.id, sticker.packId);
+        }
         const message = MessageController.register(model.id, model);
         await window.Signal.Data.saveMessage(message.attributes, {
           forceSave: true,
@@ -935,6 +999,7 @@
             finalAttachments,
             quote,
             preview,
+            sticker,
             now,
             expireTimer,
             profileKey
@@ -955,6 +1020,7 @@
                 finalAttachments,
                 quote,
                 preview,
+                sticker,
                 now,
                 expireTimer,
                 profileKey,
@@ -968,6 +1034,7 @@
                 finalAttachments,
                 quote,
                 preview,
+                sticker,
                 now,
                 expireTimer,
                 profileKey,
@@ -1271,6 +1338,7 @@
           [],
           null,
           [],
+          null,
           message.get('sent_at'),
           expireTimer,
           profileKey,
@@ -1517,12 +1585,13 @@
       //   clear the changed fields here so our hasChanged() check is useful.
       c.changed = {};
 
+      let profile;
+
       try {
         await c.deriveAccessKeyIfNeeded();
         const numberInfo = c.getNumberInfo({ disableMeCheck: true }) || {};
         const getInfo = numberInfo[c.id] || {};
 
-        let profile;
         if (getInfo.accessKey) {
           try {
             profile = await textsecure.messaging.getProfile(id, {
@@ -1603,11 +1672,6 @@
             sealedSender: SEALED_SENDER.DISABLED,
           });
         }
-
-        await c.setProfileName(profile.name);
-
-        // This might throw if we can't pull the avatar down, so we do it last
-        await c.setProfileAvatar(profile.avatar);
       } catch (error) {
         if (error.code !== 403 && error.code !== 404) {
           window.log.error(
@@ -1615,13 +1679,38 @@
             id,
             error && error.stack ? error.stack : error
           );
+        } else {
+          await c.dropProfileKey();
         }
-      } finally {
-        if (c.hasChanged()) {
-          await window.Signal.Data.updateConversation(id, c.attributes, {
-            Conversation: Whisper.Conversation,
+        return;
+      }
+
+      try {
+        await c.setProfileName(profile.name);
+      } catch (error) {
+        window.log.error(
+          'getProfile decryption error:',
+          id,
+          error && error.stack ? error.stack : error
+        );
+        await c.dropProfileKey();
+        return;
+      }
+
+      try {
+        await c.setProfileAvatar(profile.avatar);
+      } catch (error) {
+        if (error.code === 403 || error.code === 404) {
+          c.set({
+            profileAvatar: null,
           });
         }
+      }
+
+      if (c.hasChanged()) {
+        await window.Signal.Data.updateConversation(id, c.attributes, {
+          Conversation: Whisper.Conversation,
+        });
       }
     },
     async setProfileName(encryptedName) {
@@ -1689,10 +1778,35 @@
         this.set({
           profileKey,
           accessKey: null,
+          profileName: null,
+          profileAvatar: null,
           sealedSender: SEALED_SENDER.UNKNOWN,
         });
 
         await this.deriveAccessKeyIfNeeded();
+
+        await window.Signal.Data.updateConversation(this.id, this.attributes, {
+          Conversation: Whisper.Conversation,
+        });
+      }
+    },
+    async dropProfileKey() {
+      if (this.get('profileKey')) {
+        window.log.info(
+          `Dropping profileKey, setting sealedSender to UNKNOWN for conversation ${this.idForLogging()}`
+        );
+        const profileAvatar = this.get('profileAvatar');
+        if (profileAvatar && profileAvatar.path) {
+          await deleteAttachmentData(profileAvatar.path);
+        }
+
+        this.set({
+          profileAvatar: null,
+          profileKey: null,
+          profileName: null,
+          accessKey: null,
+          sealedSender: SEALED_SENDER.UNKNOWN,
+        });
 
         await window.Signal.Data.updateConversation(this.id, this.attributes, {
           Conversation: Whisper.Conversation,
@@ -1913,7 +2027,9 @@
       return migrateColor(this.get('color'));
     },
     getAvatarPath() {
-      const avatar = this.get('avatar') || this.get('profileAvatar');
+      const avatar = this.isMe()
+        ? this.get('profileAvatar') || this.get('avatar')
+        : this.get('avatar') || this.get('profileAvatar');
 
       if (avatar && avatar.path) {
         return getAbsoluteAttachmentPath(avatar.path);
