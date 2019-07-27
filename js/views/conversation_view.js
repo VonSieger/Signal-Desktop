@@ -26,7 +26,10 @@
   Whisper.ConversationHeaderView = Whisper.View.extend({
     initialize(options){
       this.render();
-      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'change', () => {
+        this.titleViewWrapper.update(this._getHeaderProps());
+        this.titleViewWrapper.render();
+      });
     },
     render(){
       this.titleViewWrapper = new Whisper.ReactWrapperView({
@@ -34,20 +37,21 @@
         Component: window.Signal.Components.ConversationHeader,
         props: this._getHeaderProps(),
         events: {
-          'click #titleShow': this.enableInput,
-          'blur #titleInput': () => this.updateModel(this.model),
+          'click #titleShow': () => {
+            this.$('#titleShow').hide();
+            this.$('#titleInput').css('display', '');
+            this.$('#titleInput').focus();
+          },
+          'blur #titleInput': () => {
+            this.model.setName($('<div>').html(this.$('#titleInput').val()).text());
+
+            this.$('#titleInput').hide();
+            this.$('#titleShow').css('display', '');
+          },
         },
       });
       this.$el.empty();
       this.$el.append(this.titleViewWrapper.el);
-    },
-    enableInput(){
-      this.$('#titleShow').hide();
-      this.$('#titleInput').css('display', '');
-      this.$('#titleInput').focus();
-    },
-    updateModel(model){
-      model.setName($('<div>').html(this.$('#titleInput').val()).text());
     },
     _getHeaderProps(){
       const expireTimer = this.model.get('expireTimer');
