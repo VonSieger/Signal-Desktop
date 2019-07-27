@@ -474,6 +474,61 @@ MessageSender.prototype = {
 
     return syncMessage;
   },
+  async sendSyncMessageResponse(syncOptions){
+    const content = new textsecure.protobuf.Content();
+    const timestamp = undefined;
+
+    if(syncOptions.contactDetailsList || syncOptions.groupDetailsList){
+      const detailsList = syncOptions.contactDetailsList || syncOptions.groupDetailsList;
+
+      if(!detailsList.length || detailsList.length == 0) return;
+
+      var byteBuffer = new dcodeIO.ByteBuffer(detailsList.length * 50);
+      var position = 0;
+      detailsList.forEach(details => {
+        const detailsBytes = details.toArrayBuffer();
+        byteBuffer.writeVarint32(detailsBytes.byteLength);
+        byteBuffer.append(detailsBytes);
+      });
+      byteBuffer.limit = byteBuffer.offset;
+      byteBuffer.offset = 0;
+      const attachment = byteBuffer.toArrayBuffer();
+
+      const attachmentPointer = await this.makeAttachmentPointer({
+        data: attachment,
+        size: attachment.byteLength,
+        contentType: "application/octet-stream",
+      });
+
+      const syncMessage = new textsecure.protobuf.SyncMessage();
+      if(syncOptions.contactDetailsList){
+        syncMessage.contacts = new textsecure.protobuf.SyncMessage.Contacts({
+          blob : attachmentPointer,
+          complete: syncOptions.complete ? syncOptions.complete : undefined,
+        });
+      }else{
+        syncMessage.groups = new textsecure.protobuf.SyncMessage.Groups({
+          blob: attachmentPointer,
+        })
+      }
+      content.syncMessage = syncMessage;
+    }
+
+    const ourNumber = textsecure.storage.user.getNumber();
+    const sendOptions = ConversationController.prepareForSend(
+      ourNumber,
+      {syncMessage: true}
+    );
+    sendOptions.online = false;
+
+    return this.sendIndividualProto(
+      ourNumber,
+      content,
+      timestamp,
+      true,
+      sendOptions
+    );
+  },
 
   sendSyncMessage(
     encodedDataMessage,
@@ -1222,6 +1277,7 @@ textsecure.MessageSender = function MessageSenderWrapper(username, password) {
   this.setGroupName = sender.setGroupName.bind(sender);
   this.setGroupAvatar = sender.setGroupAvatar.bind(sender);
   this.leaveGroup = sender.leaveGroup.bind(sender);
+  this.sendSyncMessageResponse = sender.sendSyncMessageResponse.bind(sender);
   this.sendSyncMessage = sender.sendSyncMessage.bind(sender);
   this.getProfile = sender.getProfile.bind(sender);
   this.getAvatar = sender.getAvatar.bind(sender);

@@ -850,6 +850,10 @@
     addQueuedEventListener('configuration', onConfiguration);
     addQueuedEventListener('typing', onTyping);
     addQueuedEventListener('sticker-pack', onStickerPack);
+    addQueuedEventListener('contactSyncRequest', onContactSyncRequest);
+    addQueuedEventListener('groupSyncRequest', onGroupSyncRequest);
+    addQueuedEventListener('blockedListSyncRequest', onBlockedListSyncRequest);
+    addQueuedEventListener('configurationSyncRequest', onConfigurationSyncRequest);
 
     window.Signal.AttachmentDownloads.start({
       getMessageReceiver: () => messageReceiver,
@@ -1067,6 +1071,94 @@
         senderDevice,
       });
     }
+  }
+
+  function onContactSyncRequest(ev) {
+    /*
+    * Need for an updated of UnidentifiedDeliveryEnabled?
+    * As in https://github.com/signalapp/Signal-Android/blob/e603162ee767d56fa16f56701cd29010f22ed22d/src/org/thoughtcrime/securesms/jobs/PushDecryptJob.java#L617
+    */
+    window.Signal.Data.getAllConversations(
+      {ConversationCollection: Whisper.ConversationCollection}
+    ).then(async function(allConversations){
+      let contacts = [];
+      for(var i = 0; i < allConversations.length; i++) {
+        const attributes = allConversations.at(i).attributes;
+        if(attributes.type != "private" && attributes.type != "direct" ){
+          continue;
+        }
+
+        await window.Signal.Data.getIdentityKeyById(attributes.id).then(idKey => {
+
+          contacts.push(
+            new textsecure.protobuf.ContactDetails({
+              number : attributes.id,
+              name: attributes.name ? attributes.name : undefined,
+              color: attributes.color ? attributes.colol : undefined,
+              verified: attributes.verified ? function() {
+                if(idKey.publicKey){
+                  return new textsecure.protobuf.Verified({
+                    state : attributes.verified,
+                    identityKey : idKey.publicKey,
+                    destination: attributes.id,
+                  });
+                }else {
+                  return new textsecure.protobuf.Verified({
+                    state: attributes.verified,
+                    destination: attributes.id,
+                  });
+                }
+              }() : undefined,
+              profileKey : attributes.profileKey ?
+                window.StringView.base64ToBytes(attributes.profileKey) : undefined,
+              blocked : attributes.blocked ? attributes.blocked : undefined,
+              expireTimer : attributes.expireTimer && attributes.expireTimer > 0 ?
+                attributes.expireTimer : undefined,
+            })
+          );
+        });
+      }
+      return textsecure.messaging.sendSyncMessageResponse({
+        contactDetailsList: contacts,
+        complete: true,
+      }).catch(err => window.log.error("Failed to send syncMessage.contacts: " + err));
+    });
+  }
+
+  function onGroupSyncRequest(ev) {
+    window.Signal.Data.getAllConversations(
+      {ConversationCollection: Whisper.ConversationCollection}
+    ).then(allConversations => {
+      let groups = [];
+      for(var i = 0; i < allConversations.length; i++){
+        const attributes = allConversations.at(i).attributes;
+        if(attributes.type != "group") continue;
+        const groupDetails = new textsecure.protobuf.GroupDetails({
+          id: dcodeIO.ByteBuffer.fromBinary(attributes.id),
+          name: attributes.name ? attributes.name : undefined,
+          members: attributes.members ? attributes.members : undefined,
+          //did not find an unactive group to test
+          active: attributes.active ? attributes.active : undefined,
+          expireTimer: attributes.expireTimer && attributes.expireTimer > 0 ?
+            attributes.expireTimer : undefined,
+          color: attributes.color ? attributes.color : undefined,
+          blocked: attributes.blocked ? attributes.blocked : undefined,
+        });
+        groups.push(groupDetails);
+      }
+
+      return textsecure.messaging.sendSyncMessageResponse({
+        groupDetailsList: groups,
+      }).catch(err => window.log.error("Failed to send syncMessage.groups: " + err));
+    });
+  }
+
+  function onBlockedListSyncRequest(ev) {
+
+  }
+
+  function onConfigurationSyncRequest(ev) {
+    
   }
 
   async function onStickerPack(ev) {
