@@ -44,10 +44,12 @@
     <hr>
     <div class='profile-settings'>
       <h3>{{ profile }}</h3>
-      <div class='profile-name-setting'>
         <input type='text' class='profileName'/>
+        <div>
+          <div><label for='profileAvatar'>{{profileAvatarLabel}}</label></div>
+          <div><input type='file' class='profileAvatar' id='profileAvatar' accept='image/png, image/jpeg, image/jpg'/></div>
+        </div>
         <button class='button'>{{ updateProfile }}</button>
-      </div>
     </div>
     <hr>
     <div class='theme-settings'>

@@ -71,7 +71,7 @@
     },
   });
 
-  const ProfileSettingsView = Whisper.View.extend({
+  const ProfileNameSettingsView = Whisper.View.extend({
     initialize(options) {
       this.setFn = options.setFn;
       this.value = options.value;
@@ -84,7 +84,20 @@
       this.setFn(this.$('.profileName')[0].value);
     },
     populate(){
-      this.$('.profileName')[0].value = this.value;
+      if(this.value) this.$('.profileName')[0].value = this.value;
+      else this.$('.profileName')[0].placeholder = i18n('chooseProfileName');
+    },
+  });
+
+  const ProfileAvatarSettingsView = Whisper.View.extend({
+    initialize(options) {
+      this.setFn = options.setFn;
+    },
+    events: {
+      'click .button': 'updateProfileAvatar',
+    },
+    updateProfileAvatar(){
+      
     },
   });
 
@@ -140,10 +153,14 @@
         value: window.initialData.mediaPermissions,
         setFn: window.setMediaPermissions,
       });
-      new ProfileSettingsView({
+      new ProfileNameSettingsView({
         el: this.$('.profile-settings'),
         value: window.initialData.profileName,
         setFn: window.setProfileName,
+      });
+      new ProfileAvatarSettingsView({
+        el: this.$('.profile-settings'),
+        setFn: window.setProifleAvatar,
       });
       if (!window.initialData.isPrimary) {
         const syncView = new SyncView().render();
@@ -185,6 +202,7 @@
         linkPreviewsDescription: i18n('linkPreviewsDescription'),
         profile: i18n('profile'),
         updateProfile: i18n('updateProfile'),
+        profileAvatarLabel: i18n('profileAvatarLabel'),
       };
     },
     onClose() {

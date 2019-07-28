@@ -1141,6 +1141,14 @@
     "message": "Update Profile",
     "description": "Label for the update profile button"
   },
+  "chooseProfileName": {
+    "message": "Choose Profile Name",
+    "description" : "Placeholder for profile name input field"
+  },
+  "profileAvatarLabel": {
+    "message": "Select Profile Avatar:",
+    "description": "Label for choosing profile avatar"
+  },
   "theme": {
     "message": "Theme",
     "description": "Header for theme settings"
