@@ -262,7 +262,11 @@
       getAudioNotification: () => storage.get('audio-notification'),
       setAudioNotification: value => storage.put('audio-notification', value),
 
-      setProfileName: value => getAccountManager().setProfileName(value),
+      setProfileName: value => {
+        getAccountManager().getProfileName().then(profileName => {
+          if(value && value != profileName && value.length > 0) getAccountManager().setProfileName(value);
+        });
+      },
       getProfileName: () => {
         return getAccountManager().getProfileName().then(profileName => {
           if(profileName){
