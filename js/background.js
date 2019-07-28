@@ -262,6 +262,16 @@
       getAudioNotification: () => storage.get('audio-notification'),
       setAudioNotification: value => storage.put('audio-notification', value),
 
+      setProfileName: value => getAccountManager().setProfileName(value),
+      getProfileName: () => {
+        return getAccountManager().getProfileName().then(profileName => {
+          if(profileName){
+            return profileName;
+          }
+          return "";
+        });
+      },
+
       getSpellCheck: () => storage.get('spell-check', true),
       setSpellCheck: value => {
         storage.put('spell-check', value);

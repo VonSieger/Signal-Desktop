@@ -43,6 +43,8 @@ const getInitialData = async () => ({
 
   isPrimary: await window.isPrimary(),
   lastSyncTime: await window.getLastSyncTime(),
+
+  profileName: await window.getProfileName(),
 });
 
 window.initialRequest = getInitialData();

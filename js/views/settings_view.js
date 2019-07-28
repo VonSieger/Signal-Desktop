@@ -1,6 +1,7 @@
 /* global i18n: false */
 /* global Whisper: false */
 /* global $: false */
+/*getAccountManager*/
 
 /* eslint-disable no-new */
 
@@ -69,6 +70,24 @@
       this.$(`#${this.name}-${this.value}`).attr('checked', 'checked');
     },
   });
+
+  const ProfileSettingsView = Whisper.View.extend({
+    initialize(options) {
+      this.setFn = options.setFn;
+      this.value = options.value;
+      this.populate();
+    },
+    events: {
+      'click .button': 'updateProfileName',
+    },
+    updateProfileName(){
+      this.setFn(this.$('.profileName')[0].value);
+    },
+    populate(){
+      this.$('.profileName')[0].value = this.value;
+    },
+  });
+
   Whisper.SettingsView = Whisper.View.extend({
     className: 'settings modal expand',
     templateName: 'settings',
@@ -121,6 +140,11 @@
         value: window.initialData.mediaPermissions,
         setFn: window.setMediaPermissions,
       });
+      new ProfileSettingsView({
+        el: this.$('.profile-settings'),
+        value: window.initialData.profileName,
+        setFn: window.setProfileName,
+      });
       if (!window.initialData.isPrimary) {
         const syncView = new SyncView().render();
         this.$('.sync-setting').append(syncView.el);
@@ -159,6 +183,8 @@
         spellCheckDescription: i18n('spellCheckDescription'),
         sendLinkPreviews: i18n('sendLinkPreviews'),
         linkPreviewsDescription: i18n('linkPreviewsDescription'),
+        profile: i18n('profile'),
+        updateProfile: i18n('updateProfile'),
       };
     },
     onClose() {

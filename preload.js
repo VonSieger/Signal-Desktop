@@ -147,6 +147,8 @@ installGetter('notification-setting', 'getNotificationSetting');
 installSetter('notification-setting', 'setNotificationSetting');
 installGetter('audio-notification', 'getAudioNotification');
 installSetter('audio-notification', 'setAudioNotification');
+installGetter('profile-name-setting', 'getProfileName');
+installSetter('profile-name-setting', 'setProfileName');
 
 installGetter('spell-check', 'getSpellCheck');
 installSetter('spell-check', 'setSpellCheck');

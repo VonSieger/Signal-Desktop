@@ -580,6 +580,60 @@
 
       this.dispatchEvent(new Event('registration'));
     },
-  });
+    async getDevices(){
+      return this.server.getDevices().then(list => {
+        list = JSON.parse(list);
+        var deviceList = new Array();
+        list.devices.forEach(element => {
+          const name = element.name;
+          if(name === null){
+            return;
+          }
+          deviceList.push({
+            id: element.id,
+            name: this.decryptDeviceName(name),
+          });
+        });
+        return deviceList;
+      });
+    },
+    async removeDevice(id){
+      return this.server.removeDevice(id);
+    },
+    isStandaloneDevice(){
+      const name = textsecure.storage.user.getDeviceName();
+      return name == undefined || name == null;
+    },
+    getProfileName(){
+      return this.server.getProfile(
+        textsecure.storage.user.getNumber()
+      ).then(profile => {
+        if(!profile.name){
+          return null;
+        }
+        return Promise.all([
+          window.Signal.Crypto.base64ToArrayBuffer(profile.name),
+          textsecure.storage.protocol.getProfileKey()
+        ]).then(values => {
+          return textsecure.crypto.decryptProfileName(
+            values[0],
+            values[1]
+          ).then(nameBin => {
+            return window.Signal.Crypto.stringFromBytes(nameBin);
+          });
+        });
+      });
+    },
+    setProfileName(name){
+      return Promise.all([
+        window.Signal.Crypto.bytesFromString(name),
+        textsecure.storage.protocol.getProfileKey(),
+      ]).then(async values => {
+        const encryptedName = await textsecure.crypto.encryptProfileName(values[0], values[1]);
+        const base64Name = await window.Signal.Crypto.arrayBufferToBase64(encryptedName)
+        return this.server.setProfileName(base64Name);
+        });
+      },
+    });
   textsecure.AccountManager = AccountManager;
 })();

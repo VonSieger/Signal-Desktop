@@ -451,6 +451,7 @@ function initialize({
       getMyKeys,
       getProfile,
       getProfileUnauth,
+      setProfileName,
       getProvisioningSocket,
       getSenderCertificate,
       getSticker,
@@ -560,6 +561,15 @@ function initialize({
         responseType: 'json',
         unauthenticated: true,
         accessKey,
+      });
+    }
+
+    function setProfileName(name){
+      const nameEncoded = encodeURIComponent(name);
+      return _ajax({
+        call:'profile',
+        httpType: 'PUT',
+        urlParameters: `/name/${nameEncoded}`,
       });
     }
 

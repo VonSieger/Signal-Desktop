@@ -1133,6 +1133,14 @@
     "message": "Settings",
     "description": "Menu item and header for global settings"
   },
+  "profile": {
+    "message": "Profile",
+    "description": "Header for profile settings"
+  },
+  "updateProfile": {
+    "message": "Update Profile",
+    "description": "Label for the update profile button"
+  },
   "theme": {
     "message": "Theme",
     "description": "Header for theme settings"

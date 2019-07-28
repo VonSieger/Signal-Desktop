@@ -42,6 +42,14 @@
       <b>{{ deviceNameLabel }}:</b> {{ deviceName }}
     </div>
     <hr>
+    <div class='profile-settings'>
+      <h3>{{ profile }}</h3>
+      <div class='profile-name-setting'>
+        <input type='text' class='profileName'/>
+        <button class='button'>{{ updateProfile }}</button>
+      </div>
+    </div>
+    <hr>
     <div class='theme-settings'>
       <h3>{{ theme }}</h3>
       {{#hasSystemTheme}}
