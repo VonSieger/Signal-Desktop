@@ -969,6 +969,7 @@ installSettingsSetter('audio-notification');
 
 installSettingsGetter('profile-name-setting');
 installSettingsSetter('profile-name-setting');
+installSettingsSetter('profile-avatar-setting');
 
 installSettingsGetter('spell-check');
 installSettingsSetter('spell-check');

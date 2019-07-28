@@ -272,6 +272,10 @@
         });
       },
 
+      setProifleAvatar: () => {
+
+      },
+
       getSpellCheck: () => storage.get('spell-check', true),
       setSpellCheck: value => {
         storage.put('spell-check', value);

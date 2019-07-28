@@ -70,6 +70,8 @@ window.setMediaPermissions = makeSetter('media-permissions');
 window.getProfileName = makeGetter('profile-name-setting');
 window.setProfileName = makeSetter('profile-name-setting');
 
+window.setProfileAvatar = makeSetter('profile-avatar-setting');
+
 window.isPrimary = makeGetter('is-primary');
 window.makeSyncRequest = makeGetter('sync-request');
 window.getLastSyncTime = makeGetter('sync-time');
