@@ -634,6 +634,8 @@
         return this.server.setProfileName(base64Name);
         });
       },
+    async setProfileAvatar(avatar){
+    }
     });
   textsecure.AccountManager = AccountManager;
 })();

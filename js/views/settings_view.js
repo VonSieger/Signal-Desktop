@@ -97,7 +97,14 @@
       'click .button': 'updateProfileAvatar',
     },
     updateProfileAvatar(){
-      
+      const file = this.$('.profileAvatar')[0].files[0];
+      if(file && file.size > 0){
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.setFn(new Uint8Array(reader.result));
+        };
+        reader.readAsArrayBuffer(this.$('.profileAvatar')[0].files[0]);
+      }
     },
   });
 
@@ -160,7 +167,7 @@
       });
       new ProfileAvatarSettingsView({
         el: this.$('.profile-settings'),
-        setFn: window.setProifleAvatar,
+        setFn: window.setProfileAvatar,
       });
       if (!window.initialData.isPrimary) {
         const syncView = new SyncView().render();

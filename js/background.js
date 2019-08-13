@@ -264,7 +264,7 @@
 
       setProfileName: value => {
         getAccountManager().getProfileName().then(profileName => {
-          if(value && value != profileName && value.length > 0) getAccountManager().setProfileName(value);
+          if(value && value != profileName && value.length > 0) return getAccountManager().setProfileName(value);
         });
       },
       getProfileName: () => {
@@ -276,8 +276,9 @@
         });
       },
 
-      setProifleAvatar: () => {
-
+      setProfileAvatar: value => {
+        if(!value instanceof Uint8Array) return;
+        return getAccountManager().setProfileAvatar(value);
       },
 
       getSpellCheck: () => storage.get('spell-check', true),
