@@ -277,8 +277,10 @@
       },
 
       setProfileAvatar: value => {
-        if(!value instanceof Uint8Array) return;
-        return getAccountManager().setProfileAvatar(value);
+        if(!value.data instanceof Uint8Array) throw new TypeError("avatar is not an Uint8Array.");
+        if(value.contentType != "image/png" && value.contentType != "image/jpg" && value.contentType != "image/jpeg")
+          throw new Error(value.contentType + " not accepted content type.")
+        return getAccountManager().setProfileAvatar(value.data, value.contentType);
       },
 
       getSpellCheck: () => storage.get('spell-check', true),

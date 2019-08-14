@@ -634,7 +634,10 @@
         return this.server.setProfileName(base64Name);
         });
       },
-    async setProfileAvatar(avatar){
+    async setProfileAvatar(avatar, contentType){
+      const profileKey = await textsecure.storage.protocol.getProfileKey();
+      const cypherAvatar = await textsecure.crypto.encryptProfile(avatar, profileKey);
+      return this.server.putProfileAvatar(cypherAvatar, contentType);
     }
     });
   textsecure.AccountManager = AccountManager;

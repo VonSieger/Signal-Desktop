@@ -101,7 +101,10 @@
       if(file && file.size > 0){
         const reader = new FileReader();
         reader.onload = () => {
-          this.setFn(new Uint8Array(reader.result));
+          this.setFn({
+            data: new Uint8Array(reader.result),
+            contentType: this.$('.profileAvatar')[0].files[0].type,
+          });
         };
         reader.readAsArrayBuffer(this.$('.profileAvatar')[0].files[0]);
       }

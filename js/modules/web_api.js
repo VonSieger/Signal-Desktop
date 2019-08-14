@@ -452,6 +452,7 @@ function initialize({
       getProfile,
       getProfileUnauth,
       setProfileName,
+      putProfileAvatar,
       getProvisioningSocket,
       getSenderCertificate,
       getSticker,
@@ -570,6 +571,77 @@ function initialize({
         call:'profile',
         httpType: 'PUT',
         urlParameters: `/name/${nameEncoded}`,
+      });
+    }
+
+    async function putProfileAvatar(encryptedAvatar, contentType){
+      let formData = await _ajax({
+        call: 'profile',
+        httpType: 'GET',
+        urlParameters: '/form/avatar',
+      });
+      formData = JSON.parse(formData);
+
+      const {
+        key,
+        credential,
+        acl,
+        algorithm,
+        date,
+        policy,
+        signature,
+      } = formData;
+
+      // Note: when using the boundary string in the POST body, it needs to be prefixed by
+      //   an extra --, and the final boundary string at the end gets a -- prefix and a --
+      //   suffix.
+      const boundaryString = `----------------${getGuid().replace(/-/g, '')}`;
+      const CRLF = '\r\n';
+      const getSection = (name, value) =>
+        [
+          `--${boundaryString}`,
+          `Content-Disposition: form-data; name="${name}"${CRLF}`,
+          value,
+        ].join(CRLF);
+
+      const start = [
+        getSection('key', key),
+        getSection('x-amz-credential', credential),
+        getSection('acl', acl),
+        getSection('x-amz-algorithm', algorithm),
+        getSection('x-amz-date', date),
+        getSection('policy', policy),
+        getSection('x-amz-signature', signature),
+        getSection('Content-Type', contentType),
+        `--${boundaryString}`,
+        'Content-Disposition: form-data; name="file"',
+        `Content-Type: application/octet-stream${CRLF}${CRLF}`,
+      ].join(CRLF);
+      const end = `${CRLF}--${boundaryString}--${CRLF}`;
+
+      const startBuffer = Buffer.from(start, 'utf8');
+      const avatarBuffer = Buffer.from(encryptedAvatar);
+      const endBuffer = Buffer.from(end, 'utf8');
+
+      const contentLength =
+        startBuffer.length + avatarBuffer.length + endBuffer.length;
+      const data = Buffer.concat(
+        [startBuffer, avatarBuffer, endBuffer],
+        contentLength
+      );
+
+      // This is going to the CDN, not the service, so we use _outerAjax
+      await _outerAjax(cdnUrl, {
+        certificateAuthority,
+        contentType: `multipart/form-data; boundary=${boundaryString}`,
+        data,
+        proxyUrl,
+        timeout: 0,
+        type: 'POST',
+        headers: {
+          'Content-Length': contentLength,
+        },
+        processData: false,
       });
     }
 
