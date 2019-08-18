@@ -262,6 +262,34 @@
       getAudioNotification: () => storage.get('audio-notification'),
       setAudioNotification: value => storage.put('audio-notification', value),
 
+      getReadReceiptSetting: () => storage.get('read-receipt-setting'),
+      setReadReceiptSetting: value => storage.put('read-receipt-setting', value),
+      getUnidentifiedDeliveryIndicatorSetting: () =>
+        storage.get('unidentifiedDeliveryIndicators'),
+      setUnidentifiedDeliveryIndicatorSetting: value =>{
+        if (
+      value === true ||
+      value === false
+    ) {
+      storage.put(
+        'unidentifiedDeliveryIndicators',
+        value
+      );
+    }
+      },
+      getTypingIndicatorSetting: () => storage.get('typingIndicators'),
+      setTypingIndicatorSetting: value => {
+        if (value === true || value === false) {
+      storage.put('typingIndicators', value);
+    }
+      },
+      getLinkPreviewSetting: () => storage.get('linkPreviews'),
+      setLinkPreviewSetting: value => {
+        if (value === true || value === false) {
+          storage.put('linkPreviews', value);
+        }
+      },
+
       getSpellCheck: () => storage.get('spell-check', true),
       setSpellCheck: value => {
         storage.put('spell-check', value);

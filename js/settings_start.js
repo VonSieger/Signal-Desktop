@@ -41,6 +41,11 @@ const getInitialData = async () => ({
 
   mediaPermissions: await window.getMediaPermissions(),
 
+  readReceiptSetting: await window.getReadReceiptSetting(),
+  unidentifiedDeliveryIndicatorSetting: await window.getUnidentifiedDeliveryIndicatorSetting(),
+  typingIndicatorSetting: await window.getTypingIndicatorSetting(),
+  linkPreviewSetting: await window.getLinkPreviewSetting(),
+
   isPrimary: await window.isPrimary(),
   lastSyncTime: await window.getLastSyncTime(),
 });

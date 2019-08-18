@@ -121,6 +121,26 @@
         value: window.initialData.mediaPermissions,
         setFn: window.setMediaPermissions,
       });
+      new CheckboxView({
+        el: this.$('.read-receipt-setting'),
+        value: window.initialData.readReceiptSetting,
+        setFn: window.setReadReceiptSetting,
+      });
+      new CheckboxView({
+        el: this.$('.unidentified-delivery-indicator-setting'),
+        value: window.initialData.unidentifiedDeliveryIndicatorSetting,
+        setFn: window.setUnidentifiedDeliveryIndicatorSetting,
+      });
+      new CheckboxView({
+        el: this.$('.typing-indicator-setting'),
+        value: window.initialData.typingIndicatorSetting,
+        setFn: window.setTypingIndicatorSetting,
+      });
+      new CheckboxView({
+        el: this.$('.link-preview-setting'),
+        value: window.initialData.linkPreviewSetting,
+        setFn: window.setLinkPreviewSetting,
+      });
       if (!window.initialData.isPrimary) {
         const syncView = new SyncView().render();
         this.$('.sync-setting').append(syncView.el);
