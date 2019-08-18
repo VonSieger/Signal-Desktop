@@ -179,6 +179,11 @@
         spellCheckDescription: i18n('spellCheckDescription'),
         sendLinkPreviews: i18n('sendLinkPreviews'),
         linkPreviewsDescription: i18n('linkPreviewsDescription'),
+        privacySettings: i18n('privacySettings'),
+        sendReadReceipts: i18n('sendReadReceipts'),
+        udIndicators: i18n('udIndicators'),
+        typingIndicators: i18n('typingIndicators'),
+        linkPreviews: i18n('linkPreviews'),
       };
     },
     onClose() {
