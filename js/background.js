@@ -279,8 +279,12 @@
       setProfileAvatar: value => {
         if(!value.data instanceof Uint8Array) throw new TypeError("avatar is not an Uint8Array.");
         if(value.contentType != "image/png" && value.contentType != "image/jpg" && value.contentType != "image/jpeg")
-          throw new Error(value.contentType + " not accepted content type.")
-        return getAccountManager().setProfileAvatar(value.data, value.contentType);
+          throw new Error(value.contentType + " not accepted content type.");
+        return getAccountManager().setProfileAvatar(value.data, value.contentType).catch(err => {
+          //work around, because otherwise only the stack would be send back to ipc renderer
+          delete err.stack;
+          throw err;
+        });
       },
 
       getSpellCheck: () => storage.get('spell-check', true),

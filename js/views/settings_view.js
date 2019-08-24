@@ -12,6 +12,22 @@
   window.Whisper = window.Whisper || {};
   const { Settings } = window.Signal.Types;
 
+    function _displayUploading(element, promise){
+      element.text(i18n("uploadingProfile"));
+      element.css("display", "");
+      promise.then(resolved => {
+        element.text(i18n("uploadFinished"));
+      }, rejected => {
+        if(rejected.message)
+          element.text(i18n("uploadFailedColon") + rejected.message);
+        else if(rejected.response)
+          element.text(i18n("uploadFailedColon") + rejected.response);
+        else
+          element.text(i18n("uploadFailed"));
+        window.log.error(rejected);
+      });
+    }
+
   const CheckboxView = Whisper.View.extend({
     initialize(options) {
       this.name = options.name;
@@ -81,7 +97,8 @@
       'click .button': 'updateProfileName',
     },
     updateProfileName(){
-      this.setFn(this.$('.profileName')[0].value);
+      const uploadTask = this.setFn(this.$('.profileName')[0].value);
+      _displayUploading(this.$("#status"), uploadTask);
     },
     populate(){
       if(this.value) this.$('.profileName')[0].value = this.value;
@@ -101,10 +118,11 @@
       if(file && file.size > 0){
         const reader = new FileReader();
         reader.onload = () => {
-          this.setFn({
+          const uploadTask = this.setFn({
             data: new Uint8Array(reader.result),
             contentType: this.$('.profileAvatar')[0].files[0].type,
           });
+          _displayUploading(this.$("#status"), uploadTask);
         };
         reader.readAsArrayBuffer(this.$('.profileAvatar')[0].files[0]);
       }

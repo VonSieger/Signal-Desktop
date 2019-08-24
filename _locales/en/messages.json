@@ -1149,6 +1149,22 @@
     "message": "Select Profile Avatar:",
     "description": "Label for choosing profile avatar"
   },
+  "uploadingProfile": {
+    "message": "Uploading...",
+    "description": "Label in settings view"
+  },
+  "uploadFinished": {
+    "message": "Upload finished",
+    "description": "Label in settings view"
+  },
+  "uploadFailedColon": {
+    "message": "Upload failed: ",
+    "descripton": "Label in settings view"
+  },
+  "uploadFailed": {
+    "message": "Upload failed",
+    "description": "Label in settings view"
+  },
   "theme": {
     "message": "Theme",
     "description": "Header for theme settings"
