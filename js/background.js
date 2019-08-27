@@ -380,6 +380,14 @@
         ]);
       }
 
+      if (window.isBeforeVersion(lastVersion, 'v1.26.0')) {
+        // Ensure that we re-register our support for sealed sender
+        await storage.put(
+          'hasRegisterSupportForUnauthenticatedDelivery',
+          false
+        );
+      }
+
       // This one should always be last - it could restart the app
       if (window.isBeforeVersion(lastVersion, 'v1.15.0-beta.5')) {
         await window.Signal.Logs.deleteAll();
@@ -666,6 +674,7 @@
 
     Whisper.WallClockListener.init(Whisper.events);
     Whisper.ExpiringMessagesListener.init(Whisper.events);
+    Whisper.TapToViewMessagesListener.init(Whisper.events);
 
     if (Whisper.Import.isIncomplete()) {
       window.log.info('Import was interrupted, showing import error screen');
@@ -854,6 +863,7 @@
     addQueuedEventListener('groupSyncRequest', onGroupSyncRequest);
     addQueuedEventListener('blockedListSyncRequest', onBlockedListSyncRequest);
     addQueuedEventListener('configurationSyncRequest', onConfigurationSyncRequest);
+    addQueuedEventListener('viewSync', onViewSync);
 
     window.Signal.AttachmentDownloads.start({
       getMessageReceiver: () => messageReceiver,
@@ -1158,7 +1168,7 @@
   }
 
   function onConfigurationSyncRequest(ev) {
-    
+
   }
 
   async function onStickerPack(ev) {
@@ -1571,10 +1581,12 @@
       window.log.warn(
         `onSentMessage: Received update transcript, but no existing entry for message ${message.idForLogging()}. Dropping.`
       );
+      event.confirm();
     } else if (existing) {
       window.log.warn(
         `onSentMessage: Received duplicate transcript for message ${message.idForLogging()}, but it was not an update transcript. Dropping.`
       );
+      event.confirm();
     } else {
       await ConversationController.getOrCreateAndWait(
         messageDescriptor.id,
@@ -1789,6 +1801,21 @@
     }
 
     throw error;
+  }
+
+  async function onViewSync(ev) {
+    const { source, timestamp } = ev;
+    window.log.info(`view sync ${source} ${timestamp}`);
+
+    const sync = Whisper.ViewSyncs.add({
+      source,
+      timestamp,
+    });
+
+    sync.on('remove', ev.confirm);
+
+    // Calling this directly so we can wait for completion
+    return Whisper.ViewSyncs.onSync(sync);
   }
 
   function onReadReceipt(ev) {
