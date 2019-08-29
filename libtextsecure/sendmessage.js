@@ -470,6 +470,8 @@ MessageSender.prototype = {
   },
   async sendSyncMessageResponse(syncOptions){
     const content = new textsecure.protobuf.Content();
+    const syncMessage = new textsecure.protobuf.SyncMessage();
+    content.syncMessage = syncMessage;
     const timestamp = undefined;
 
     if(syncOptions.contactDetailsList || syncOptions.groupDetailsList){
@@ -494,7 +496,6 @@ MessageSender.prototype = {
         contentType: "application/octet-stream",
       });
 
-      const syncMessage = new textsecure.protobuf.SyncMessage();
       if(syncOptions.contactDetailsList){
         syncMessage.contacts = new textsecure.protobuf.SyncMessage.Contacts({
           blob : attachmentPointer,
@@ -505,7 +506,8 @@ MessageSender.prototype = {
           blob: attachmentPointer,
         })
       }
-      content.syncMessage = syncMessage;
+    }else if(syncOptions.configuration){
+      syncMessage.configuration = syncOptions.configuration;
     }
 
     const ourNumber = textsecure.storage.user.getNumber();

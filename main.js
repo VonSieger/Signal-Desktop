@@ -974,6 +974,15 @@ installSettingsSetter('notification-setting');
 installSettingsGetter('audio-notification');
 installSettingsSetter('audio-notification');
 
+installSettingsGetter('read-receipt-setting');
+installSettingsSetter('read-receipt-setting');
+installSettingsGetter('unidentified-delivery-indicator-setting');
+installSettingsSetter('unidentified-delivery-indicator-setting');
+installSettingsGetter('typing-indicator-setting');
+installSettingsSetter('typing-indicator-setting');
+installSettingsGetter('link-preview-setting');
+installSettingsSetter('link-preview-setting');
+
 installSettingsGetter('spell-check');
 installSettingsSetter('spell-check');
 

@@ -152,6 +152,15 @@ installSetter('notification-setting', 'setNotificationSetting');
 installGetter('audio-notification', 'getAudioNotification');
 installSetter('audio-notification', 'setAudioNotification');
 
+installGetter('read-receipt-setting', 'getReadReceiptSetting');
+installSetter('read-receipt-setting', 'setReadReceiptSetting');
+installGetter('unidentified-delivery-indicator-setting', 'getUnidentifiedDeliveryIndicatorSetting');
+installSetter('unidentified-delivery-indicator-setting', 'setUnidentifiedDeliveryIndicatorSetting');
+installGetter('typing-indicator-setting', 'getTypingIndicatorSetting');
+installSetter('typing-indicator-setting', 'setTypingIndicatorSetting');
+installGetter('link-preview-setting', 'getLinkPreviewSetting');
+installSetter('link-preview-setting', 'setLinkPreviewSetting');
+
 installGetter('spell-check', 'getSpellCheck');
 installSetter('spell-check', 'setSpellCheck');
 

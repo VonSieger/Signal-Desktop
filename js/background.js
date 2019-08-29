@@ -262,6 +262,34 @@
       getAudioNotification: () => storage.get('audio-notification'),
       setAudioNotification: value => storage.put('audio-notification', value),
 
+      getReadReceiptSetting: () => storage.get('read-receipt-setting'),
+      setReadReceiptSetting: value => storage.put('read-receipt-setting', value),
+      getUnidentifiedDeliveryIndicatorSetting: () =>
+        storage.get('unidentifiedDeliveryIndicators'),
+      setUnidentifiedDeliveryIndicatorSetting: value =>{
+        if (
+      value === true ||
+      value === false
+    ) {
+      storage.put(
+        'unidentifiedDeliveryIndicators',
+        value
+      );
+    }
+      },
+      getTypingIndicatorSetting: () => storage.get('typingIndicators'),
+      setTypingIndicatorSetting: value => {
+        if (value === true || value === false) {
+      storage.put('typingIndicators', value);
+    }
+      },
+      getLinkPreviewSetting: () => storage.get('linkPreviews'),
+      setLinkPreviewSetting: value => {
+        if (value === true || value === false) {
+          storage.put('linkPreviews', value);
+        }
+      },
+
       getSpellCheck: () => storage.get('spell-check', true),
       setSpellCheck: value => {
         storage.put('spell-check', value);
@@ -1168,7 +1196,22 @@
   }
 
   function onConfigurationSyncRequest(ev) {
-
+    return Promise.all([
+      storage.get('read-receipt-setting'),
+      storage.get('unidentifiedDeliveryIndicators'),
+      storage.get('typingIndicators'),
+      storage.get('linkPreviews'),
+    ]).then(values => {
+      const config = new textsecure.protobuf.SyncMessage.Configuration({
+        readReceipts: values[0],
+        unidentifiedDeliveryIndicators: values[1],
+        typingIndicators: values[2],
+        linkPreviews: values[3],
+      });
+      return textsecure.messaging.sendSyncMessageResponse({
+        configuration: config,
+      }).catch(err => window.log.error("Failed to send syncMessage.configuration: " + err));
+    });
   }
 
   async function onStickerPack(ev) {
