@@ -249,23 +249,17 @@ MessageSender.prototype = {
   },
 
   queueJobForNumber(number, runJob) {
+    this.pendingMessages[number] =
+      this.pendingMessages[number] || new window.PQueue({ concurrency: 1 });
+
+    const queue = this.pendingMessages[number];
+
     const taskWithTimeout = textsecure.createTaskWithTimeout(
       runJob,
       `queueJobForNumber ${number}`
     );
 
-    const runPrevious = this.pendingMessages[number] || Promise.resolve();
-    this.pendingMessages[number] = runPrevious.then(
-      taskWithTimeout,
-      taskWithTimeout
-    );
-
-    const runCurrent = this.pendingMessages[number];
-    runCurrent.then(() => {
-      if (this.pendingMessages[number] === runCurrent) {
-        delete this.pendingMessages[number];
-      }
-    });
+    queue.add(taskWithTimeout);
   },
 
   uploadAttachments(message) {
@@ -473,6 +467,61 @@ MessageSender.prototype = {
     syncMessage.padding = libsignal.crypto.getRandomBytes(paddingLength);
 
     return syncMessage;
+  },
+  async sendSyncMessageResponse(syncOptions){
+    const content = new textsecure.protobuf.Content();
+    const timestamp = undefined;
+
+    if(syncOptions.contactDetailsList || syncOptions.groupDetailsList){
+      const detailsList = syncOptions.contactDetailsList || syncOptions.groupDetailsList;
+
+      if(!detailsList.length || detailsList.length == 0) return;
+
+      var byteBuffer = new dcodeIO.ByteBuffer(detailsList.length * 50);
+      var position = 0;
+      detailsList.forEach(details => {
+        const detailsBytes = details.toArrayBuffer();
+        byteBuffer.writeVarint32(detailsBytes.byteLength);
+        byteBuffer.append(detailsBytes);
+      });
+      byteBuffer.limit = byteBuffer.offset;
+      byteBuffer.offset = 0;
+      const attachment = byteBuffer.toArrayBuffer();
+
+      const attachmentPointer = await this.makeAttachmentPointer({
+        data: attachment,
+        size: attachment.byteLength,
+        contentType: "application/octet-stream",
+      });
+
+      const syncMessage = new textsecure.protobuf.SyncMessage();
+      if(syncOptions.contactDetailsList){
+        syncMessage.contacts = new textsecure.protobuf.SyncMessage.Contacts({
+          blob : attachmentPointer,
+          complete: syncOptions.complete ? syncOptions.complete : undefined,
+        });
+      }else{
+        syncMessage.groups = new textsecure.protobuf.SyncMessage.Groups({
+          blob: attachmentPointer,
+        })
+      }
+      content.syncMessage = syncMessage;
+    }
+
+    const ourNumber = textsecure.storage.user.getNumber();
+    const sendOptions = ConversationController.prepareForSend(
+      ourNumber,
+      {syncMessage: true}
+    );
+    sendOptions.online = false;
+
+    return this.sendIndividualProto(
+      ourNumber,
+      content,
+      timestamp,
+      true,
+      sendOptions
+    );
   },
 
   sendSyncMessage(
@@ -747,6 +796,34 @@ MessageSender.prototype = {
 
     return Promise.resolve();
   },
+
+  async syncViewOnceOpen(sender, timestamp, options) {
+    const myNumber = textsecure.storage.user.getNumber();
+    const myDevice = textsecure.storage.user.getDeviceId();
+    if (myDevice === 1 || myDevice === '1') {
+      return null;
+    }
+
+    const syncMessage = this.createSyncMessage();
+
+    const viewOnceOpen = new textsecure.protobuf.SyncMessage.ViewOnceOpen();
+    viewOnceOpen.sender = sender;
+    viewOnceOpen.timestamp = timestamp;
+    syncMessage.viewOnceOpen = viewOnceOpen;
+
+    const contentMessage = new textsecure.protobuf.Content();
+    contentMessage.syncMessage = syncMessage;
+
+    const silent = true;
+    return this.sendIndividualProto(
+      myNumber,
+      contentMessage,
+      Date.now(),
+      silent,
+      options
+    );
+  },
+
   async sendStickerPackSync(operations, options) {
     const myDevice = textsecure.storage.user.getDeviceId();
     if (myDevice === 1 || myDevice === '1') {
@@ -1222,6 +1299,7 @@ textsecure.MessageSender = function MessageSenderWrapper(username, password) {
   this.setGroupName = sender.setGroupName.bind(sender);
   this.setGroupAvatar = sender.setGroupAvatar.bind(sender);
   this.leaveGroup = sender.leaveGroup.bind(sender);
+  this.sendSyncMessageResponse = sender.sendSyncMessageResponse.bind(sender);
   this.sendSyncMessage = sender.sendSyncMessage.bind(sender);
   this.getProfile = sender.getProfile.bind(sender);
   this.getAvatar = sender.getAvatar.bind(sender);
@@ -1235,6 +1313,7 @@ textsecure.MessageSender = function MessageSenderWrapper(username, password) {
   this.getSticker = sender.getSticker.bind(sender);
   this.getStickerPackManifest = sender.getStickerPackManifest.bind(sender);
   this.sendStickerPackSync = sender.sendStickerPackSync.bind(sender);
+  this.syncViewOnceOpen = sender.syncViewOnceOpen.bind(sender);
 };
 
 textsecure.MessageSender.prototype = {
