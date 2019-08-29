@@ -1196,7 +1196,22 @@
   }
 
   function onConfigurationSyncRequest(ev) {
-
+    return Promise.all([
+      storage.get('read-receipt-setting'),
+      storage.get('unidentifiedDeliveryIndicators'),
+      storage.get('typingIndicators'),
+      storage.get('linkPreviews'),
+    ]).then(values => {
+      const config = new textsecure.protobuf.SyncMessage.Configuration({
+        readReceipts: values[0],
+        unidentifiedDeliveryIndicators: values[1],
+        typingIndicators: values[2],
+        linkPreviews: values[3],
+      });
+      return textsecure.messaging.sendSyncMessageResponse({
+        configuration: config,
+      }).catch(err => window.log.error("Failed to send syncMessage.configuration: " + err));
+    });
   }
 
   async function onStickerPack(ev) {
