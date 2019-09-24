@@ -26,22 +26,17 @@
 
   Whisper.ConversationHeaderView = Whisper.View.extend({
     initialize(options){
+      this.props = options.props;
+      this.model = options.model;
+
       this.render();
-      this.listenTo(this.model, 'change', () => {
-        this.titleViewWrapper.update(this._getHeaderProps());
-        this.titleViewWrapper.render();
-      });
     },
     render(){
       this.titleViewWrapper = new Whisper.ReactWrapperView({
         className: 'title-wrapper',
         Component: window.Signal.Components.ConversationHeader,
-        props: this._getHeaderProps(),
-        events: {
-          'click #titleShow': this.enableInput,
-          'blur #titleInput': () => this.updateModel(this.model),
-        },
-        events: this.model.isPrivate() ? {
+        props: this.props,
+        events: this.model.isPrivate() && !this.model.isMe() ? {
           'click #titleShow': () => {
             this.$('#titleShow').hide();
             this.$('#titleInput').css('display', '');
@@ -58,65 +53,10 @@
       this.$el.empty();
       this.$el.append(this.titleViewWrapper.el);
     },
-    _getHeaderProps(){
-      const expireTimer = this.model.get('expireTimer');
-        const expirationSettingName = expireTimer
-          ? Whisper.ExpirationTimerOptions.getName(expireTimer || 0)
-          : null;
-
-        return {
-          id: this.model.id,
-          name: this.model.getName(),
-          phoneNumber: this.model.getNumber(),
-          profileName: this.model.getProfileName(),
-          color: this.model.getColor(),
-          avatarPath: this.model.getAvatarPath(),
-
-          isVerified: this.model.isVerified(),
-          isMe: this.model.isMe(),
-          isGroup: !this.model.isPrivate(),
-          isArchived: this.model.get('isArchived'),
-
-          expirationSettingName,
-          showBackButton: Boolean(this.panels && this.panels.length),
-          timerOptions: Whisper.ExpirationTimerOptions.map(item => ({
-            name: item.getName(),
-            value: item.get('seconds'),
-          })),
-
-          onSetDisappearingMessages: seconds =>
-            this.setDisappearingMessages(seconds),
-          onDeleteMessages: () => this.destroyMessages(),
-          onResetSession: () => this.endSession(),
-
-          // These are view only and don't update the Conversation model, so they
-          //   need a manual update call.
-          onShowSafetyNumber: () => {
-            this.showSafetyNumber();
-          },
-          onShowAllMedia: async () => {
-            await this.showAllMedia();
-            this.updateHeader();
-          },
-          onShowGroupMembers: async () => {
-            await this.showMembers();
-            this.updateHeader();
-          },
-          onGoBack: () => {
-            this.resetPanel();
-            this.updateHeader();
-          },
-
-          onArchive: () => {
-            this.unload('archive');
-            this.model.setArchived(true);
-          },
-          onMoveToInbox: () => {
-            this.model.setArchived(false);
-          },
-          onChangeName: (value) => {},
-        };
-    }
+    update(props){
+      this.props = props;
+      this.titleViewWrapper.update(props);
+    },
   });
 
   Whisper.ExpiredToast = Whisper.ToastView.extend({
@@ -292,7 +232,80 @@
         }
       });
 
-      this.titleView = new Whisper.ConversationHeaderView({model: this.model});
+      const getHeaderProps = () => {
+        const expireTimer = this.model.get('expireTimer');
+        const expirationSettingName = expireTimer
+          ? Whisper.ExpirationTimerOptions.getName(expireTimer || 0)
+          : null;
+
+        return {
+          id: this.model.id,
+          name: this.model.getName(),
+          phoneNumber: this.model.getNumber(),
+          profileName: this.model.getProfileName(),
+          color: this.model.getColor(),
+          avatarPath: this.model.getAvatarPath(),
+
+          isVerified: this.model.isVerified(),
+          isMe: this.model.isMe(),
+          isGroup: !this.model.isPrivate(),
+          isArchived: this.model.get('isArchived'),
+
+          expirationSettingName,
+          showBackButton: Boolean(this.panels && this.panels.length),
+          timerOptions: Whisper.ExpirationTimerOptions.map(item => ({
+            name: item.getName(),
+            value: item.get('seconds'),
+          })),
+
+          onSetDisappearingMessages: seconds =>
+            this.setDisappearingMessages(seconds),
+          onDeleteMessages: () => this.destroyMessages(),
+          onResetSession: () => this.endSession(),
+          onSearchInConversation: () => {
+            const { searchInConversation } = window.reduxActions.search;
+            const name = this.model.isMe()
+              ? i18n('noteToSelf')
+              : this.model.getTitle();
+            searchInConversation(this.model.id, name);
+          },
+
+          // These are view only and don't update the Conversation model, so they
+          //   need a manual update call.
+          onShowSafetyNumber: () => {
+            this.showSafetyNumber();
+          },
+          onShowAllMedia: async () => {
+            await this.showAllMedia();
+            this.updateHeader();
+          },
+          onShowGroupMembers: async () => {
+            await this.showMembers();
+            this.updateHeader();
+          },
+          onGoBack: () => {
+            this.resetPanel();
+            this.updateHeader();
+          },
+
+          onArchive: () => {
+            this.unload('archive');
+            this.model.setArchived(true);
+          },
+          onMoveToInbox: () => {
+            this.model.setArchived(false);
+          },
+        };
+      };
+
+      this.titleView = new Whisper.ConversationHeaderView({
+        model: this.model,
+        props: getHeaderProps(this.model)
+      });
+
+      this.updateHeader = () => this.titleView.update(getHeaderProps());
+      this.listenTo(this.model, 'change', this.updateHeader);
+
       this.$('.conversation-header').append(this.titleView.el);
 
       this.view = new Whisper.MessageListView({
