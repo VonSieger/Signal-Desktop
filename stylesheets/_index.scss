@@ -4,6 +4,7 @@
 .gutter {
   height: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .expired {
@@ -79,15 +80,6 @@
 }
 .left-pane-wrapper {
   height: 100%;
-}
-
-.conversation-stack {
-  .conversation {
-    display: none;
-  }
-  .conversation:first-child {
-    display: block;
-  }
 }
 
 .tool-bar {

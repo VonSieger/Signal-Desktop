@@ -8,6 +8,8 @@
 
   window.Whisper = window.Whisper || {};
 
+  const MAX_MESSAGE_BODY_LENGTH = 64 * 1024;
+
   const conversations = new Whisper.ConversationCollection();
   const inboxCollection = new (Backbone.Collection.extend({
     initialize() {
@@ -18,7 +20,6 @@
         'add remove change:unreadCount',
         _.debounce(this.updateUnreadCount.bind(this), 1000)
       );
-      this.startPruning();
     },
     addActive(model) {
       if (model.get('active_at')) {
@@ -43,14 +44,6 @@
         window.document.title = window.getTitle();
       }
       window.updateTrayIcon(newUnreadCount);
-    },
-    startPruning() {
-      const halfHour = 30 * 60 * 1000;
-      this.interval = setInterval(() => {
-        this.forEach(conversation => {
-          conversation.trigger('prune');
-        });
-      }, halfHour);
     },
   }))();
 
@@ -192,12 +185,25 @@
 
           this._initialFetchComplete = true;
           await Promise.all(
-            conversations.map(conversation => {
+            conversations.map(async conversation => {
               if (!conversation.get('lastMessage')) {
-                return conversation.updateLastMessage();
+                await conversation.updateLastMessage();
               }
 
-              return null;
+              // In case a too-large draft was saved to the database
+              const draft = conversation.get('draft');
+              if (draft && draft.length > MAX_MESSAGE_BODY_LENGTH) {
+                this.model.set({
+                  draft: draft.slice(0, MAX_MESSAGE_BODY_LENGTH),
+                });
+                await window.Signal.Data.updateConversation(
+                  conversation.id,
+                  conversation.attributes,
+                  {
+                    Conversation: Whisper.Conversation,
+                  }
+                );
+              }
             })
           );
           window.log.info('ConversationController: done with initial fetch');

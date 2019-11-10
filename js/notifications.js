@@ -3,7 +3,6 @@
 
 /* global drawAttention: false */
 /* global i18n: false */
-/* global isFocused: false */
 /* global Signal: false */
 /* global storage: false */
 /* global Whisper: false */
@@ -54,11 +53,10 @@
       }
 
       const { isEnabled } = this;
-      const isAppFocused = isFocused();
+      const isAppFocused = window.isActive();
       const isAudioNotificationEnabled =
         storage.get('audio-notification') || false;
       const isAudioNotificationSupported = Settings.isAudioNotificationSupported();
-      const isNotificationGroupingSupported = Settings.isNotificationGroupingSupported();
       const numNotifications = this.length;
       const userSetting = this.getUserSetting();
 
@@ -70,13 +68,6 @@
         numNotifications,
         userSetting,
       });
-
-      window.log.info(
-        'Update notifications:',
-        Object.assign({}, status, {
-          isNotificationGroupingSupported,
-        })
-      );
 
       if (status.type !== 'ok') {
         if (status.shouldClearNotifications) {
@@ -152,7 +143,7 @@
         silent: !status.shouldPlayNotificationSound,
       });
       this.lastNotification.onclick = () =>
-        this.trigger('click', last.conversationId, last.id);
+        this.trigger('click', last.conversationId, last.messageId);
 
       // We continue to build up more and more messages for our notifications
       // until the user comes back to our app or closes the app. Then we’ll
