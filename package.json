@@ -105,7 +105,7 @@
     "reselect": "4.0.0",
     "rimraf": "2.6.2",
     "semver": "5.4.1",
-    "spellchecker": "3.7.0",
+    "spellchecker": "https://github.com/atom/node-spellchecker/archive/613ff91dd2d9a5ee0e86be8a3682beecc4e94887.tar.gz",
     "tar": "4.4.8",
     "testcheck": "1.0.0-rc.2",
     "tmp": "0.0.33",
@@ -188,7 +188,7 @@
     "webpack": "4.4.1"
   },
   "engines": {
-    "node": "12.4.0"
+    "node": "13.1.0"
   },
   "build": {
     "appId": "org.whispersystems.signal-desktop",
