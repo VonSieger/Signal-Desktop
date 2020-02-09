@@ -41,8 +41,9 @@ const mapStateToProps = (state: StateType, props: ExternalProps) => {
   const blessedPacks = getBlessedStickerPacks(state);
   const knownPacks = getKnownStickerPacks(state);
 
-  const recentStickers = getRecentStickers(state);
   const installedPack = getRecentlyInstalledStickerPack(state);
+
+  const recentStickers = getRecentStickers(state);
   const showIntroduction = get(
     state.items,
     ['showStickersIntroduction'],

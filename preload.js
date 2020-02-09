@@ -3,12 +3,16 @@
 const electron = require('electron');
 const semver = require('semver');
 const curve = require('curve25519-n');
+const { installGetter, installSetter } = require('./preload_utils');
 
 const { deferredToPromise } = require('./js/modules/deferred_to_promise');
 
 const { remote } = electron;
 const { app } = remote;
 const { systemPreferences } = remote.require('electron');
+
+const browserWindow = remote.getCurrentWindow();
+window.isFocused = () => browserWindow.isFocused();
 
 // Waiting for clients to implement changes on receive side
 window.ENABLE_STICKER_SEND = true;
@@ -129,17 +133,14 @@ ipc.on('set-up-as-standalone', () => {
 window.showSettings = () => ipc.send('show-settings');
 window.showPermissionsPopup = () => ipc.send('show-permissions-popup');
 
+ipc.on('show-keyboard-shortcuts', () => {
+  window.Events.showKeyboardShortcuts();
+});
 ipc.on('add-dark-overlay', () => {
-  const { addDarkOverlay } = window.Events;
-  if (addDarkOverlay) {
-    addDarkOverlay();
-  }
+  window.Events.addDarkOverlay();
 });
 ipc.on('remove-dark-overlay', () => {
-  const { removeDarkOverlay } = window.Events;
-  if (removeDarkOverlay) {
-    removeDarkOverlay();
-  }
+  window.Events.removeDarkOverlay();
 });
 
 installGetter('device-name', 'getDeviceName');
@@ -170,12 +171,24 @@ window.getMediaPermissions = () =>
   new Promise((resolve, reject) => {
     ipc.once('get-success-media-permissions', (_event, error, value) => {
       if (error) {
-        return reject(error);
+        return reject(new Error(error));
       }
 
       return resolve(value);
     });
     ipc.send('get-media-permissions');
+  });
+
+window.getBuiltInImages = () =>
+  new Promise((resolve, reject) => {
+    ipc.once('get-success-built-in-images', (_event, error, value) => {
+      if (error) {
+        return reject(new Error(error));
+      }
+
+      return resolve(value);
+    });
+    ipc.send('get-built-in-images');
   });
 
 installGetter('is-primary', 'isPrimary');
@@ -198,6 +211,14 @@ ipc.on('show-sticker-pack', (_event, info) => {
   }
 });
 
+ipc.on('install-sticker-pack', (_event, info) => {
+  const { packId, packKey } = info;
+  const { installStickerPack } = window.Events;
+  if (installStickerPack) {
+    installStickerPack(packId, packKey);
+  }
+});
+
 ipc.on('get-ready-for-shutdown', async () => {
   const { shutdown } = window.Events || {};
   if (!shutdown) {
@@ -216,49 +237,6 @@ ipc.on('get-ready-for-shutdown', async () => {
     );
   }
 });
-
-function installGetter(name, functionName) {
-  ipc.on(`get-${name}`, async () => {
-    const getFn = window.Events[functionName];
-    if (!getFn) {
-      ipc.send(
-        `get-success-${name}`,
-        `installGetter: ${functionName} not found for event ${name}`
-      );
-      return;
-    }
-    try {
-      ipc.send(`get-success-${name}`, null, await getFn());
-    } catch (error) {
-      ipc.send(
-        `get-success-${name}`,
-        error && error.stack ? error.stack : error
-      );
-    }
-  });
-}
-
-function installSetter(name, functionName) {
-  ipc.on(`set-${name}`, async (_event, value) => {
-    const setFn = window.Events[functionName];
-    if (!setFn) {
-      ipc.send(
-        `set-success-${name}`,
-        `installSetter: ${functionName} not found for event ${name}`
-      );
-      return;
-    }
-    try {
-      await setFn(value);
-      ipc.send(`set-success-${name}`);
-    } catch (error) {
-      ipc.send(
-        `set-success-${name}`,
-        error && error.stack ? error.stack : error
-      );
-    }
-  });
-}
 
 window.addSetupMenuItems = () => ipc.send('add-setup-menu-items');
 window.removeSetupMenuItems = () => ipc.send('remove-setup-menu-items');
@@ -281,6 +259,7 @@ window.WebAPI = initializeWebAPI({
   certificateAuthority: config.certificateAuthority,
   contentProxyUrl: config.contentProxyUrl,
   proxyUrl: config.proxyUrl,
+  version: config.version,
 });
 
 // Linux seems to periodically let the event loop stop, so this is a global workaround

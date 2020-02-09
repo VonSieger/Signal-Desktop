@@ -19,14 +19,17 @@
   window.Whisper = window.Whisper || {};
   const { Message, MIME, VisualAttachment } = window.Signal.Types;
   const {
-    upgradeMessageSchema,
-    getAbsoluteAttachmentPath,
-    getAbsoluteDraftPath,
     copyIntoTempDirectory,
-    getAbsoluteTempPath,
     deleteDraftFile,
     deleteTempFile,
+    getAbsoluteAttachmentPath,
+    getAbsoluteDraftPath,
+    getAbsoluteTempPath,
+    openFileInFolder,
+    readAttachmentData,
     readDraftData,
+    saveAttachmentToDisk,
+    upgradeMessageSchema,
     writeNewDraftData,
   } = window.Signal.Migrations;
   const {
@@ -112,6 +115,68 @@
       return { toastMessage: i18n('voiceNoteMustBeOnlyAttachment') };
     },
   });
+  Whisper.ConversationArchivedToast = Whisper.ToastView.extend({
+    render_attributes() {
+      return { toastMessage: i18n('conversationArchived') };
+    },
+  });
+  Whisper.ConversationUnarchivedToast = Whisper.ToastView.extend({
+    render_attributes() {
+      return { toastMessage: i18n('conversationReturnedToInbox') };
+    },
+  });
+  Whisper.TapToViewExpiredIncomingToast = Whisper.ToastView.extend({
+    render_attributes() {
+      return {
+        toastMessage: i18n('Message--tap-to-view--incoming--expired-toast'),
+      };
+    },
+  });
+  Whisper.TapToViewExpiredOutgoingToast = Whisper.ToastView.extend({
+    render_attributes() {
+      return {
+        toastMessage: i18n('Message--tap-to-view--outgoing--expired-toast'),
+      };
+    },
+  });
+  Whisper.FileSavedToast = Whisper.ToastView.extend({
+    className: 'toast toast-clickable',
+    initialize(options) {
+      if (!options.fullPath) {
+        throw new Error('FileSavedToast: name option was not provided!');
+      }
+      this.fullPath = options.fullPath;
+      this.timeout = 10000;
+
+      if (window.getInteractionMode() === 'keyboard') {
+        setTimeout(() => {
+          this.$el.focus();
+        }, 1);
+      }
+    },
+    events: {
+      click: 'onClick',
+      keydown: 'onKeydown',
+    },
+    onClick() {
+      openFileInFolder(this.fullPath);
+      this.close();
+    },
+    onKeydown(event) {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      openFileInFolder(this.fullPath);
+      this.close();
+    },
+    render_attributes() {
+      return { toastMessage: i18n('attachmentSaved') };
+    },
+  });
 
   const MAX_MESSAGE_BODY_LENGTH = 64 * 1024;
   Whisper.MessageBodyTooLongToast = Whisper.ToastView.extend({
@@ -177,6 +242,28 @@
       this.listenTo(this.model, 'scroll-to-message', this.scrollToMessage);
       this.listenTo(this.model, 'unload', reason =>
         this.unload(`model trigger - ${reason}`)
+      );
+      this.listenTo(this.model, 'focus-composer', this.focusMessageField);
+      this.listenTo(this.model, 'open-all-media', this.showAllMedia);
+      this.listenTo(this.model, 'begin-recording', this.captureAudio);
+      this.listenTo(this.model, 'attach-file', this.onChooseAttachment);
+      this.listenTo(this.model, 'escape-pressed', this.resetPanel);
+      this.listenTo(this.model, 'show-message-details', this.showMessageDetail);
+      this.listenTo(this.model, 'toggle-reply', messageId => {
+        const target = this.quote || !messageId ? null : messageId;
+        this.setQuoteMessage(target);
+      });
+      this.listenTo(
+        this.model,
+        'save-attachment',
+        this.downloadAttachmentWrapper
+      );
+      this.listenTo(this.model, 'delete-message', this.deleteMessage);
+      this.listenTo(this.model, 'remove-link-review', this.removeLinkPreview);
+      this.listenTo(
+        this.model,
+        'remove-all-draft-attachments',
+        this.clearAttachments
       );
 
       // Events on Message models - we still listen to these here because they
@@ -307,9 +394,8 @@
           onShowSafetyNumber: () => {
             this.showSafetyNumber();
           },
-          onShowAllMedia: async () => {
-            await this.showAllMedia();
-            this.updateHeader();
+          onShowAllMedia: () => {
+            this.showAllMedia();
           },
           onShowGroupMembers: async () => {
             await this.showMembers();
@@ -317,15 +403,24 @@
           },
           onGoBack: () => {
             this.resetPanel();
-            this.updateHeader();
           },
 
           onArchive: () => {
-            this.unload('archive');
             this.model.setArchived(true);
+            this.model.trigger('unload', 'archive');
+
+            Whisper.ToastView.show(
+              Whisper.ConversationArchivedToast,
+              document.body
+            );
           },
           onMoveToInbox: () => {
             this.model.setArchived(false);
+
+            Whisper.ToastView.show(
+              Whisper.ConversationUnarchivedToast,
+              document.body
+            );
           },
         };
       };
@@ -414,6 +509,12 @@
       };
       const downloadNewVersion = () => {
         this.downloadNewVersion();
+      };
+      const showExpiredIncomingTapToViewToast = () => {
+        this.showToast(Whisper.TapToViewExpiredIncomingToast);
+      };
+      const showExpiredOutgoingTapToViewToast = () => {
+        this.showToast(Whisper.TapToViewExpiredOutgoingToast);
       };
 
       const scrollToQuotedMessage = async options => {
@@ -579,15 +680,24 @@
           showIdentity,
           showMessageDetail,
           showVisualAttachment,
+          showExpiredIncomingTapToViewToast,
+          showExpiredOutgoingTapToViewToast,
         }),
       });
 
       this.$('.timeline-placeholder').append(this.timelineView.el);
     },
 
-    showToast(ToastView) {
-      const toast = new ToastView();
-      toast.$el.appendTo(this.$el);
+    showToast(ToastView, options) {
+      const toast = new ToastView(options);
+
+      const lightboxEl = $('.module-lightbox');
+      if (lightboxEl.length > 0) {
+        toast.$el.appendTo(lightboxEl);
+      } else {
+        toast.$el.appendTo(this.$el);
+      }
+
       toast.render();
     },
 
@@ -692,12 +802,13 @@
 
         const cleaned = await this.cleanModels(all);
         this.model.messageCollection.reset(cleaned);
+        const scrollToMessageId = disableScroll ? undefined : messageId;
 
         messagesReset(
           conversationId,
           cleaned.map(model => model.getReduxData()),
           metrics,
-          disableScroll ? undefined : messageId
+          scrollToMessageId
         );
       } catch (error) {
         setMessagesLoading(conversationId, false);
@@ -707,7 +818,7 @@
       }
     },
 
-    async loadNewestMessages(newestMessageId) {
+    async loadNewestMessages(newestMessageId, setFocus) {
       const {
         messagesReset,
         setMessagesLoading,
@@ -721,10 +832,10 @@
         let scrollToLatestUnread = true;
 
         if (newestMessageId) {
-          const message = await getMessageById(newestMessageId, {
+          const newestInMemoryMessage = await getMessageById(newestMessageId, {
             Message: Whisper.Message,
           });
-          if (!message) {
+          if (!newestInMemoryMessage) {
             window.log.warn(
               `loadNewestMessages: did not find message ${newestMessageId}`
             );
@@ -732,13 +843,17 @@
 
           // If newest in-memory message is unread, scrolling down would mean going to
           //   the very bottom, not the oldest unread.
-          scrollToLatestUnread = !message.isUnread();
+          if (newestInMemoryMessage.isUnread()) {
+            scrollToLatestUnread = false;
+          }
         }
 
         const metrics = await getMessageMetricsForConversation(conversationId);
 
         if (scrollToLatestUnread && metrics.oldestUnread) {
-          this.loadAndScroll(metrics.oldestUnread.id, { disableScroll: true });
+          this.loadAndScroll(metrics.oldestUnread.id, {
+            disableScroll: !setFocus,
+          });
           return;
         }
 
@@ -749,11 +864,14 @@
 
         const cleaned = await this.cleanModels(messages);
         this.model.messageCollection.reset(cleaned);
+        const scrollToMessageId =
+          setFocus && metrics.newest ? metrics.newest.id : undefined;
 
         messagesReset(
           conversationId,
           cleaned.map(model => model.getReduxData()),
-          metrics
+          metrics,
+          scrollToMessageId
         );
       } catch (error) {
         setMessagesLoading(conversationId, false);
@@ -821,6 +939,7 @@
 
       this.titleView.remove();
       this.timelineView.remove();
+      this.compositionAreaView.remove();
 
       if (this.attachmentListView) {
         this.attachmentListView.remove();
@@ -955,11 +1074,29 @@
       });
 
       const onSave = caption => {
-        // eslint-disable-next-line no-param-reassign
-        attachment.caption = caption;
+        this.model.set({
+          draftAttachments: this.model.get('draftAttachments').map(item => {
+            if (
+              (item.path && item.path === attachment.path) ||
+              (item.screenshotPath &&
+                item.screenshotPath === attachment.screenshotPath)
+            ) {
+              return {
+                ...attachment,
+                caption,
+              };
+            }
+
+            return item;
+          }),
+          draftChanged: true,
+        });
+
         this.captionEditorView.remove();
         Signal.Backbone.Views.Lightbox.hide();
-        this.attachmentListView.update(this.getPropsForAttachmentList());
+
+        this.updateAttachmentsView();
+        this.saveModel();
       };
 
       this.captionEditorView = new Whisper.ReactWrapperView({
@@ -981,7 +1118,7 @@
     },
 
     async saveModel() {
-      await window.Signal.Data.updateConversation(
+      window.Signal.Data.updateConversation(
         this.model.id,
         this.model.attributes,
         {
@@ -1070,15 +1207,13 @@
       const data = await readDraftData(attachment.path);
       if (data.byteLength !== attachment.size) {
         window.log.error(
-          `Attachment size from disk ${
-            data.byteLength
-          } did not match attachment size ${attachment.size}`
+          `Attachment size from disk ${data.byteLength} did not match attachment size ${attachment.size}`
         );
         return null;
       }
 
       return {
-        ..._.pick(attachment, ['contentType', 'fileName', 'size']),
+        ..._.pick(attachment, ['contentType', 'fileName', 'size', 'caption']),
         data,
       };
     },
@@ -1290,7 +1425,7 @@
     async handleImageAttachment(file) {
       if (MIME.isJPEG(file.type)) {
         const rotatedDataUrl = await window.autoOrientImage(file);
-        const rotatedBlob = VisualAttachment.dataURLToBlobSync(rotatedDataUrl);
+        const rotatedBlob = window.dataURLToBlobSync(rotatedDataUrl);
         const {
           contentType,
           file: resizedBlob,
@@ -1383,7 +1518,7 @@
             blob = window.dataURLToBlobSync(
               canvas.toDataURL(targetContentType, quality)
             );
-            quality = quality * maxSize / blob.size;
+            quality = (quality * maxSize) / blob.size;
             // NOTE: During testing with a large image, we observed the
             // `quality` value being > 1. Should we clamp it to [0.5, 1.0]?
             // See: https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob#Syntax
@@ -1503,7 +1638,13 @@
     },
 
     captureAudio(e) {
-      e.preventDefault();
+      if (e) {
+        e.preventDefault();
+      }
+
+      if (this.compositionApi.current.isDirty()) {
+        return;
+      }
 
       if (this.hasFiles()) {
         this.showToast(Whisper.VoiceNoteMustBeOnlyAttachmentToast);
@@ -1525,6 +1666,7 @@
       view.on('send', this.handleAudioCapture.bind(this));
       view.on('closed', this.endCaptureAudio.bind(this));
       view.$el.appendTo(this.$('.capture-audio'));
+      view.$('.finish').focus();
       this.compositionApi.current.setMicActive(true);
 
       this.disableMessageField();
@@ -1545,12 +1687,18 @@
         flags: textsecure.protobuf.AttachmentPointer.Flags.VOICE_MESSAGE,
       };
 
+      // Note: The RecorderView removes itself on send
+      this.captureAudioView = null;
+
       this.sendMessage();
     },
     endCaptureAudio() {
       this.enableMessageField();
       this.$('.microphone').show();
+
+      // Note: The RecorderView removes itself on close
       this.captureAudioView = null;
+
       this.compositionApi.current.setMicActive(false);
     },
 
@@ -1599,6 +1747,10 @@
     },
 
     async showAllMedia() {
+      if (this.panels && this.panels.length > 0) {
+        return;
+      }
+
       // We fetch more documents than media as they don’t require to be loaded
       // into memory right away. Revisit this once we have infinite scrolling:
       const DEFAULT_MEDIA_FETCH_COUNT = 50;
@@ -1683,12 +1835,16 @@
 
         const saveAttachment = async ({ attachment, message } = {}) => {
           const timestamp = message.sent_at;
-          Signal.Types.Attachment.save({
+          const fullPath = await Signal.Types.Attachment.save({
             attachment,
-            document,
-            getAbsolutePath: getAbsoluteAttachmentPath,
+            readAttachmentData,
+            saveAttachmentToDisk,
             timestamp,
           });
+
+          if (fullPath) {
+            this.showToast(Whisper.FileSavedToast, { fullPath });
+          }
         };
 
         const onItemClick = async ({ message, attachment, type }) => {
@@ -1745,6 +1901,7 @@
       this.listenTo(this.model.messageCollection, 'remove', update);
 
       this.listenBack(view);
+      this.updateHeader();
     },
 
     focusMessageField() {
@@ -1783,7 +1940,7 @@
       // We do this here because we don't want convo.messageCollection to have
       //   anything in it unless it has an associated view. This is so, when we
       //   fetch on open, it's clean.
-      this.model.addSingleMessage(message);
+      this.model.addIncomingMessage(message);
     },
 
     async showMembers(e, providedMembers, options = {}) {
@@ -1804,9 +1961,7 @@
       const contact = ConversationController.get(contactId);
       const message = this.model.messageCollection.get(messageId);
       if (!message) {
-        throw new Error(
-          `deleteMessage: Did not find message for id ${messageId}`
-        );
+        throw new Error(`forceSend: Did not find message for id ${messageId}`);
       }
 
       const dialog = new Whisper.ConfirmationDialogView({
@@ -1853,18 +2008,43 @@
       }
     },
 
-    downloadAttachment({ attachment, timestamp, isDangerous }) {
+    downloadAttachmentWrapper(messageId) {
+      const message = this.model.messageCollection.get(messageId);
+      if (!message) {
+        throw new Error(
+          `downloadAttachmentWrapper: Did not find message for id ${messageId}`
+        );
+      }
+
+      const { attachments, sent_at: timestamp } = message.attributes;
+      if (!attachments || attachments.length < 1) {
+        return;
+      }
+
+      const attachment = attachments[0];
+      const { fileName } = attachment;
+
+      const isDangerous = window.Signal.Util.isFileDangerous(fileName || '');
+
+      this.downloadAttachment({ attachment, timestamp, isDangerous });
+    },
+
+    async downloadAttachment({ attachment, timestamp, isDangerous }) {
       if (isDangerous) {
         this.showToast(Whisper.DangerousFileTypeToast);
         return;
       }
 
-      Signal.Types.Attachment.save({
+      const fullPath = await Signal.Types.Attachment.save({
         attachment,
-        document,
-        getAbsolutePath: getAbsoluteAttachmentPath,
+        readAttachmentData,
+        saveAttachmentToDisk,
         timestamp,
       });
+
+      if (fullPath) {
+        this.showToast(Whisper.FileSavedToast, { fullPath });
+      }
     },
 
     async displayTapToViewMessage(messageId) {
@@ -1930,6 +2110,8 @@
         return {
           objectURL: getAbsoluteTempPath(path),
           contentType,
+          onSave: null, // important so download button is omitted
+          isViewOnce: true,
         };
       };
       this.lightboxView = new Whisper.ReactWrapperView({
@@ -1960,7 +2142,6 @@
           message.trigger('unload');
           this.model.messageCollection.remove(message.id);
           this.resetPanel();
-          this.updateHeader();
         },
       });
 
@@ -2060,13 +2241,17 @@
       );
 
       const onSave = async (options = {}) => {
-        Signal.Types.Attachment.save({
+        const fullPath = await Signal.Types.Attachment.save({
           attachment: options.attachment,
-          document,
           index: options.index + 1,
-          getAbsolutePath: getAbsoluteAttachmentPath,
+          readAttachmentData,
+          saveAttachmentToDisk,
           timestamp: options.message.get('sent_at'),
         });
+
+        if (fullPath) {
+          this.showToast(Whisper.FileSavedToast, { fullPath });
+        }
       };
 
       const props = {
@@ -2097,10 +2282,13 @@
         );
       }
 
+      if (!message.isNormalBubble()) {
+        return;
+      }
+
       const onClose = () => {
         this.stopListening(message, 'change', update);
         this.resetPanel();
-        this.updateHeader();
       };
 
       const props = message.getPropsForMessageDetail();
@@ -2127,7 +2315,6 @@
         JSX: Signal.State.Roots.createStickerManager(window.reduxStore),
         onClose: () => {
           this.resetPanel();
-          this.updateHeader();
         },
       });
 
@@ -2142,7 +2329,7 @@
         className: 'contact-detail-pane panel',
         props: {
           contact,
-          signalAccount,
+          hasSignalAccount: Boolean(signalAccount),
           onSendMessage: () => {
             if (signalAccount) {
               this.openConversation(signalAccount);
@@ -2151,7 +2338,6 @@
         },
         onClose: () => {
           this.resetPanel();
-          this.updateHeader();
         },
       });
 
@@ -2165,6 +2351,11 @@
 
     listenBack(view) {
       this.panels = this.panels || [];
+
+      if (this.panels.length === 0) {
+        this.previousFocus = document.activeElement;
+      }
+
       this.panels.unshift(view);
       view.$el.insertAfter(this.$('.panel').last());
       view.$el.one('animationend', () => {
@@ -2178,11 +2369,23 @@
 
       const view = this.panels.shift();
 
+      if (
+        this.panels.length === 0 &&
+        this.previousFocus &&
+        this.previousFocus.focus
+      ) {
+        this.previousFocus.focus();
+        this.previousFocus = null;
+      }
+
       if (this.panels.length > 0) {
         this.panels[0].$el.fadeIn(250);
       }
+      this.updateHeader();
+
       view.$el.addClass('panel--remove').one('transitionend', () => {
         view.remove();
+
         if (this.panels.length === 0) {
           // Make sure poppers are positioned properly
           window.dispatchEvent(new Event('resize'));
@@ -2206,9 +2409,8 @@
       try {
         await this.confirm(i18n('deleteConversationConfirmation'));
         try {
-          this.unload('delete messages');
+          this.model.trigger('unload', 'delete messages');
           await this.model.destroyMessages();
-          Whisper.events.trigger('unloadConversation', this.model.id);
           this.model.updateLastMessage();
         } catch (error) {
           window.log.error(
@@ -2307,8 +2509,19 @@
     },
 
     async setQuoteMessage(messageId) {
+      const model = messageId
+        ? await getMessageById(messageId, {
+            Message: Whisper.Message,
+          })
+        : null;
+
+      if (model && !model.isNormalBubble()) {
+        return;
+      }
+
       this.quote = null;
       this.quotedMessage = null;
+      this.quoteHolder = null;
 
       const existing = this.model.get('quotedMessageId');
       if (existing !== messageId) {
@@ -2320,25 +2533,20 @@
         await this.saveModel();
       }
 
-      if (this.quoteHolder) {
-        this.quoteHolder.unload();
-        this.quoteHolder = null;
+      if (this.quoteView) {
+        this.quoteView.remove();
+        this.quoteView = null;
       }
 
-      if (messageId) {
-        const model = await getMessageById(messageId, {
-          Message: Whisper.Message,
-        });
-        if (model) {
-          const message = MessageController.register(model.id, model);
-          this.quotedMessage = message;
+      if (model) {
+        const message = MessageController.register(model.id, model);
+        this.quotedMessage = message;
 
-          if (message) {
-            const quote = await this.model.makeQuote(this.quotedMessage);
-            this.quote = quote;
+        if (message) {
+          const quote = await this.model.makeQuote(this.quotedMessage);
+          this.quote = quote;
 
-            this.focusMessageFieldAndClearDisabled();
-          }
+          this.focusMessageFieldAndClearDisabled();
         }
       }
 
@@ -2380,6 +2588,8 @@
         props: Object.assign({}, props, {
           withContentAbove: true,
           onClose: () => {
+            // This can't be the normal 'onClose' because that is always run when this
+            //   view is removed from the DOM, and would clear the draft quote.
             this.setQuoteMessage(null);
           },
         }),

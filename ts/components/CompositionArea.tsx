@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Editor } from 'draft-js';
-import { noop } from 'lodash';
+import { get, noop } from 'lodash';
 import classNames from 'classnames';
 import {
   EmojiButton,
@@ -23,6 +23,7 @@ export type OwnProps = {
   readonly i18n: LocalizerType;
   readonly compositionApi?: React.MutableRefObject<{
     focusInput: () => void;
+    isDirty: () => boolean;
     setDisabled: (disabled: boolean) => void;
     setShowMic: (showMic: boolean) => void;
     setMicActive: (micActive: boolean) => void;
@@ -52,6 +53,7 @@ export type Props = Pick<
     StickerButtonProps,
     | 'knownPacks'
     | 'receivedPacks'
+    | 'installedPack'
     | 'installedPacks'
     | 'blessedPacks'
     | 'recentStickers'
@@ -90,6 +92,7 @@ export const CompositionArea = ({
   // StickerButton
   knownPacks,
   receivedPacks,
+  installedPack,
   installedPacks,
   blessedPacks,
   recentStickers,
@@ -108,15 +111,12 @@ export const CompositionArea = ({
   const editorRef = React.useRef<Editor>(null);
   const inputApiRef = React.useRef<InputApi | undefined>();
 
-  const handleForceSend = React.useCallback(
-    () => {
-      setLarge(false);
-      if (inputApiRef.current) {
-        inputApiRef.current.submit();
-      }
-    },
-    [inputApiRef, setLarge]
-  );
+  const handleForceSend = React.useCallback(() => {
+    setLarge(false);
+    if (inputApiRef.current) {
+      inputApiRef.current.submit();
+    }
+  }, [inputApiRef, setLarge]);
 
   const handleSubmit = React.useCallback<typeof onSubmit>(
     (...args) => {
@@ -126,14 +126,11 @@ export const CompositionArea = ({
     [setLarge, onSubmit]
   );
 
-  const focusInput = React.useCallback(
-    () => {
-      if (editorRef.current) {
-        editorRef.current.focus();
-      }
-    },
-    [editorRef]
-  );
+  const focusInput = React.useCallback(() => {
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+  }, [editorRef]);
 
   const withStickers =
     countStickers({
@@ -148,6 +145,7 @@ export const CompositionArea = ({
 
   if (compositionApi) {
     compositionApi.current = {
+      isDirty: () => dirty,
       focusInput,
       setDisabled,
       setShowMic,
@@ -176,40 +174,31 @@ export const CompositionArea = ({
     [inputApiRef, onPickEmoji]
   );
 
-  const handleToggleLarge = React.useCallback(
-    () => {
-      setLarge(l => !l);
-    },
-    [setLarge]
-  );
+  const handleToggleLarge = React.useCallback(() => {
+    setLarge(l => !l);
+  }, [setLarge]);
 
   // The following is a work-around to allow react to lay-out backbone-managed
   // dom nodes until those functions are in React
   const micCellRef = React.useRef<HTMLDivElement>(null);
-  React.useLayoutEffect(
-    () => {
-      const { current: micCellContainer } = micCellRef;
-      if (micCellContainer && micCellEl) {
-        emptyElement(micCellContainer);
-        micCellContainer.appendChild(micCellEl);
-      }
+  React.useLayoutEffect(() => {
+    const { current: micCellContainer } = micCellRef;
+    if (micCellContainer && micCellEl) {
+      emptyElement(micCellContainer);
+      micCellContainer.appendChild(micCellEl);
+    }
 
-      return noop;
-    },
-    [micCellRef, micCellEl, large, dirty, showMic]
-  );
+    return noop;
+  }, [micCellRef, micCellEl, large, dirty, showMic]);
 
-  React.useLayoutEffect(
-    () => {
-      const { current: attSlot } = attSlotRef;
-      if (attSlot && attachmentListEl) {
-        attSlot.appendChild(attachmentListEl);
-      }
+  React.useLayoutEffect(() => {
+    const { current: attSlot } = attSlotRef;
+    if (attSlot && attachmentListEl) {
+      attSlot.appendChild(attachmentListEl);
+    }
 
-      return noop;
-    },
-    [attSlotRef, attachmentListEl]
-  );
+    return noop;
+  }, [attSlotRef, attachmentListEl]);
 
   const emojiButtonFragment = (
     <div className="module-composition-area__button-cell">
@@ -220,7 +209,6 @@ export const CompositionArea = ({
         recentEmojis={recentEmojis}
         skinTone={skinTone}
         onSetSkinTone={onSetSkinTone}
-        onClose={focusInput}
       />
     </div>
   );
@@ -230,7 +218,10 @@ export const CompositionArea = ({
       className={classNames(
         'module-composition-area__button-cell',
         micActive ? 'module-composition-area__button-cell--mic-active' : null,
-        large ? 'module-composition-area__button-cell--large-right' : null
+        large ? 'module-composition-area__button-cell--large-right' : null,
+        micActive && large
+          ? 'module-composition-area__button-cell--large-right-mic-active'
+          : null
       )}
       ref={micCellRef}
     />
@@ -265,6 +256,7 @@ export const CompositionArea = ({
         i18n={i18n}
         knownPacks={knownPacks}
         receivedPacks={receivedPacks}
+        installedPack={installedPack}
         installedPacks={installedPacks}
         blessedPacks={blessedPacks}
         recentStickers={recentStickers}
@@ -280,28 +272,28 @@ export const CompositionArea = ({
   ) : null;
 
   // Listen for cmd/ctrl-shift-x to toggle large composition mode
-  React.useEffect(
-    () => {
-      const handler = (e: KeyboardEvent) => {
-        const { key, shiftKey, ctrlKey, metaKey } = e;
-        // When using the ctrl key, `key` is `'X'`. When using the cmd key, `key` is `'x'`
-        const xKey = key === 'x' || key === 'X';
-        const cmdOrCtrl = ctrlKey || metaKey;
-        // cmd/ctrl-shift-x
-        if (xKey && shiftKey && cmdOrCtrl) {
-          e.preventDefault();
-          setLarge(x => !x);
-        }
-      };
+  React.useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const { key, shiftKey, ctrlKey, metaKey } = e;
+      // When using the ctrl key, `key` is `'X'`. When using the cmd key, `key` is `'x'`
+      const xKey = key === 'x' || key === 'X';
+      const commandKey = get(window, 'platform') === 'darwin' && metaKey;
+      const controlKey = get(window, 'platform') !== 'darwin' && ctrlKey;
+      const commandOrCtrl = commandKey || controlKey;
 
-      document.addEventListener('keydown', handler);
+      // cmd/ctrl-shift-x
+      if (xKey && shiftKey && commandOrCtrl) {
+        e.preventDefault();
+        setLarge(x => !x);
+      }
+    };
 
-      return () => {
-        document.removeEventListener('keydown', handler);
-      };
-    },
-    [setLarge]
-  );
+    document.addEventListener('keydown', handler);
+
+    return () => {
+      document.removeEventListener('keydown', handler);
+    };
+  }, [setLarge]);
 
   return (
     <div className="module-composition-area">
@@ -313,6 +305,8 @@ export const CompositionArea = ({
               ? 'module-composition-area__toggle-large__button--large-active'
               : null
           )}
+          // This prevents the user from tabbing here
+          tabIndex={-1}
           onClick={handleToggleLarge}
         />
       </div>

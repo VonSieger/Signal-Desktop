@@ -19,6 +19,7 @@ export type OwnProps = {
 export type Props = OwnProps;
 
 export const StickerManager = React.memo(
+  // tslint:disable-next-line max-func-body-length
   ({
     installedPacks,
     receivedPacks,
@@ -29,6 +30,7 @@ export const StickerManager = React.memo(
     uninstallStickerPack,
     i18n,
   }: Props) => {
+    const focusRef = React.createRef<HTMLDivElement>();
     const [
       packToPreview,
       setPackToPreview,
@@ -41,14 +43,19 @@ export const StickerManager = React.memo(
       knownPacks.forEach(pack => {
         downloadStickerPack(pack.id, pack.key);
       });
+
+      // When this component is created, it's initially not part of the DOM, and then it's
+      //   added off-screen and animated in. This ensures that the focus takes.
+      setTimeout(() => {
+        if (focusRef.current) {
+          focusRef.current.focus();
+        }
+      });
     }, []);
 
-    const clearPackToPreview = React.useCallback(
-      () => {
-        setPackToPreview(null);
-      },
-      [setPackToPreview]
-    );
+    const clearPackToPreview = React.useCallback(() => {
+      setPackToPreview(null);
+    }, [setPackToPreview]);
 
     const previewPack = React.useCallback(
       (pack: StickerPackType) => {
@@ -69,7 +76,7 @@ export const StickerManager = React.memo(
             uninstallStickerPack={uninstallStickerPack}
           />
         ) : null}
-        <div className="module-sticker-manager">
+        <div className="module-sticker-manager" tabIndex={-1} ref={focusRef}>
           {[
             {
               i18nKey: 'stickers--StickerManager--InstalledPacks',

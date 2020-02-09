@@ -1,6 +1,6 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import { noop } from 'lodash';
+import { get, noop } from 'lodash';
 import { Manager, Popper, Reference } from 'react-popper';
 import { createPortal } from 'react-dom';
 import { StickerPicker } from './StickerPicker';
@@ -52,29 +52,26 @@ export const StickerButton = React.memo(
       null
     );
 
-    const handleClickButton = React.useCallback(
-      () => {
-        // Clear tooltip state
-        clearInstalledStickerPack();
-        clearShowIntroduction();
+    const handleClickButton = React.useCallback(() => {
+      // Clear tooltip state
+      clearInstalledStickerPack();
+      clearShowIntroduction();
 
-        // Handle button click
-        if (installedPacks.length === 0) {
-          onClickAddPack();
-        } else if (popperRoot) {
-          setOpen(false);
-        } else {
-          setOpen(true);
-        }
-      },
-      [
-        clearInstalledStickerPack,
-        onClickAddPack,
-        installedPacks,
-        popperRoot,
-        setOpen,
-      ]
-    );
+      // Handle button click
+      if (installedPacks.length === 0) {
+        onClickAddPack();
+      } else if (popperRoot) {
+        setOpen(false);
+      } else {
+        setOpen(true);
+      }
+    }, [
+      clearInstalledStickerPack,
+      onClickAddPack,
+      installedPacks,
+      popperRoot,
+      setOpen,
+    ]);
 
     const handlePickSticker = React.useCallback(
       (packId: string, stickerId: number) => {
@@ -84,85 +81,96 @@ export const StickerButton = React.memo(
       [setOpen, onPickSticker]
     );
 
-    const handleClose = React.useCallback(
-      () => {
-        setOpen(false);
-      },
-      [setOpen]
-    );
+    const handleClose = React.useCallback(() => {
+      setOpen(false);
+    }, [setOpen]);
 
-    const handleClickAddPack = React.useCallback(
-      () => {
-        setOpen(false);
-        if (showPickerHint) {
-          clearShowPickerHint();
-        }
-        onClickAddPack();
-      },
-      [onClickAddPack, showPickerHint, clearShowPickerHint]
-    );
+    const handleClickAddPack = React.useCallback(() => {
+      setOpen(false);
+      if (showPickerHint) {
+        clearShowPickerHint();
+      }
+      onClickAddPack();
+    }, [onClickAddPack, showPickerHint, clearShowPickerHint]);
 
-    const handleClearIntroduction = React.useCallback(
-      () => {
-        clearInstalledStickerPack();
-        clearShowIntroduction();
-      },
-      [clearInstalledStickerPack, clearShowIntroduction]
-    );
+    const handleClearIntroduction = React.useCallback(() => {
+      clearInstalledStickerPack();
+      clearShowIntroduction();
+    }, [clearInstalledStickerPack, clearShowIntroduction]);
 
     // Create popper root and handle outside clicks
-    React.useEffect(
-      () => {
-        if (open) {
-          const root = document.createElement('div');
-          setPopperRoot(root);
-          document.body.appendChild(root);
-          const handleOutsideClick = ({ target }: MouseEvent) => {
-            const targetElement = target as HTMLElement;
-            const className = targetElement
-              ? targetElement.className || ''
-              : '';
+    React.useEffect(() => {
+      if (open) {
+        const root = document.createElement('div');
+        setPopperRoot(root);
+        document.body.appendChild(root);
+        const handleOutsideClick = ({ target }: MouseEvent) => {
+          const targetElement = target as HTMLElement;
+          const className = targetElement ? targetElement.className || '' : '';
 
-            // We need to special-case sticker picker header buttons, because they can
-            //   disappear after being clicked, which breaks the .contains() check below.
-            const isMissingButtonClass =
-              !className ||
-              className.indexOf('module-sticker-picker__header__button') < 0;
+          // We need to special-case sticker picker header buttons, because they can
+          //   disappear after being clicked, which breaks the .contains() check below.
+          const isMissingButtonClass =
+            !className ||
+            className.indexOf('module-sticker-picker__header__button') < 0;
 
-            if (!root.contains(targetElement) && isMissingButtonClass) {
-              setOpen(false);
-            }
-          };
-          document.addEventListener('click', handleOutsideClick);
+          if (!root.contains(targetElement) && isMissingButtonClass) {
+            setOpen(false);
+          }
+        };
+        document.addEventListener('click', handleOutsideClick);
 
-          return () => {
-            document.body.removeChild(root);
-            document.removeEventListener('click', handleOutsideClick);
-            setPopperRoot(null);
-          };
+        return () => {
+          document.body.removeChild(root);
+          document.removeEventListener('click', handleOutsideClick);
+          setPopperRoot(null);
+        };
+      }
+
+      return noop;
+    }, [open, setOpen, setPopperRoot]);
+
+    // Install keyboard shortcut to open sticker picker
+    React.useEffect(() => {
+      const handleKeydown = (event: KeyboardEvent) => {
+        const { ctrlKey, key, metaKey, shiftKey } = event;
+        const commandKey = get(window, 'platform') === 'darwin' && metaKey;
+        const controlKey = get(window, 'platform') !== 'darwin' && ctrlKey;
+        const commandOrCtrl = commandKey || controlKey;
+
+        // We don't want to open up if the conversation has any panels open
+        const panels = document.querySelectorAll('.conversation .panel');
+        if (panels && panels.length > 1) {
+          return;
         }
 
-        return noop;
-      },
-      [open, setOpen, setPopperRoot]
-    );
+        if (commandOrCtrl && shiftKey && (key === 's' || key === 'S')) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          setOpen(!open);
+        }
+      };
+      document.addEventListener('keydown', handleKeydown);
+
+      return () => {
+        document.removeEventListener('keydown', handleKeydown);
+      };
+    }, [open, setOpen]);
 
     // Clear the installed pack after one minute
-    React.useEffect(
-      () => {
-        if (installedPack) {
-          // tslint:disable-next-line:no-string-based-set-timeout
-          const timerId = setTimeout(clearInstalledStickerPack, 60 * 1000);
+    React.useEffect(() => {
+      if (installedPack) {
+        // tslint:disable-next-line:no-string-based-set-timeout
+        const timerId = setTimeout(clearInstalledStickerPack, 10 * 1000);
 
-          return () => {
-            clearTimeout(timerId);
-          };
-        }
+        return () => {
+          clearTimeout(timerId);
+        };
+      }
 
-        return noop;
-      },
-      [installedPack, clearInstalledStickerPack]
-    );
+      return noop;
+    }, [installedPack, clearInstalledStickerPack]);
 
     if (
       countStickers({
@@ -192,11 +200,10 @@ export const StickerButton = React.memo(
         {!open && !showIntroduction && installedPack ? (
           <Popper placement={position} key={installedPack.id}>
             {({ ref, style, placement, arrowProps }) => (
-              <div
+              <button
                 ref={ref}
                 style={style}
                 className="module-sticker-button__tooltip"
-                role="button"
                 onClick={clearInstalledStickerPack}
               >
                 {installedPack.cover ? (
@@ -222,24 +229,27 @@ export const StickerButton = React.memo(
                     `module-sticker-button__tooltip__triangle--${placement}`
                   )}
                 />
-              </div>
+              </button>
             )}
           </Popper>
         ) : null}
         {!open && showIntroduction ? (
           <Popper placement={position}>
             {({ ref, style, placement, arrowProps }) => (
-              <div
+              <button
                 ref={ref}
                 style={style}
                 className={classNames(
                   'module-sticker-button__tooltip',
                   'module-sticker-button__tooltip--introduction'
                 )}
-                role="button"
                 onClick={handleClearIntroduction}
               >
-                {/* <div className="module-sticker-button__tooltip--introduction__image" /> */}
+                <img
+                  className="module-sticker-button__tooltip--introduction__image"
+                  srcSet="images/sticker_splash@1x.png 1x, images/sticker_splash@2x.png 2x"
+                  alt={i18n('stickers--StickerManager--Introduction--Image')}
+                />
                 <div className="module-sticker-button__tooltip--introduction__meta">
                   <div className="module-sticker-button__tooltip--introduction__meta__title">
                     {i18n('stickers--StickerManager--Introduction--Title')}
@@ -263,7 +273,7 @@ export const StickerButton = React.memo(
                     `module-sticker-button__tooltip__triangle--${placement}`
                   )}
                 />
-              </div>
+              </button>
             )}
           </Popper>
         ) : null}

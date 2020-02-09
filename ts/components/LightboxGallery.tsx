@@ -23,9 +23,11 @@ interface Props {
   close: () => void;
   i18n: LocalizerType;
   media: Array<MediaItemType>;
-  onSave?: (
-    options: { attachment: AttachmentType; message: Message; index: number }
-  ) => void;
+  onSave?: (options: {
+    attachment: AttachmentType;
+    message: Message;
+    index: number;
+  }) => void;
   selectedIndex: number;
 }
 
@@ -66,14 +68,15 @@ export class LightboxGallery extends React.Component<Props, State> {
 
     return (
       <Lightbox
-        close={close}
-        onPrevious={onPrevious}
-        onNext={onNext}
-        onSave={saveCallback}
-        objectURL={objectURL}
         caption={captionCallback}
+        close={close}
         contentType={selectedMedia.contentType}
         i18n={i18n}
+        isViewOnce={false}
+        objectURL={objectURL}
+        onNext={onNext}
+        onPrevious={onPrevious}
+        onSave={saveCallback}
       />
     );
   }

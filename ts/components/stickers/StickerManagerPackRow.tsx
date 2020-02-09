@@ -26,12 +26,9 @@ export const StickerManagerPackRow = React.memo(
     const { id, key, isBlessed } = pack;
     const [uninstalling, setUninstalling] = React.useState(false);
 
-    const clearUninstalling = React.useCallback(
-      () => {
-        setUninstalling(false);
-      },
-      [setUninstalling]
-    );
+    const clearUninstalling = React.useCallback(() => {
+      setUninstalling(false);
+    }, [setUninstalling]);
 
     const handleInstall = React.useCallback(
       (e: React.MouseEvent) => {
@@ -55,19 +52,34 @@ export const StickerManagerPackRow = React.memo(
       [setUninstalling, id, key, isBlessed]
     );
 
-    const handleConfirmUninstall = React.useCallback(
-      () => {
-        clearUninstalling();
-        if (uninstallStickerPack) {
-          uninstallStickerPack(id, key);
+    const handleConfirmUninstall = React.useCallback(() => {
+      clearUninstalling();
+      if (uninstallStickerPack) {
+        uninstallStickerPack(id, key);
+      }
+    }, [id, key, clearUninstalling]);
+
+    const handleKeyDown = React.useCallback(
+      (event: React.KeyboardEvent) => {
+        if (
+          onClickPreview &&
+          (event.key === 'Enter' || event.key === 'Space')
+        ) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          onClickPreview(pack);
         }
       },
-      [id, key, clearUninstalling]
+      [onClickPreview, pack]
     );
 
     const handleClickPreview = React.useCallback(
-      () => {
+      (event: React.MouseEvent) => {
         if (onClickPreview) {
+          event.stopPropagation();
+          event.preventDefault();
+
           onClickPreview(pack);
         }
       },
@@ -87,7 +99,10 @@ export const StickerManagerPackRow = React.memo(
           </ConfirmationModal>
         ) : null}
         <div
+          tabIndex={0}
+          // This can't be a button because we have buttons as descendants
           role="button"
+          onKeyDown={handleKeyDown}
           onClick={handleClickPreview}
           className="module-sticker-manager__pack-row"
         >

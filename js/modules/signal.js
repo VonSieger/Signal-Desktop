@@ -57,6 +57,9 @@ const {
 const {
   createStickerPreviewModal,
 } = require('../../ts/state/roots/createStickerPreviewModal');
+const {
+  createShortcutGuideModal,
+} = require('../../ts/state/roots/createShortcutGuideModal');
 
 const { createStore } = require('../../ts/state/createStore');
 const conversationsDuck = require('../../ts/state/ducks/conversations');
@@ -65,6 +68,9 @@ const itemsDuck = require('../../ts/state/ducks/items');
 const searchDuck = require('../../ts/state/ducks/search');
 const stickersDuck = require('../../ts/state/ducks/stickers');
 const userDuck = require('../../ts/state/ducks/user');
+
+const conversationsSelectors = require('../../ts/state/selectors/conversations');
+const searchSelectors = require('../../ts/state/selectors/search');
 
 // Migrations
 const {
@@ -108,10 +114,13 @@ function initializeMigrations({
     createReader,
     createWriterForExisting,
     createWriterForNew,
+    createDoesExist,
     getDraftPath,
     getPath,
     getStickersPath,
     getTempPath,
+    openFileInFolder,
+    saveAttachmentToDisk,
   } = Attachments;
   const {
     getImageDimensions,
@@ -133,6 +142,7 @@ function initializeMigrations({
   const copyIntoAttachmentsDirectory = Attachments.copyIntoAttachmentsDirectory(
     attachmentsPath
   );
+  const doesAttachmentExist = createDoesExist(attachmentsPath);
 
   const stickersPath = getStickersPath(userDataPath);
   const writeNewStickerData = createWriterForNew(stickersPath);
@@ -167,6 +177,7 @@ function initializeMigrations({
     }),
     deleteSticker,
     deleteTempFile,
+    doesAttachmentExist,
     getAbsoluteAttachmentPath,
     getAbsoluteDraftPath,
     getAbsoluteStickerPath,
@@ -178,11 +189,13 @@ function initializeMigrations({
     loadPreviewData,
     loadQuoteData,
     loadStickerData,
+    openFileInFolder,
     readAttachmentData,
     readDraftData,
     readStickerData,
     readTempData,
     run,
+    saveAttachmentToDisk,
     processNewAttachment: attachment =>
       MessageType.processNewAttachment(attachment, {
         writeNewAttachmentData,
@@ -266,9 +279,10 @@ exports.setup = (options = {}) => {
   const Roots = {
     createCompositionArea,
     createLeftPane,
-    createTimeline,
+    createShortcutGuideModal,
     createStickerManager,
     createStickerPreviewModal,
+    createTimeline,
   };
   const Ducks = {
     conversations: conversationsDuck,
@@ -278,11 +292,17 @@ exports.setup = (options = {}) => {
     search: searchDuck,
     stickers: stickersDuck,
   };
+  const Selectors = {
+    conversations: conversationsSelectors,
+    search: searchSelectors,
+  };
+
   const State = {
     bindActionCreators,
     createStore,
     Roots,
     Ducks,
+    Selectors,
   };
 
   const Types = {

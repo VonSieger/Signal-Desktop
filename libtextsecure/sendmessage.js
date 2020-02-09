@@ -209,9 +209,7 @@ MessageSender.prototype = {
     }
     if (data.byteLength !== size) {
       throw new Error(
-        `makeAttachmentPointer: Size ${size} did not match data.byteLength ${
-          data.byteLength
-        }`
+        `makeAttachmentPointer: Size ${size} did not match data.byteLength ${data.byteLength}`
       );
     }
 
@@ -610,6 +608,30 @@ MessageSender.prototype = {
     return this.server.getStickerPackManifest(packId);
   },
 
+  sendRequestBlockSyncMessage(options) {
+    const myNumber = textsecure.storage.user.getNumber();
+    const myDevice = textsecure.storage.user.getDeviceId();
+    if (myDevice !== 1 && myDevice !== '1') {
+      const request = new textsecure.protobuf.SyncMessage.Request();
+      request.type = textsecure.protobuf.SyncMessage.Request.Type.BLOCKED;
+      const syncMessage = this.createSyncMessage();
+      syncMessage.request = request;
+      const contentMessage = new textsecure.protobuf.Content();
+      contentMessage.syncMessage = syncMessage;
+
+      const silent = true;
+      return this.sendIndividualProto(
+        myNumber,
+        contentMessage,
+        Date.now(),
+        silent,
+        options
+      );
+    }
+
+    return Promise.resolve();
+  },
+
   sendRequestConfigurationSyncMessage(options) {
     const myNumber = textsecure.storage.user.getNumber();
     const myDevice = textsecure.storage.user.getDeviceId();
@@ -730,7 +752,7 @@ MessageSender.prototype = {
     );
   },
 
-  sendDeliveryReceipt(recipientId, timestamp, options) {
+  sendDeliveryReceipt(recipientId, timestamps, options) {
     const myNumber = textsecure.storage.user.getNumber();
     const myDevice = textsecure.storage.user.getDeviceId();
     if (myNumber === recipientId && (myDevice === 1 || myDevice === '1')) {
@@ -739,7 +761,7 @@ MessageSender.prototype = {
 
     const receiptMessage = new textsecure.protobuf.ReceiptMessage();
     receiptMessage.type = textsecure.protobuf.ReceiptMessage.Type.DELIVERY;
-    receiptMessage.timestamp = [timestamp];
+    receiptMessage.timestamp = timestamps;
 
     const contentMessage = new textsecure.protobuf.Content();
     contentMessage.receiptMessage = receiptMessage;
@@ -1290,6 +1312,10 @@ textsecure.MessageSender = function MessageSenderWrapper(username, password) {
   this.sendRequestConfigurationSyncMessage = sender.sendRequestConfigurationSyncMessage.bind(
     sender
   );
+  this.sendRequestBlockSyncMessage = sender.sendRequestBlockSyncMessage.bind(
+    sender
+  );
+
   this.sendMessageToNumber = sender.sendMessageToNumber.bind(sender);
   this.sendMessage = sender.sendMessage.bind(sender);
   this.resetSession = sender.resetSession.bind(sender);

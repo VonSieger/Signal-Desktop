@@ -143,6 +143,10 @@
         "message": "独立したデバイスとして設定",
         "description": "Only available on development modes, menu option to open up the standalone device setup sequence"
     },
+    "avatarMenuViewArchive": {
+        "message": "View Archive",
+        "description": "One of the menu options available in the Avatar Popup menu"
+    },
     "loading": {
         "message": "読み込んでいます",
         "description": "Message shown on the loading screen before we've loaded any messages"
@@ -599,9 +603,13 @@
         "message": "デバッグログ",
         "description": "View menu item to open the debug log (title case)"
     },
+    "helpMenuShowKeyboardShortcuts": {
+        "message": "Show Keyboard Shortcuts",
+        "description": "Item under the help menu, pops up a screen showing the application's keyboard shortcuts"
+    },
     "goToReleaseNotes": {
         "message": "リリースノートを閲覧",
-        "description": ""
+        "description": "Item under the help menu, takes you to GitHub page for release notes"
     },
     "goToForums": {
         "message": "フォーラムに参加",
@@ -768,7 +776,7 @@
         "description": "Shown in toast if user clicks on quote references messages not loaded in view, but in database"
     },
     "voiceNoteMustBeOnlyAttachment": {
-        "message": "A voice note must be the only attachment included in a message.",
+        "message": "A voice message must have only one attachment.",
         "description": "Shown in toast if tries to record a voice note with any staged attachments"
     },
     "you": {
@@ -860,6 +868,10 @@
     "to": {
         "message": "宛先",
         "description": "Label for the receiver of a message"
+    },
+    "toJoiner": {
+        "message": "宛先",
+        "description": "Joiner for message search results - like 'Jon' to 'Friends Group'"
     },
     "sent": {
         "message": "送信",
@@ -1179,16 +1191,6 @@
         "message": "1時間",
         "description": "Brief timestamp for messages sent about one hour ago. Displayed in the conversation list and message bubble."
     },
-    "hoursAgoShort": {
-        "message": "$hours$時間",
-        "description": "Even further contracted form of 'X hours ago' which works both for singular and plural, used in the left pane",
-        "placeholders": {
-            "hours": {
-                "content": "$1",
-                "example": "2"
-            }
-        }
-    },
     "hoursAgo": {
         "message": "$hours$時間前",
         "description": "Contracted form of 'X hours ago' which works both for singular and plural",
@@ -1196,16 +1198,6 @@
             "hours": {
                 "content": "$1",
                 "example": "2"
-            }
-        }
-    },
-    "minutesAgoShort": {
-        "message": "$minutes$分",
-        "description": "Even further contracted form of 'X minutes ago' which works both for singular and plural, used in the left pane",
-        "placeholders": {
-            "minutes": {
-                "content": "$1",
-                "example": "10"
             }
         }
     },
@@ -1564,8 +1556,12 @@
         "description": "Shown in notifications and in the left pane when a message has features too new for this signal install."
     },
     "message--getDescription--disappearing-photo": {
-        "message": "消える写真",
+        "message": "写真が消去されます",
         "description": "Shown in notifications and in the left pane when a message is a disappearing photo."
+    },
+    "message--getDescription--disappearing-video": {
+        "message": "消える動画",
+        "description": "Shown in notifications and in the left pane when a message is a disappearing video."
     },
     "stickers--toast--InstallFailed": {
         "message": "ステッカーパックをインストールできませんでした",
@@ -1706,12 +1702,16 @@
         "description": "Text shown on messages with with individual timers, after user has viewed it"
     },
     "Message--tap-to-view--outgoing": {
-        "message": "写真",
+        "message": "メディア",
         "description": "Text shown on outgoing messages with with individual timers (inaccessble)"
     },
     "Message--tap-to-view--incoming": {
-        "message": "写真を見る",
-        "description": "Text shown on messages with with individual timers, before user has viewed it"
+        "message": "写真",
+        "description": "Text shown on photo messages with with individual timers, before user has viewed it"
+    },
+    "Message--tap-to-view--incoming-video": {
+        "message": "動画",
+        "description": "Text shown on video messages with with individual timers, before user has viewed it"
     },
     "Conversation--getDraftPreview--attachment": {
         "message": "(attachment)",
@@ -1724,6 +1724,186 @@
     "Conversation--getDraftPreview--draft": {
         "message": "(下書き)",
         "description": "Text shown in left pane as preview for conversation with saved a saved draft message"
+    },
+    "Keyboard--navigate-by-section": {
+        "message": "Navigate by section",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--previous-conversation": {
+        "message": "Previous conversation",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--next-conversation": {
+        "message": "Next conversation",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--previous-unread-conversation": {
+        "message": "Previous unread conversation",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--next-unread-conversation": {
+        "message": "Next unread conversation",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--preferences": {
+        "message": "Preferences",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--open-conversation-menu": {
+        "message": "Open conversation menu",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--archive-conversation": {
+        "message": "Archive conversation",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--unarchive-conversation": {
+        "message": "Unarchive conversation",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--search": {
+        "message": "検索",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--search-in-conversation": {
+        "message": "Search in conversation",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--focus-composer": {
+        "message": "Focus composer",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--open-all-media-view": {
+        "message": "Open All Media view",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--open-emoji-chooser": {
+        "message": "Open emoji chooser",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--open-sticker-chooser": {
+        "message": "Open sticker chooser",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--begin-recording-voice-note": {
+        "message": "Begin recording voice note",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--default-message-action": {
+        "message": "Default action for selected message",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--view-details-for-selected-message": {
+        "message": "View selected message details",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--toggle-reply": {
+        "message": "Toggle reply to selected message",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--save-attachment": {
+        "message": "Save attachment from selected message",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--delete-message": {
+        "message": "Delete selected message",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--add-newline": {
+        "message": "Add newline to message",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--expand-composer": {
+        "message": "Expand composer",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--send-in-expanded-composer": {
+        "message": "Send (in expanded composer)",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--attach-file": {
+        "message": "Attach file",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--remove-draft-link-preview": {
+        "message": "Remove draft link preview",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--remove-draft-attachments": {
+        "message": "Remove all draft attachments",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--Key--ctrl": {
+        "message": "Ctrl",
+        "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--Key--option": {
+        "message": "Option",
+        "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--Key--alt": {
+        "message": "Alt",
+        "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--Key--shift": {
+        "message": "Shift",
+        "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--Key--enter": {
+        "message": "Enter",
+        "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--header": {
+        "message": "Keyboard Shortcuts",
+        "description": "Title header of the keyboard shortcuts guide"
+    },
+    "Keyboard--navigation-header": {
+        "message": "Navigation",
+        "description": "Header of the keyboard shortcuts guide - navigation section"
+    },
+    "Keyboard--messages-header": {
+        "message": "メッセージ",
+        "description": "Header of the keyboard shortcuts guide - messages section"
+    },
+    "Keyboard--composer-header": {
+        "message": "Composer",
+        "description": "Header of the keyboard shortcuts guide - composer section"
+    },
+    "Keyboard--scroll-to-top": {
+        "message": "Scroll to top of list",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--scroll-to-bottom": {
+        "message": "Scroll to bottom of list",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--close-curent-conversation": {
+        "message": "Close current conversation",
+        "description": "Shown in the shortcuts guide"
+    },
+    "close-popup": {
+        "message": "Close Popup",
+        "description": "Used as alt text for any button closing a popup"
+    },
+    "add-image-attachment": {
+        "message": "Add image attachment",
+        "description": "Used in draft attachment list for the big 'add new attachment' button"
+    },
+    "remove-attachment": {
+        "message": "Remove attachment",
+        "description": "Used in draft attachment list to remove an individual attachment"
+    },
+    "backToInbox": {
+        "message": "Back to inbox",
+        "description": "Used as alt-text of button on archived conversations screen"
+    },
+    "conversationArchived": {
+        "message": "Conversation archived",
+        "description": "A toast that shows up when user archives a conversation"
+    },
+    "conversationReturnedToInbox": {
+        "message": "Conversation returned to inbox",
+        "description": "A toast that shows up when the user unarchives a conversation"
     },
     "privacyPolicy": {
         "message": "使用条件とプライバシーポリシー",

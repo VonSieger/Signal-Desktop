@@ -36092,6 +36092,9 @@ SessionCipher.prototype = {
           delete chain.messageKeys[chain.chainKey.counter];
           msg.counter = chain.chainKey.counter;
           msg.previousCounter = session.currentRatchet.previousCounter;
+          if (msg.previousCounter < 0) {
+              msg.previousCounter = 0;
+          }
 
           return Internal.crypto.encrypt(
               keys[0], buffer, keys[2].slice(0, 16)
@@ -36297,14 +36300,27 @@ SessionCipher.prototype = {
         });
     }.bind(this)).then(function(keys) {
         return this.storage.getIdentityKeyPair().then(function(ourIdentityKey) {
+            var remoteIdentityKey = util.toArrayBuffer(session.indexInfo.remoteIdentityKey);
+            var ourPubKey = util.toArrayBuffer(ourIdentityKey.pubKey);
 
             var macInput = new Uint8Array(messageProto.byteLength + 33*2 + 1);
-            macInput.set(new Uint8Array(util.toArrayBuffer(session.indexInfo.remoteIdentityKey)));
-            macInput.set(new Uint8Array(util.toArrayBuffer(ourIdentityKey.pubKey)), 33);
+            macInput.set(new Uint8Array(remoteIdentityKey));
+            macInput.set(new Uint8Array(ourPubKey), 33);
             macInput[33*2] = (3 << 4) | 3;
             macInput.set(new Uint8Array(messageProto), 33*2 + 1);
 
-            return Internal.verifyMAC(macInput.buffer, keys[1], mac, 8);
+            return Internal.verifyMAC(macInput.buffer, keys[1], mac, 8).catch(function(error) {
+              function logArrayBuffer(name, arrayBuffer) {
+                console.log('Bad MAC: ' + name + ' - truthy: ' + Boolean(arrayBuffer) +', length: ' + (arrayBuffer ? arrayBuffer.byteLength : 'NaN'));
+              }
+
+              logArrayBuffer('ourPubKey', ourPubKey);
+              logArrayBuffer('remoteIdentityKey', remoteIdentityKey);
+              logArrayBuffer('messageProto', messageProto);
+              logArrayBuffer('mac', mac);
+
+              throw error;
+            });
         }.bind(this)).then(function() {
             return Internal.crypto.decrypt(keys[0], message.ciphertext.toArrayBuffer(), keys[2].slice(0, 16));
         });
@@ -36318,8 +36334,8 @@ SessionCipher.prototype = {
           return Promise.resolve(); // Already calculated
       }
 
-      if (counter - chain.chainKey.counter > 2000) {
-          throw new Error('Over 2000 messages into the future!');
+      if (counter - chain.chainKey.counter > 5000) {
+          throw new Error('Over 5000 messages into the future! New: ' + counter + ', Existing: ' + chain.chainKey.counter);
       }
 
       if (chain.chainKey.key === undefined) {

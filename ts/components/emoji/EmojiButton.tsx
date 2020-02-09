@@ -1,6 +1,6 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import { noop } from 'lodash';
+import { get, noop } from 'lodash';
 import { Manager, Popper, Reference } from 'react-popper';
 import { createPortal } from 'react-dom';
 import {
@@ -19,15 +19,11 @@ export type OwnProps = {
 export type Props = OwnProps &
   Pick<
     EmojiPickerProps,
-    | 'onClose'
-    | 'doSend'
-    | 'onPickEmoji'
-    | 'onSetSkinTone'
-    | 'recentEmojis'
-    | 'skinTone'
+    'doSend' | 'onPickEmoji' | 'onSetSkinTone' | 'recentEmojis' | 'skinTone'
   >;
 
 export const EmojiButton = React.memo(
+  // tslint:disable-next-line:max-func-body-length
   ({
     i18n,
     doSend,
@@ -35,58 +31,74 @@ export const EmojiButton = React.memo(
     skinTone,
     onSetSkinTone,
     recentEmojis,
-    onClose,
   }: Props) => {
     const [open, setOpen] = React.useState(false);
     const [popperRoot, setPopperRoot] = React.useState<HTMLElement | null>(
       null
     );
 
-    const handleClickButton = React.useCallback(
-      () => {
-        if (popperRoot) {
-          setOpen(false);
-        } else {
-          setOpen(true);
-        }
-      },
-      [popperRoot, setOpen]
-    );
-
-    const handleClose = React.useCallback(
-      () => {
+    const handleClickButton = React.useCallback(() => {
+      if (popperRoot) {
         setOpen(false);
-        onClose();
-      },
-      [setOpen, onClose]
-    );
+      } else {
+        setOpen(true);
+      }
+    }, [popperRoot, setOpen]);
+
+    const handleClose = React.useCallback(() => {
+      setOpen(false);
+    }, [setOpen]);
 
     // Create popper root and handle outside clicks
-    React.useEffect(
-      () => {
-        if (open) {
-          const root = document.createElement('div');
-          setPopperRoot(root);
-          document.body.appendChild(root);
-          const handleOutsideClick = ({ target }: MouseEvent) => {
-            if (!root.contains(target as Node)) {
-              setOpen(false);
-              onClose();
-            }
-          };
-          document.addEventListener('click', handleOutsideClick);
+    React.useEffect(() => {
+      if (open) {
+        const root = document.createElement('div');
+        setPopperRoot(root);
+        document.body.appendChild(root);
+        const handleOutsideClick = ({ target }: MouseEvent) => {
+          if (!root.contains(target as Node)) {
+            setOpen(false);
+          }
+        };
+        document.addEventListener('click', handleOutsideClick);
 
-          return () => {
-            document.body.removeChild(root);
-            document.removeEventListener('click', handleOutsideClick);
-            setPopperRoot(null);
-          };
+        return () => {
+          document.body.removeChild(root);
+          document.removeEventListener('click', handleOutsideClick);
+          setPopperRoot(null);
+        };
+      }
+
+      return noop;
+    }, [open, setOpen, setPopperRoot]);
+
+    // Install keyboard shortcut to open emoji picker
+    React.useEffect(() => {
+      const handleKeydown = (event: KeyboardEvent) => {
+        const { ctrlKey, key, metaKey, shiftKey } = event;
+        const commandKey = get(window, 'platform') === 'darwin' && metaKey;
+        const controlKey = get(window, 'platform') !== 'darwin' && ctrlKey;
+        const commandOrCtrl = commandKey || controlKey;
+
+        // We don't want to open up if the conversation has any panels open
+        const panels = document.querySelectorAll('.conversation .panel');
+        if (panels && panels.length > 1) {
+          return;
         }
 
-        return noop;
-      },
-      [open, setOpen, setPopperRoot]
-    );
+        if (commandOrCtrl && shiftKey && (key === 'j' || key === 'J')) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          setOpen(!open);
+        }
+      };
+      document.addEventListener('keydown', handleKeydown);
+
+      return () => {
+        document.removeEventListener('keydown', handleKeydown);
+      };
+    }, [open, setOpen]);
 
     return (
       <Manager>

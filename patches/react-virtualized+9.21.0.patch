@@ -70,7 +70,7 @@ index 262776b..156cf0f 100644
        this._cellHeightCache[key] = height;
        this._cellWidthCache[key] = width;
 diff --git a/node_modules/react-virtualized/dist/commonjs/Grid/Grid.js b/node_modules/react-virtualized/dist/commonjs/Grid/Grid.js
-index e1b959a..89163a5 100644
+index e1b959a..7410c0a 100644
 --- a/node_modules/react-virtualized/dist/commonjs/Grid/Grid.js
 +++ b/node_modules/react-virtualized/dist/commonjs/Grid/Grid.js
 @@ -132,6 +132,9 @@ var Grid = function (_React$PureComponent) {
@@ -178,7 +178,7 @@ index e1b959a..89163a5 100644
 +        this._hasScrolledToRowTarget = true;
 +      }
 +
-+      if (scrollToColumn >= 0 && !this._hasScrolledToColumnTarget) {
++      if (scrollToColumn >= 0 && !this._hasScrolledToColumnTarget && scrollLeft + width <= totalColumnsWidth) {
 +        const scrollRight = scrollLeft + width;
 +        const targetColumn = instanceProps.columnSizeAndPositionManager.getSizeAndPositionOfCell(scrollToColumn);
 +
@@ -195,7 +195,7 @@ index e1b959a..89163a5 100644
 +          this._hasScrolledToColumnTarget = (scrollLeft >= maxScroll || targetColumn.offset === scrollLeft);
 +        }
 +      }
-+      if (scrollToRow >= 0 && !this._hasScrolledToRowTarget) {
++      if (scrollToRow >= 0 && !this._hasScrolledToRowTarget && scrollTop + height <= totalRowsHeight) {
 +        const scrollBottom = scrollTop + height;
 +        const targetRow = instanceProps.rowSizeAndPositionManager.getSizeAndPositionOfCell(scrollToRow);
 +        const maxScroll = totalRowsHeight - height;

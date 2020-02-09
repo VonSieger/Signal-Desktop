@@ -34,14 +34,6 @@ module.exports = grunt => {
         src: components,
         dest: 'js/components.js',
       },
-      util_worker: {
-        src: [
-          'components/bytebuffer/dist/ByteBufferAB.js',
-          'components/long/dist/Long.js',
-          'js/util_worker_tasks.js',
-        ],
-        dest: 'js/util_worker.js',
-      },
       libtextsecurecomponents: {
         src: libtextsecurecomponents,
         dest: 'libtextsecure/components.js',
@@ -106,6 +98,7 @@ module.exports = grunt => {
       dev: {
         files: {
           'stylesheets/manifest.css': 'stylesheets/manifest.scss',
+          'stylesheets/manifest_bridge.css': 'stylesheets/manifest_bridge.scss',
         },
       },
     },
@@ -157,18 +150,12 @@ module.exports = grunt => {
     },
     'test-release': {
       osx: {
-        archive: `mac/${
-          packageJson.productName
-        }.app/Contents/Resources/app.asar`,
-        exe: `mac/${packageJson.productName}.app/Contents/MacOS/${
-          packageJson.productName
-        }`,
+        archive: `mac/${packageJson.productName}.app/Contents/Resources/app.asar`,
+        exe: `mac/${packageJson.productName}.app/Contents/MacOS/${packageJson.productName}`,
       },
       mas: {
         archive: 'mas/Signal.app/Contents/Resources/app.asar',
-        exe: `mas/${packageJson.productName}.app/Contents/MacOS/${
-          packageJson.productName
-        }`,
+        exe: `mas/${packageJson.productName}.app/Contents/MacOS/${packageJson.productName}`,
       },
       linux: {
         archive: 'linux-unpacked/resources/app.asar',

@@ -3,7 +3,7 @@
 Note that timestamp and status can be hidden with the `collapseMetadata` boolean property.
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       direction="incoming"
@@ -148,7 +148,7 @@ Note that timestamp and status can be hidden with the `collapseMetadata` boolean
 ### Status
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       direction="outgoing"
@@ -323,7 +323,7 @@ Note that timestamp and status can be hidden with the `collapseMetadata` boolean
 ### All colors
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       direction="incoming"
@@ -447,10 +447,378 @@ Note that timestamp and status can be hidden with the `collapseMetadata` boolean
 </util.ConversationContext>
 ```
 
+### Reactions
+
+#### One Reaction
+
+```jsx
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
+  <div className="module-message-container">
+    <Message
+      direction="incoming"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+      ]}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      direction="outgoing"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+      ]}
+    />
+  </div>
+</util.ConversationContext>
+```
+
+#### One Reaction - Ours
+
+```jsx
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
+  <div className="module-message-container">
+    <Message
+      direction="incoming"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', isMe: true, name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+      ]}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      direction="outgoing"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', isMe: true, name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+      ]}
+    />
+  </div>
+</util.ConversationContext>
+```
+
+#### Multiple reactions, ordered by most common then most recent
+
+```jsx
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
+  <div className="module-message-container">
+    <Message
+      direction="incoming"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Joel Ferrari' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😡',
+          from: { id: '+14155552671', name: 'Adam Burrell' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😮',
+          from: { id: '+14155552671', name: 'Rick Owens' },
+          timestamp: 2,
+        },
+      ]}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      direction="outgoing"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Joel Ferrari' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😡',
+          from: { id: '+14155552671', name: 'Adam Burrell' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😮',
+          from: { id: '+14155552671', name: 'Rick Owens' },
+          timestamp: 2,
+        },
+      ]}
+    />
+  </div>
+</util.ConversationContext>
+```
+
+#### Multiple reactions, ours is most recent/common
+
+```jsx
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
+  <div className="module-message-container">
+    <Message
+      direction="incoming"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', isMe: true, name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Joel Ferrari' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😡',
+          from: { id: '+14155552671', name: 'Adam Burrell' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😮',
+          from: { id: '+14155552671', name: 'Rick Owens' },
+          timestamp: 2,
+        },
+      ]}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      direction="outgoing"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', isMe: true, name: 'Joel Ferrari' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😡',
+          from: { id: '+14155552671', name: 'Adam Burrell' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😮',
+          from: { id: '+14155552671', name: 'Rick Owens' },
+          timestamp: 2,
+        },
+      ]}
+    />
+  </div>
+</util.ConversationContext>
+```
+
+#### Multiple reactions, ours not on top
+
+```jsx
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
+  <div className="module-message-container">
+    <Message
+      direction="incoming"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Joel Ferrari' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😡',
+          from: { id: '+14155552671', name: 'Adam Burrell' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😮',
+          from: { id: '+14155552671', isMe: true, name: 'Rick Owens' },
+          timestamp: 2,
+        },
+      ]}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      direction="outgoing"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="I'd like to order one large phone with extra phones please. cell phone, no no no rotary... and payphone on half."
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Joel Ferrari' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😡',
+          from: { id: '+14155552671', name: 'Adam Burrell' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😮',
+          from: { id: '+14155552671', isMe: true, name: 'Rick Owens' },
+          timestamp: 2,
+        },
+      ]}
+    />
+  </div>
+</util.ConversationContext>
+```
+
+#### Small message
+
+```jsx
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
+  <div className="module-message-container">
+    <Message
+      direction="incoming"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="Burgertime!"
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Joel Ferrari' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😡',
+          from: { id: '+14155552671', name: 'Adam Burrell' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😮',
+          from: { id: '+14155552671', name: 'Rick Owens' },
+          timestamp: 2,
+        },
+      ]}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      direction="outgoing"
+      status="delivered"
+      authorColor="red"
+      timestamp={Date.now()}
+      text="Burgertime!"
+      i18n={util.i18n}
+      reactions={[
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Amelia Briggs' },
+          timestamp: 1,
+        },
+        {
+          emoji: '👍',
+          from: { id: '+14155552671', name: 'Joel Ferrari' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😡',
+          from: { id: '+14155552671', name: 'Adam Burrell' },
+          timestamp: 1,
+        },
+        {
+          emoji: '😮',
+          from: { id: '+14155552671', name: 'Rick Owens' },
+          timestamp: 2,
+        },
+      ]}
+    />
+  </div>
+</util.ConversationContext>
+```
+
 ### Long data
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="purple"
@@ -515,7 +883,7 @@ Note that timestamp and status can be hidden with the `collapseMetadata` boolean
 ### Pending long message download
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="purple"
@@ -553,7 +921,7 @@ Note that timestamp and status can be hidden with the `collapseMetadata` boolean
 #### Image with caption
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="blue"
@@ -645,7 +1013,7 @@ Note that timestamp and status can be hidden with the `collapseMetadata` boolean
 First, showing the metadata overlay on dark and light images, then a message with `collapseMetadata` set.
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -765,7 +1133,7 @@ First, showing the metadata overlay on dark and light images, then a message wit
 Stickers have no background, but they have all the standard message bubble features.
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -912,7 +1280,7 @@ Stickers have no background, but they have all the standard message bubble featu
 First set is in a 1:1 conversation, second set is in a group.
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -997,12 +1365,98 @@ First set is in a 1:1 conversation, second set is in a group.
 </util.ConversationContext>
 ```
 
+#### Sticker with non-square aspect ratio
+
+First set is in a 1:1 conversation, second set is in a group.
+
+```jsx
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
+  <div className="module-message-container">
+    <Message
+      authorColor="green"
+      direction="incoming"
+      isSticker={true}
+      timestamp={Date.now()}
+      i18n={util.i18n}
+      attachments={[
+        {
+          url: util.landscapePurpleObjectUrl,
+          contentType: 'image/png',
+          width: 200,
+          height: 50,
+        },
+      ]}
+      showVisualAttachment={() => console.log('showVisualAttachment')}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      authorColor="green"
+      direction="outgoing"
+      isSticker={true}
+      status="sent"
+      timestamp={Date.now()}
+      i18n={util.i18n}
+      attachments={[
+        {
+          url: util.landscapePurpleObjectUrl,
+          contentType: 'image/png',
+          width: 200,
+          height: 50,
+        },
+      ]}
+      showVisualAttachment={() => console.log('showVisualAttachment')}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      authorColor="green"
+      direction="incoming"
+      isSticker={true}
+      authorName="Mr. Sticker"
+      conversationType="group"
+      timestamp={Date.now()}
+      i18n={util.i18n}
+      attachments={[
+        {
+          url: util.landscapePurpleObjectUrl,
+          contentType: 'image/png',
+          width: 200,
+          height: 50,
+        },
+      ]}
+      showVisualAttachment={() => console.log('showVisualAttachment')}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      authorColor="green"
+      direction="outgoing"
+      isSticker={true}
+      conversationType="group"
+      status="sent"
+      timestamp={Date.now()}
+      i18n={util.i18n}
+      attachments={[
+        {
+          url: util.landscapePurpleObjectUrl,
+          contentType: 'image/png',
+          width: 200,
+          height: 50,
+        },
+      ]}
+      showVisualAttachment={() => console.log('showVisualAttachment')}
+    />
+  </div>
+</util.ConversationContext>
+```
+
 #### Sticker with pending image
 
 A sticker with no attachments (what our selectors produce for a pending sticker) is not displayed at all.
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -1062,7 +1516,7 @@ A sticker with no attachments (what our selectors produce for a pending sticker)
 #### Multiple images
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -1244,7 +1698,7 @@ A sticker with no attachments (what our selectors produce for a pending sticker)
 #### Multiple images with caption
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -1433,7 +1887,7 @@ A sticker with no attachments (what our selectors produce for a pending sticker)
 Note that the delivered indicator is always Signal Blue, not the conversation color.
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       direction="outgoing"
@@ -1512,7 +1966,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Pending images
 
 ```
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
     <div className="module-message-container">
     <Message
       authorColor="green"
@@ -1617,7 +2071,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Image with portrait aspect ratio
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="purple"
@@ -1695,7 +2149,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Image with portrait aspect ratio and caption
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -1819,7 +2273,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Image with landscape aspect ratio
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -1897,7 +2351,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Image with landscape aspect ratio and caption
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -1979,7 +2433,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Video with caption
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2073,7 +2527,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Video
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2170,7 +2624,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Missing images and videos
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2349,7 +2803,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Broken source URL images and videos
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2441,7 +2895,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Image/video which is too big
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2532,7 +2986,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Image/video missing height/width
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2619,7 +3073,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Audio with caption
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2693,7 +3147,7 @@ Note that the delivered indicator is always Signal Blue, not the conversation co
 #### Audio
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2767,7 +3221,7 @@ Voice notes are not shown any differently from audio attachments.
 #### Other file type with caption
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2906,7 +3360,7 @@ Voice notes are not shown any differently from audio attachments.
 #### Other file type
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -2984,7 +3438,7 @@ Voice notes are not shown any differently from audio attachments.
 #### Other file type pending
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -3062,7 +3516,7 @@ Voice notes are not shown any differently from audio attachments.
 #### Dangerous file type
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -3108,7 +3562,7 @@ Voice notes are not shown any differently from audio attachments.
 #### Link previews, full-size image
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -3219,19 +3673,19 @@ Voice notes are not shown any differently from audio attachments.
 Sticker link previews are forced to use the small link preview form, no matter the image size.
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
       direction="incoming"
       i18n={util.i18n}
       timestamp={Date.now()}
-      text="Pretty sweet link: https://signal.org/addsticker/#pack_id=11111"
+      text="Pretty sweet link: https://signal.art/addsticker/#pack_id=11111"
       previews={[
         {
           title: 'This is a really sweet post',
           isStickerPack: true,
-          domain: 'instagram.com',
+          domain: 'signal.art',
           image: {
             url: util.squareStickerObjectUrl,
             contentType: 'image/png',
@@ -3250,12 +3704,12 @@ Sticker link previews are forced to use the small link preview form, no matter t
       i18n={util.i18n}
       timestamp={Date.now()}
       status="sent"
-      text="Pretty sweet link: https://signal.org/addsticker/#pack_id=11111"
+      text="Pretty sweet link: https://signal.art/addsticker/#pack_id=11111"
       previews={[
         {
           title: 'This is a really sweet post',
           isStickerPack: true,
-          domain: 'signal.org',
+          domain: 'signal.art',
           image: {
             url: util.squareStickerObjectUrl,
             contentType: 'image/png',
@@ -3273,7 +3727,7 @@ Sticker link previews are forced to use the small link preview form, no matter t
 #### Link previews, small image
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -3384,7 +3838,7 @@ Sticker link previews are forced to use the small link preview form, no matter t
 #### Link previews with pending image
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -3481,7 +3935,7 @@ Sticker link previews are forced to use the small link preview form, no matter t
 #### Link previews, no image
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       authorColor="green"
@@ -3568,7 +4022,7 @@ Sticker link previews are forced to use the small link preview form, no matter t
 ### Tap to view
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       direction="incoming"
@@ -3583,6 +4037,32 @@ Sticker link previews are forced to use the small link preview form, no matter t
         {
           url: util.gifObjectUrl,
           contentType: 'image/gif',
+          width: 320,
+          height: 240,
+        },
+      ]}
+      i18n={util.i18n}
+      id="messageId1"
+      displayTapToViewMessage={(...args) =>
+        console.log('displayTapToViewMessage', args)
+      }
+      authorAvatarPath={util.gifObjectUrl}
+    />
+  </div>
+  <div className="module-message-container">
+    <Message
+      direction="incoming"
+      timestamp={Date.now()}
+      authorColor="pink"
+      conversationType="direct"
+      authorPhoneNumber="(202) 555-0003"
+      isTapToViewExpired={false}
+      isTapToView={true}
+      text="This should not be shown"
+      attachments={[
+        {
+          url: util.gifObjectUrl,
+          contentType: 'video/mp4',
           width: 320,
           height: 240,
         },
@@ -4004,7 +4484,7 @@ Sticker link previews are forced to use the small link preview form, no matter t
 Note that the author avatar goes away if `collapseMetadata` is set.
 
 ```jsx
-<util.ConversationContext theme={util.theme} ios={util.ios}>
+<util.ConversationContext theme={util.theme} ios={util.ios} mode={util.mode}>
   <div className="module-message-container">
     <Message
       direction="incoming"
