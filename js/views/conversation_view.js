@@ -110,6 +110,11 @@
       return { toastMessage: i18n('messageFoundButNotLoaded') };
     },
   });
+  Whisper.VoiceNoteLimit = Whisper.ToastView.extend({
+    render_attributes() {
+      return { toastMessage: i18n('voiceNoteLimit') };
+    },
+  });
   Whisper.VoiceNoteMustBeOnlyAttachmentToast = Whisper.ToastView.extend({
     render_attributes() {
       return { toastMessage: i18n('voiceNoteMustBeOnlyAttachment') };
@@ -175,6 +180,38 @@
     },
     render_attributes() {
       return { toastMessage: i18n('attachmentSaved') };
+    },
+  });
+  Whisper.ReactionFailedToast = Whisper.ToastView.extend({
+    className: 'toast toast-clickable',
+    initialize() {
+      this.timeout = 4000;
+
+      if (window.getInteractionMode() === 'keyboard') {
+        setTimeout(() => {
+          this.$el.focus();
+        }, 1);
+      }
+    },
+    events: {
+      click: 'onClick',
+      keydown: 'onKeydown',
+    },
+    onClick() {
+      this.close();
+    },
+    onKeydown(event) {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      this.close();
+    },
+    render_attributes() {
+      return { toastMessage: i18n('Reactions--error') };
     },
   });
 
@@ -475,6 +512,9 @@
     setupTimeline() {
       const { id } = this.model;
 
+      const reactToMessage = (messageId, reaction) => {
+        this.sendReactionMessage(messageId, reaction);
+      };
       const replyToMessage = messageId => {
         this.setQuoteMessage(messageId);
       };
@@ -673,6 +713,7 @@
           markMessageRead,
           openConversation,
           openLink,
+          reactToMessage,
           replyToMessage,
           retrySend,
           scrollToQuotedMessage,
@@ -1651,6 +1692,8 @@
         return;
       }
 
+      this.showToast(Whisper.VoiceNoteLimit);
+
       // Note - clicking anywhere will close the audio capture panel, due to
       //   the onClick handler in InboxView, which calls its closeRecording method.
 
@@ -1664,6 +1707,7 @@
       const view = this.captureAudioView;
       view.render();
       view.on('send', this.handleAudioCapture.bind(this));
+      view.on('confirm', this.handleAudioConfirm.bind(this));
       view.on('closed', this.endCaptureAudio.bind(this));
       view.$el.appendTo(this.$('.capture-audio'));
       view.$('.finish').focus();
@@ -1671,6 +1715,21 @@
 
       this.disableMessageField();
       this.$('.microphone').hide();
+    },
+    handleAudioConfirm(blob, lostFocus) {
+      const dialog = new Whisper.ConfirmationDialogView({
+        cancelText: i18n('discard'),
+        message: lostFocus
+          ? i18n('voiceRecordingInterruptedBlur')
+          : i18n('voiceRecordingInterruptedMax'),
+        okText: i18n('sendAnyway'),
+        resolve: async () => {
+          await this.handleAudioCapture(blob);
+        },
+      });
+
+      this.$el.prepend(dialog.el);
+      dialog.focusCancel();
     },
     async handleAudioCapture(blob) {
       if (this.hasFiles()) {
@@ -2150,10 +2209,6 @@
     },
 
     showStickerPackPreview(packId, packKey) {
-      if (!window.ENABLE_STICKER_SEND) {
-        return;
-      }
-
       window.Signal.Stickers.downloadEphemeralPack(packId, packKey);
 
       const props = {
@@ -2455,6 +2510,24 @@
       });
     },
 
+    async sendReactionMessage(messageId, reaction) {
+      const messageModel = messageId
+        ? await getMessageById(messageId, {
+            Message: Whisper.Message,
+          })
+        : null;
+
+      try {
+        await this.model.sendReactionMessage(reaction, {
+          targetAuthorE164: messageModel.getSource(),
+          targetTimestamp: messageModel.get('sent_at'),
+        });
+      } catch (error) {
+        window.log.error('Error sending reaction', error, messageId, reaction);
+        this.showToast(Whisper.ReactionFailedToast);
+      }
+    },
+
     async sendStickerMessage(options = {}) {
       try {
         const contacts = await this.getUntrustedContacts(options);
@@ -2514,6 +2587,10 @@
             Message: Whisper.Message,
           })
         : null;
+
+      if (model && !model.canReply()) {
+        return;
+      }
 
       if (model && !model.isNormalBubble()) {
         return;
@@ -2625,7 +2702,7 @@
       this.model.clearTypingTimers();
 
       let ToastView;
-      if (extension.expired()) {
+      if (window.reduxStore.getState().expiration.hasExpired) {
         ToastView = Whisper.ExpiredToast;
       }
       if (this.model.isPrivate() && storage.isBlocked(this.model.id)) {

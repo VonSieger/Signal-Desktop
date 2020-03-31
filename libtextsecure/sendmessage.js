@@ -32,6 +32,7 @@ function Message(options) {
   this.quote = options.quote;
   this.recipients = options.recipients;
   this.sticker = options.sticker;
+  this.reaction = options.reaction;
   this.timestamp = options.timestamp;
 
   if (!(this.recipients instanceof Array)) {
@@ -123,6 +124,9 @@ Message.prototype = {
         proto.sticker.data = this.sticker.attachmentPointer;
       }
     }
+    if (this.reaction) {
+      proto.reaction = this.reaction;
+    }
     if (Array.isArray(this.preview)) {
       proto.preview = this.preview.map(preview => {
         const item = new textsecure.protobuf.DataMessage.Preview();
@@ -184,11 +188,7 @@ MessageSender.prototype = {
     );
   },
 
-  getPaddedAttachment(data, shouldPad) {
-    if (!window.PAD_ALL_ATTACHMENTS && !shouldPad) {
-      return data;
-    }
-
+  getPaddedAttachment(data) {
     const size = data.byteLength;
     const paddedSize = this._getAttachmentSizeBucket(size);
     const padding = window.Signal.Crypto.getZeroes(paddedSize - size);
@@ -196,7 +196,7 @@ MessageSender.prototype = {
     return window.Signal.Crypto.concatenateBytes(data, padding);
   },
 
-  async makeAttachmentPointer(attachment, shouldPad = false) {
+  async makeAttachmentPointer(attachment) {
     if (typeof attachment !== 'object' || attachment == null) {
       return Promise.resolve(undefined);
     }
@@ -213,7 +213,7 @@ MessageSender.prototype = {
       );
     }
 
-    const padded = this.getPaddedAttachment(data, shouldPad);
+    const padded = this.getPaddedAttachment(data);
     const key = libsignal.crypto.getRandomBytes(64);
     const iv = libsignal.crypto.getRandomBytes(16);
 
@@ -304,14 +304,10 @@ MessageSender.prototype = {
         return;
       }
 
-      const shouldPad = true;
       // eslint-disable-next-line no-param-reassign
       message.sticker = {
         ...sticker,
-        attachmentPointer: await this.makeAttachmentPointer(
-          sticker.data,
-          shouldPad
-        ),
+        attachmentPointer: await this.makeAttachmentPointer(sticker.data),
       };
     } catch (error) {
       if (error instanceof Error && error.name === 'HTTPError') {
@@ -981,6 +977,7 @@ MessageSender.prototype = {
     quote,
     preview,
     sticker,
+    reaction,
     timestamp,
     expireTimer,
     profileKey,
@@ -994,6 +991,7 @@ MessageSender.prototype = {
       quote,
       preview,
       sticker,
+      reaction,
       expireTimer,
       profileKey,
       flags,
@@ -1021,6 +1019,7 @@ MessageSender.prototype = {
     quote,
     preview,
     sticker,
+    reaction,
     timestamp,
     expireTimer,
     profileKey,
@@ -1035,6 +1034,7 @@ MessageSender.prototype = {
         quote,
         preview,
         sticker,
+        reaction,
         expireTimer,
         profileKey,
       },
@@ -1119,6 +1119,7 @@ MessageSender.prototype = {
     quote,
     preview,
     sticker,
+    reaction,
     timestamp,
     expireTimer,
     profileKey,
@@ -1134,6 +1135,7 @@ MessageSender.prototype = {
       quote,
       preview,
       sticker,
+      reaction,
       expireTimer,
       profileKey,
       group: {

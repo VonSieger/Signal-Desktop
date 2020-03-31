@@ -244,7 +244,7 @@
         };
         Whisper.events.trigger('userChanged', user);
 
-        Whisper.Registration.markDone();
+        window.Signal.Util.Registration.markDone();
         window.log.info('dispatching registration event');
         Whisper.events.trigger('registration_done');
       });
@@ -350,7 +350,6 @@
       getSpellCheck: () => storage.get('spell-check', true),
       setSpellCheck: value => {
         storage.put('spell-check', value);
-        startSpellCheck();
       },
 
       // eslint-disable-next-line eqeqeq
@@ -410,7 +409,7 @@
 
       showStickerPack: async (packId, key) => {
         // We can get these events even if the user has never linked this instance.
-        if (Whisper.Import.isIncomplete() || !Whisper.Registration.everDone()) {
+        if (!window.Signal.Util.Registration.everDone()) {
           return;
         }
 
@@ -525,6 +524,8 @@
 
     if (newVersion) {
       await window.Signal.Data.cleanupOrphanedAttachments();
+      // Don't block on the following operation
+      window.Signal.Data.ensureFilePermissions();
     }
 
     Views.Initialization.setMessage(window.i18n('loading'));
@@ -559,19 +560,6 @@
       }
     });
 
-    const startSpellCheck = () => {
-      if (!window.enableSpellCheck || !window.disableSpellCheck) {
-        return;
-      }
-
-      if (window.Events.getSpellCheck()) {
-        window.enableSpellCheck();
-      } else {
-        window.disableSpellCheck();
-      }
-    };
-    startSpellCheck();
-
     try {
       await Promise.all([
         ConversationController.load(),
@@ -587,6 +575,16 @@
     } finally {
       initializeRedux();
       start();
+      window.Signal.Services.initializeNetworkObserver(
+        window.reduxActions.network
+      );
+      window.Signal.Services.initializeUpdateListener(
+        window.reduxActions.updates,
+        window.Whisper.events
+      );
+      window.reduxActions.expiration.hydrateExpirationStatus(
+        window.Signal.Util.hasExpired()
+      );
     }
   });
 
@@ -637,8 +635,20 @@
       Signal.State.Ducks.emojis.actions,
       store.dispatch
     );
+    actions.expiration = Signal.State.bindActionCreators(
+      Signal.State.Ducks.expiration.actions,
+      store.dispatch
+    );
     actions.items = Signal.State.bindActionCreators(
       Signal.State.Ducks.items.actions,
+      store.dispatch
+    );
+    actions.network = Signal.State.bindActionCreators(
+      Signal.State.Ducks.network.actions,
+      store.dispatch
+    );
+    actions.updates = Signal.State.bindActionCreators(
+      Signal.State.Ducks.updates.actions,
       store.dispatch
     );
     actions.user = Signal.State.bindActionCreators(
@@ -745,6 +755,7 @@
       const commandKey = window.platform === 'darwin' && metaKey;
       const controlKey = window.platform !== 'darwin' && ctrlKey;
       const commandOrCtrl = commandKey || controlKey;
+      const commandAndCtrl = commandKey && ctrlKey;
 
       const state = store.getState();
       const selectedId = state.conversations.selectedConversation;
@@ -885,6 +896,11 @@
         if (reactionViewer) {
           return;
         }
+
+        const reactionPicker = document.querySelector('module-reaction-picker');
+        if (reactionPicker) {
+          return;
+        }
       }
 
       // Close Backbone-based confirmation dialog
@@ -1012,7 +1028,12 @@
       }
 
       // Search
-      if (commandOrCtrl && !shiftKey && (key === 'f' || key === 'F')) {
+      if (
+        commandOrCtrl &&
+        !commandAndCtrl &&
+        !shiftKey &&
+        (key === 'f' || key === 'F')
+      ) {
         const { startSearch } = actions.search;
         startSearch();
 
@@ -1025,6 +1046,7 @@
       if (
         conversation &&
         commandOrCtrl &&
+        !commandAndCtrl &&
         shiftKey &&
         (key === 'f' || key === 'F')
       ) {
@@ -1276,13 +1298,6 @@
     });
   }
 
-  Whisper.events.on('setupWithImport', () => {
-    const { appView } = window.owsDesktopApp;
-    if (appView) {
-      appView.openImporter();
-    }
-  });
-
   Whisper.events.on('setupAsNewDevice', () => {
     const { appView } = window.owsDesktopApp;
     if (appView) {
@@ -1385,10 +1400,7 @@
     Whisper.ExpiringMessagesListener.init(Whisper.events);
     Whisper.TapToViewMessagesListener.init(Whisper.events);
 
-    if (Whisper.Import.isIncomplete()) {
-      window.log.info('Import was interrupted, showing import error screen');
-      appView.openImporter();
-    } else if (Whisper.Registration.everDone()) {
+    if (window.Signal.Util.Registration.everDone()) {
       // listeners
       Whisper.RotateSignedPreKeyListener.init(Whisper.events, newVersion);
       window.Signal.RefreshSenderCertificate.initialize({
@@ -1402,8 +1414,6 @@
       appView.openInbox({
         initialLoadComplete,
       });
-    } else if (window.isImportMode()) {
-      appView.openImporter();
     } else {
       appView.openInstaller();
     }
@@ -1413,9 +1423,6 @@
     });
     Whisper.events.on('unauthorized', () => {
       appView.inboxView.networkStatusView.update();
-    });
-    Whisper.events.on('reconnectTimer', () => {
-      appView.inboxView.networkStatusView.setSocketReconnectInterval(60000);
     });
     Whisper.events.on('contactsync', () => {
       if (appView.installView) {
@@ -1501,7 +1508,7 @@
 
   let connectCount = 0;
   async function connect(firstRun) {
-    window.log.info('connect');
+    window.log.info('connect', firstRun);
 
     // Bootstrap our online/offline detection, only the first time we connect
     if (connectCount === 0 && navigator.onLine) {
@@ -1516,10 +1523,7 @@
       return;
     }
 
-    if (!Whisper.Registration.everDone()) {
-      return;
-    }
-    if (Whisper.Import.isIncomplete()) {
+    if (!window.Signal.Util.Registration.everDone()) {
       return;
     }
 
@@ -1546,6 +1550,7 @@
     Whisper.Notifications.disable(); // avoid notification flood until empty
 
     // initialize the socket and start listening for messages
+    window.log.info('Initializing socket and listening for messages');
     messageReceiver = new textsecure.MessageReceiver(
       USERNAME,
       PASSWORD,
@@ -1613,6 +1618,7 @@
       // eslint-disable-next-line eqeqeq
       textsecure.storage.user.getDeviceId() != '1'
     ) {
+      window.log.info('Boot after upgrading. Requesting contact sync');
       window.getSyncRequest();
 
       try {
@@ -1689,17 +1695,6 @@
         ).catch(error => {
           window.log.error(
             'Failed to send installed sticker packs via sync message',
-            error && error.stack ? error.stack : error
-          );
-        });
-      }
-
-      if (Whisper.Import.isComplete()) {
-        wrap(
-          textsecure.messaging.sendRequestConfigurationSyncMessage(sendOptions)
-        ).catch(error => {
-          window.log.error(
-            'Import complete, but failed to send sync message',
             error && error.stack ? error.stack : error
           );
         });
@@ -2044,6 +2039,12 @@
           }
         );
         conversation.set(newAttributes);
+      } else {
+        const { attributes } = conversation;
+        if (attributes.avatar && attributes.avatar.path) {
+          await deleteAttachmentData(attributes.avatar.path);
+        }
+        conversation.set({ avatar: null });
       }
 
       window.Signal.Data.updateConversation(id, conversation.attributes);
@@ -2181,6 +2182,9 @@
     return confirm();
   }
 
+  // Note: We do very little in this function, since everything in handleDataMessage is
+  //   inside a conversation-specific queue(). Any code here might run before an earlier
+  //   message is processed in handleDataMessage().
   async function onMessageReceived(event) {
     const { data, confirm } = event;
 
@@ -2199,27 +2203,6 @@
     }
 
     const message = await initIncomingMessage(data);
-
-    const ourNumber = textsecure.storage.user.getNumber();
-    const isGroupUpdate =
-      data.message.group &&
-      data.message.group.type !== textsecure.protobuf.GroupContext.Type.DELIVER;
-    const conversation = ConversationController.get(messageDescriptor.id);
-
-    // We drop messages for groups we already know about, which we're not a part of,
-    //   except for group updates
-    if (
-      conversation &&
-      !conversation.isPrivate() &&
-      !conversation.hasMember(ourNumber) &&
-      !isGroupUpdate
-    ) {
-      window.log.warn(
-        `Received message destined for group ${conversation.idForLogging()}, which we're not a part of. Dropping.`
-      );
-      confirm();
-      return;
-    }
 
     await ConversationController.getOrCreateAndWait(
       messageDescriptor.id,
@@ -2244,12 +2227,9 @@
     }
 
     // Don't wait for handleDataMessage, as it has its own per-conversation queueing
-    message.handleDataMessage(data.message, event.confirm, {
-      initialLoadComplete,
-    });
+    message.handleDataMessage(data.message, event.confirm);
   }
 
-  // Sent:
   async function handleMessageSentProfileUpdate({
     data,
     confirm,
@@ -2306,6 +2286,9 @@
     });
   }
 
+  // Note: We do very little in this function, since everything in handleDataMessage is
+  //   inside a conversation-specific queue(). Any code here might run before an earlier
+  //   message is processed in handleDataMessage().
   async function onSentMessage(event) {
     const { data, confirm } = event;
 
@@ -2324,44 +2307,8 @@
     }
 
     const message = await createSentMessage(data);
-    const existing = await getExistingMessage(message.attributes);
-    const isUpdate = Boolean(data.isRecipientUpdate);
 
-    if (isUpdate && existing) {
-      event.confirm();
-
-      let sentTo = [];
-      let unidentifiedDeliveries = [];
-      if (Array.isArray(data.unidentifiedStatus)) {
-        sentTo = data.unidentifiedStatus.map(item => item.destination);
-
-        const unidentified = _.filter(data.unidentifiedStatus, item =>
-          Boolean(item.unidentified)
-        );
-        unidentifiedDeliveries = unidentified.map(item => item.destination);
-      }
-
-      existing.set({
-        sent_to: _.union(existing.get('sent_to'), sentTo),
-        unidentifiedDeliveries: _.union(
-          existing.get('unidentifiedDeliveries'),
-          unidentifiedDeliveries
-        ),
-      });
-      await window.Signal.Data.saveMessage(existing.attributes, {
-        Message: Whisper.Message,
-      });
-    } else if (isUpdate) {
-      window.log.warn(
-        `onSentMessage: Received update transcript, but no existing entry for message ${message.idForLogging()}. Dropping.`
-      );
-      event.confirm();
-    } else if (existing) {
-      window.log.warn(
-        `onSentMessage: Received duplicate transcript for message ${message.idForLogging()}, but it was not an update transcript. Dropping.`
-      );
-      event.confirm();
-    } else if (data.message.reaction) {
+    if (data.message.reaction) {
       const { reaction } = data.message;
       const ourNumber = textsecure.storage.user.getNumber();
       const reactionModel = Whisper.Reactions.add({
@@ -2372,38 +2319,24 @@
         targetTimestamp: reaction.targetTimestamp.toNumber(),
         timestamp: Date.now(),
         fromId: ourNumber,
+        fromSync: true,
       });
       // Note: We do not wait for completion here
       Whisper.Reactions.onReaction(reactionModel);
+
       event.confirm();
-    } else {
-      await ConversationController.getOrCreateAndWait(
-        messageDescriptor.id,
-        messageDescriptor.type
-      );
-
-      // Don't wait for handleDataMessage, as it has its own per-conversation queueing
-      message.handleDataMessage(data.message, event.confirm, {
-        initialLoadComplete,
-      });
+      return;
     }
-  }
 
-  async function getExistingMessage(data) {
-    try {
-      const result = await window.Signal.Data.getMessageBySender(data, {
-        Message: Whisper.Message,
-      });
+    await ConversationController.getOrCreateAndWait(
+      messageDescriptor.id,
+      messageDescriptor.type
+    );
 
-      if (result) {
-        return MessageController.register(result.id, result);
-      }
-
-      return null;
-    } catch (error) {
-      window.log.error('getExistingMessage error:', Errors.toLogFormat(error));
-      return false;
-    }
+    // Don't wait for handleDataMessage, as it has its own per-conversation queueing
+    message.handleDataMessage(data.message, event.confirm, {
+      data,
+    });
   }
 
   async function initIncomingMessage(data) {
@@ -2436,7 +2369,7 @@
     window.log.warn(
       'Client is no longer authorized; deleting local configuration'
     );
-    Whisper.Registration.remove();
+    window.Signal.Util.Registration.remove();
 
     const NUMBER_ID_KEY = 'number_id';
     const VERSION_KEY = 'version';
@@ -2454,7 +2387,7 @@
 
       // These two bits of data are important to ensure that the app loads up
       //   the conversation list, instead of showing just the QR code screen.
-      Whisper.Registration.markEverDone();
+      window.Signal.Util.Registration.markEverDone();
       textsecure.storage.put(NUMBER_ID_KEY, previousNumberId);
 
       // These two are important to ensure we don't rip through every message
@@ -2522,7 +2455,12 @@
 
       // This matches the queueing behavior used in Message.handleDataMessage
       conversation.queueJob(async () => {
-        const existingMessage = await getExistingMessage(message.attributes);
+        const existingMessage = await window.Signal.Data.getMessageBySender(
+          message.attributes,
+          {
+            Message: Whisper.Message,
+          }
+        );
         if (existingMessage) {
           ev.confirm();
           window.log.warn(

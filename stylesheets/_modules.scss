@@ -89,16 +89,11 @@
 }
 
 .module-message__buttons--incoming {
-  left: 100%;
-  &.module-message__buttons--has-reactions {
-    padding-left: 40px - 12px; // Adjust 40px by 12px margin on the button
-  }
+  left: calc(100% + 8px);
 }
 .module-message__buttons--outgoing {
-  right: 100%;
-  &.module-message__buttons--has-reactions {
-    padding-right: 40px - 12px; // Adjust 40px by 12px margin on the button
-  }
+  right: calc(100% + 8px);
+  flex-direction: row-reverse;
 }
 
 .module-message__buttons__download {
@@ -123,6 +118,37 @@
     &:hover {
       @include color-svg(
         '../images/icons/v2/save-solid-24.svg',
+        $color-gray-02
+      );
+    }
+  }
+}
+
+.module-message__buttons__react {
+  height: 24px;
+  width: 24px;
+  display: inline-block;
+  cursor: pointer;
+  @include light-theme {
+    @include color-svg(
+      '../images/icons/v2/add-emoji-outline-24.svg',
+      $color-gray-45
+    );
+    &:hover {
+      @include color-svg(
+        '../images/icons/v2/add-emoji-outline-24.svg',
+        $color-gray-90
+      );
+    }
+  }
+  @include dark-theme {
+    @include color-svg(
+      '../images/icons/v2/add-emoji-outline-24.svg',
+      $color-gray-45
+    );
+    &:hover {
+      @include color-svg(
+        '../images/icons/v2/add-emoji-outline-24.svg',
         $color-gray-02
       );
     }
@@ -261,7 +287,7 @@
 // This is the component we put the outline around when the whole message is selected
 .module-message--selected .module-message__container {
   @include mouse-mode {
-    animation: message--mouse-selected 1s cubic-bezier(0.19, 1, 0.22, 1);
+    animation: message--mouse-selected 1s $ease-out-expo;
   }
 }
 .module-message:focus .module-message__container {
@@ -1064,6 +1090,14 @@
   align-items: center;
   margin-top: 3px;
   margin-bottom: -3px;
+
+  &--outgoing {
+    justify-content: flex-end;
+  }
+
+  &--with-reactions {
+    margin-bottom: -2px;
+  }
 }
 
 // With an image and no caption, this section needs to be on top of the image overlay
@@ -1137,10 +1171,6 @@
   @include ios-theme {
     color: $color-gray-60;
   }
-}
-
-.module-message__metadata__spacer {
-  flex-grow: 1;
 }
 
 .module-message__metadata__status-icon {
@@ -1310,43 +1340,57 @@
 
 .module-message__reactions {
   position: absolute;
-  top: 0;
+  bottom: 0px;
   z-index: 2;
-  height: 100%;
-
-  &--incoming {
-    right: -28px;
-  }
-
-  &--outgoing {
-    left: -28px;
-  }
+  height: 22px;
+  display: flex;
 }
 
 .module-message__reactions__reaction {
   @include button-reset;
 
-  width: 33px;
-  height: 33px;
+  min-width: 28px;
+  height: 22px;
   border: 1px solid;
   border-radius: 33px;
   display: flex;
   justify-content: center;
   align-items: center;
 
-  position: absolute;
-  top: 0;
-
-  &:first-of-type {
-    z-index: 2;
+  &--with-count {
+    min-width: 40px;
   }
 
-  &--incoming {
-    right: 0;
-  }
+  &__count {
+    @include font-caption-bold;
 
-  &--outgoing {
-    left: 0;
+    margin-left: 4px;
+
+    &--no-emoji {
+      margin-left: 0px;
+    }
+
+    @include light-theme {
+      color: $color-gray-60;
+    }
+
+    @include dark-theme {
+      color: $color-gray-25;
+    }
+
+    &--is-me {
+      @include light-theme {
+        color: $color-gray-75;
+      }
+
+      @include dark-theme {
+        color: $color-gray-15;
+      }
+
+      @include ios-theme {
+        color: $color-white-alpha-90;
+      }
+    }
   }
 
   &:focus {
@@ -3829,7 +3873,7 @@ $timer-icons: '55', '50', '45', '40', '35', '30', '25', '20', '15', '10', '05',
     right: 1px;
     border-radius: 10px;
 
-    animation: message--mouse-selected 1s cubic-bezier(0.19, 1, 0.22, 1);
+    animation: message--mouse-selected 1s $ease-out-expo;
   }
 }
 
@@ -3874,9 +3918,6 @@ button.module-image__border-overlay:focus {
   object-fit: cover;
   // redundant with attachment-container, but we get cursor flashing on move otherwise
   cursor: pointer;
-
-  // Seems to be related to body text size
-  margin-bottom: -5px;
 }
 
 .module-image__bottom-overlay {
@@ -4641,8 +4682,10 @@ button.module-image__border-overlay:focus {
 .module-search-results__conversations-header {
   @include font-body-1-bold;
 
-  height: 36px;
+  height: 52px;
   margin-left: 16px;
+  padding-bottom: 8px;
+  padding-top: 8px;
 
   @include dark-theme {
     color: $color-gray-05;
@@ -4672,8 +4715,10 @@ button.module-image__border-overlay:focus {
 .module-search-results__messages-header {
   @include font-body-1-bold;
 
-  height: 36px;
+  height: 52px;
   margin-left: 16px;
+  padding-bottom: 8px;
+  padding-top: 8px;
 
   @include dark-theme {
     color: $color-gray-05;
@@ -4827,7 +4872,7 @@ button.module-image__border-overlay:focus {
   &__header {
     width: 100%;
     min-height: 44px;
-    padding: 0px 16px;
+    padding: 0px 8px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -4835,14 +4880,15 @@ button.module-image__border-overlay:focus {
     overflow-x: auto;
 
     &__button {
-      min-width: 45px;
       min-height: 28px;
       border: none;
       border-radius: 18px;
-      padding: 0px;
+      padding: 0px 8px;
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-basis: 45px;
+      flex-shrink: 0;
 
       &:not(:first-of-type) {
         margin-left: 4px;
@@ -4869,9 +4915,11 @@ button.module-image__border-overlay:focus {
         }
       }
 
-      &__count {
+      &__count,
+      &__all {
         @include font-body-2-bold();
-        margin-left: 2px;
+
+        white-space: nowrap;
 
         @include light-theme() {
           color: $color-gray-90;
@@ -4880,6 +4928,10 @@ button.module-image__border-overlay:focus {
         @include dark-theme() {
           color: $color-gray-05;
         }
+      }
+
+      &__count {
+        margin-left: 4px;
       }
     }
   }
@@ -4890,20 +4942,25 @@ button.module-image__border-overlay:focus {
     overflow: auto;
 
     &__row {
-      margin-top: 8px;
+      margin-top: 12px;
       min-height: 32px;
       display: flex;
       flex-direction: row;
       justify-content: flex-start;
       align-items: center;
 
-      &_avatar {
-        min-width: 32px;
+      &:last-of-type {
+        margin-bottom: 12px;
       }
 
-      &__name,
-      &__name_profile-name {
+      &__avatar {
+        min-width: 32px;
+        flex-shrink: 1;
+      }
+
+      &__name {
         @include font-body-1-bold();
+        flex-grow: 1;
         margin-left: 8px;
         white-space: nowrap;
         overflow: hidden;
@@ -4916,6 +4973,116 @@ button.module-image__border-overlay:focus {
         @include dark-theme() {
           color: $color-gray-05;
         }
+      }
+
+      &__emoji {
+        width: 18px;
+        flex-shrink: 1;
+      }
+    }
+  }
+}
+
+// Module: Reaction Picker
+
+@keyframes module-reaction-picker__background-fade {
+  from {
+    background: transparent;
+  }
+  to {
+    // This color is the same in both light and dark themes
+    background: rgba($color-black, 0.8);
+  }
+}
+
+@keyframes module-reaction-picker__emoji-fade {
+  from {
+    transform: translate3d(0, 24px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.module-reaction-picker {
+  width: 320px;
+  height: 56px;
+  border-radius: 30px;
+  position: relative;
+  margin: 4px 0;
+  z-index: 2;
+
+  animation: {
+    name: module-reaction-picker__background-fade;
+    duration: 400ms;
+    timing-function: $ease-out-expo;
+    fill-mode: forwards;
+  }
+
+  &__emoji-btn {
+    @include button-reset;
+    display: flex;
+    min-width: 52px;
+    min-height: 52px;
+    border-radius: 52px;
+
+    position: absolute;
+    top: 2px;
+
+    @for $i from 0 through 6 {
+      &:nth-of-type(#{$i + 1}) {
+        left: 2px + ($i * 44px);
+
+        // Prevent animation jank
+        opacity: 0;
+
+        animation: {
+          name: module-reaction-picker__emoji-fade;
+          duration: 400ms;
+          timing-function: $ease-out-expo;
+          delay: #{$i * 10ms};
+          fill-mode: forwards;
+        }
+      }
+    }
+
+    transition: background 400ms $ease-out-expo;
+    &--selected {
+      // This color is the same in both light and dark themes
+      background: rgba($color-white, 0.3);
+    }
+
+    @include keyboard-mode {
+      &:focus:before {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 4px;
+        background: $color-signal-blue;
+        border-radius: 2px;
+        position: absolute;
+        bottom: 4px;
+        left: calc(50% - 2px);
+      }
+    }
+
+    $emoji-btn: &;
+
+    &__emoji {
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      transform-origin: center;
+      $scale: 32 / 48;
+      transform: scale3d($scale, $scale, $scale);
+      transition: transform 400ms $ease-out-expo;
+
+      #{$emoji-btn}:hover &,
+      .keyboard-mode #{$emoji-btn}:focus & {
+        transform: scale3d(1, 1, 1) translate3d(0, -24px, 0);
+        z-index: 1;
       }
     }
   }
@@ -5873,10 +6040,10 @@ button.module-image__border-overlay:focus {
       }
 
       &__info {
-        width: 317px;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        flex-grow: 1;
 
         &__title {
           margin: 0;
@@ -5915,7 +6082,8 @@ button.module-image__border-overlay:focus {
       }
 
       &__install {
-        flex-shrink: 1;
+        flex-shrink: 0;
+        overflow: hidden;
       }
     }
   }
@@ -6211,6 +6379,79 @@ button.module-image__border-overlay:focus {
           }
         }
       }
+    }
+  }
+}
+
+.module-left-pane-dialog {
+  background: $color-accent-green;
+  color: $color-white;
+  padding: 16px;
+
+  .module-left-pane-dialog__message {
+    h3 {
+      @include font-body-1-bold;
+      padding: 0px;
+      margin: 0px;
+      margin-bottom: 8px;
+    }
+    span {
+      @include font-body-1;
+      display: inline-block;
+    }
+  }
+
+  .module-left-pane-dialog__actions {
+    margin-top: 8px;
+    text-align: right;
+
+    .module-left-pane-dialog__link {
+      @include keyboard-mode {
+        display: inline-block;
+        outline: 0;
+      }
+    }
+
+    button {
+      background: inherit;
+      border-radius: 20px;
+      border: solid 1px $color-white;
+      color: $color-white;
+      cursor: pointer;
+      font-family: inherit;
+      margin: 0 4px;
+      padding: 8px 16px;
+      outline: 0;
+
+      &:focus {
+        @include keyboard-mode {
+          box-shadow: 0 0 0 3px $color-signal-blue;
+        }
+      }
+
+      &:hover {
+        @include mouse-mode {
+          box-shadow: 0 0 0 3px $color-signal-blue;
+        }
+      }
+    }
+
+    .module-left-pane-dialog__button--no-border {
+      border: none;
+    }
+  }
+
+  &.module-left-pane-dialog--error {
+    background-color: $color-accent-red;
+  }
+
+  &.module-left-pane-dialog--warning {
+    background-color: $color-accent-yellow;
+    color: $color-black;
+
+    button {
+      border-color: $color-black;
+      color: $color-black;
     }
   }
 }
@@ -6554,11 +6795,14 @@ button.module-image__border-overlay:focus {
     width: $size;
     height: $size;
     transform: translate3d(0, 0, 0);
+    vertical-align: baseline;
   }
 }
 
 .module-emoji {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   color: transparent;
   font-family: auto;
 
@@ -6576,6 +6820,7 @@ button.module-image__border-overlay:focus {
   @include emoji-size(24px);
   @include emoji-size(28px);
   @include emoji-size(32px);
+  @include emoji-size(48px);
   @include emoji-size(64px);
   @include emoji-size(66px);
 }
@@ -7487,11 +7732,18 @@ button.module-image__border-overlay:focus {
 .module-message__buttons__reply {
   display: none;
 }
+.module-message__buttons__react {
+  display: none;
+}
 
 // To limit messages with things forcing them wider, like long attachment names
 .module-message__container {
   // 2px to allow for 1px border
   max-width: 302px;
+
+  &--with-reactions {
+    margin-bottom: 12px;
+  }
 }
 
 /* Spec: container > 438px and container < 593px */
@@ -7517,6 +7769,9 @@ button.module-image__border-overlay:focus {
     display: inline-block;
   }
   .module-message__buttons__reply {
+    display: inline-block;
+  }
+  .module-message__buttons__react {
     display: inline-block;
   }
 
@@ -7552,12 +7807,18 @@ button.module-image__border-overlay:focus {
   .module-message__buttons__reply {
     display: inline-block;
   }
+  .module-message__buttons__react {
+    display: inline-block;
+  }
 
   // To hide in larger breakpoints
   .module-message__context__download {
     display: none;
   }
   .module-message__context__reply {
+    display: none;
+  }
+  .module-message__context__react {
     display: none;
   }
 }

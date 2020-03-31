@@ -625,6 +625,8 @@
       // Ensure that we always have a conversation for ourself
       await ConversationController.getOrCreateAndWait(number, 'private');
 
+      window.log.info('dispatching registration event');
+
       this.dispatchEvent(new Event('registration'));
     },
     async getDevices(){
