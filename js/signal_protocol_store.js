@@ -147,6 +147,24 @@
     },
   });
 
+  async function normalizeEncodedAddress(encodedAddress) {
+    const [identifier, deviceId] = textsecure.utils.unencodeNumber(
+      encodedAddress
+    );
+    try {
+      const conv = await ConversationController.getOrCreateAndWait(
+        identifier,
+        'private'
+      );
+      return `${conv.get('id')}.${deviceId}`;
+    } catch (e) {
+      window.log.error(
+        `could not get conversation for identifier ${identifier}`
+      );
+      throw e;
+    }
+  }
+
   function SignalProtocolStore() {
     this.sessionUpdateBatcher = window.Signal.Util.createBatcher({
       wait: 500,
@@ -337,66 +355,98 @@
 
     // Sessions
 
-    async loadSession(encodedNumber) {
-      if (encodedNumber === null || encodedNumber === undefined) {
+    async loadSession(encodedAddress) {
+      if (encodedAddress === null || encodedAddress === undefined) {
         throw new Error('Tried to get session for undefined/null number');
       }
 
-      const session = this.sessions[encodedNumber];
-      if (session) {
-        return session.record;
+      try {
+        const id = await normalizeEncodedAddress(encodedAddress);
+        const session = this.sessions[id];
+
+        if (session) {
+          return session.record;
+        }
+      } catch (e) {
+        window.log.error(`could not load session ${encodedAddress}`);
       }
 
       return undefined;
     },
-    async storeSession(encodedNumber, record) {
-      if (encodedNumber === null || encodedNumber === undefined) {
+    async storeSession(encodedAddress, record) {
+      if (encodedAddress === null || encodedAddress === undefined) {
         throw new Error('Tried to put session for undefined/null number');
       }
-      const unencoded = textsecure.utils.unencodeNumber(encodedNumber);
-      const number = unencoded[0];
+      const unencoded = textsecure.utils.unencodeNumber(encodedAddress);
       const deviceId = parseInt(unencoded[1], 10);
 
-      const data = {
-        id: encodedNumber,
-        number,
-        deviceId,
-        record,
-      };
+      try {
+        const id = await normalizeEncodedAddress(encodedAddress);
 
-      this.sessions[encodedNumber] = data;
+        const data = {
+          id,
+          conversationId: textsecure.utils.unencodeNumber(id)[0],
+          deviceId,
+          record,
+        };
 
-      // Note: Because these are cached in memory, we batch and make these database
-      //   updates out of band.
-      this.sessionUpdateBatcher.add(data);
+        this.sessions[id] = data;
+
+        // Note: Because these are cached in memory, we batch and make these database
+        //   updates out of band.
+        this.sessionUpdateBatcher.add(data);
+      } catch (e) {
+        window.log.error(`could not store session for ${encodedAddress}`);
+      }
     },
-    async getDeviceIds(number) {
-      if (number === null || number === undefined) {
+    async getDeviceIds(identifier) {
+      if (identifier === null || identifier === undefined) {
         throw new Error('Tried to get device ids for undefined/null number');
       }
 
-      const allSessions = Object.values(this.sessions);
-      const sessions = allSessions.filter(session => session.number === number);
-      return _.pluck(sessions, 'deviceId');
+      try {
+        const id = ConversationController.getConversationId(identifier);
+        const allSessions = Object.values(this.sessions);
+        const sessions = allSessions.filter(
+          session => session.conversationId === id
+        );
+
+        return _.pluck(sessions, 'deviceId');
+      } catch (e) {
+        window.log.error(
+          `could not get device ids for identifier ${identifier}`
+        );
+      }
+
+      return [];
     },
-    async removeSession(encodedNumber) {
-      window.log.info('deleting session for ', encodedNumber);
-      delete this.sessions[encodedNumber];
-      await window.Signal.Data.removeSessionById(encodedNumber);
+    async removeSession(encodedAddress) {
+      window.log.info('deleting session for ', encodedAddress);
+      try {
+        const id = await normalizeEncodedAddress(encodedAddress);
+        delete this.sessions[id];
+        await window.Signal.Data.removeSessionById(id);
+      } catch (e) {
+        window.log.error(`could not delete session for ${encodedAddress}`);
+      }
     },
-    async removeAllSessions(number) {
-      if (number === null || number === undefined) {
+    async removeAllSessions(identifier) {
+      if (identifier === null || identifier === undefined) {
         throw new Error('Tried to remove sessions for undefined/null number');
       }
 
+      const id = ConversationController.getConversationId(identifier);
+
       const allSessions = Object.values(this.sessions);
+
       for (let i = 0, max = allSessions.length; i < max; i += 1) {
         const session = allSessions[i];
-        if (session.number === number) {
+        if (session.conversationId === id) {
           delete this.sessions[session.id];
         }
       }
-      await window.Signal.Data.removeSessionsByNumber(number);
+
+      await window.Signal.Data.removeSessionsByConversation(identifier);
     },
     async archiveSiblingSessions(identifier) {
       const address = libsignal.SignalProtocolAddress.fromString(identifier);
@@ -419,12 +469,15 @@
         })
       );
     },
-    async archiveAllSessions(number) {
-      const deviceIds = await this.getDeviceIds(number);
+    async archiveAllSessions(identifier) {
+      const deviceIds = await this.getDeviceIds(identifier);
 
       await Promise.all(
         deviceIds.map(async deviceId => {
-          const address = new libsignal.SignalProtocolAddress(number, deviceId);
+          const address = new libsignal.SignalProtocolAddress(
+            identifier,
+            deviceId
+          );
           window.log.info('closing session for', address.toString());
           const sessionCipher = new libsignal.SessionCipher(
             textsecure.storage.protocol,
@@ -441,16 +494,37 @@
 
     // Identity Keys
 
-    async isTrustedIdentity(identifier, publicKey, direction) {
-      if (identifier === null || identifier === undefined) {
+    getIdentityRecord(identifier) {
+      try {
+        const id = ConversationController.getConversationId(identifier);
+        const record = this.identityKeys[id];
+
+        if (record) {
+          return record;
+        }
+      } catch (e) {
+        window.log.error(
+          `could not get identity record for identifier ${identifier}`
+        );
+      }
+
+      return undefined;
+    },
+
+    async isTrustedIdentity(encodedAddress, publicKey, direction) {
+      if (encodedAddress === null || encodedAddress === undefined) {
         throw new Error('Tried to get identity key for undefined/null key');
       }
-      const number = textsecure.utils.unencodeNumber(identifier)[0];
-      const isOurNumber = number === textsecure.storage.user.getNumber();
+      const identifier = textsecure.utils.unencodeNumber(encodedAddress)[0];
+      const ourNumber = textsecure.storage.user.getNumber();
+      const ourUuid = textsecure.storage.user.getUuid();
+      const isOurIdentifier =
+        (ourNumber && identifier === ourNumber) ||
+        (ourUuid && identifier === ourUuid);
 
-      const identityRecord = this.identityKeys[number];
+      const identityRecord = this.getIdentityRecord(identifier);
 
-      if (isOurNumber) {
+      if (isOurIdentifier) {
         const existing = identityRecord ? identityRecord.publicKey : null;
         return equalArrayBuffers(existing, publicKey);
       }
@@ -497,8 +571,8 @@
       if (identifier === null || identifier === undefined) {
         throw new Error('Tried to get identity key for undefined/null key');
       }
-      const number = textsecure.utils.unencodeNumber(identifier)[0];
-      const identityRecord = this.identityKeys[number];
+      const id = textsecure.utils.unencodeNumber(identifier)[0];
+      const identityRecord = this.getIdentityRecord(id);
 
       if (identityRecord) {
         return identityRecord.publicKey;
@@ -511,8 +585,8 @@
       this.identityKeys[id] = data;
       await window.Signal.Data.createOrUpdateIdentityKey(data);
     },
-    async saveIdentity(identifier, publicKey, nonblockingApproval) {
-      if (identifier === null || identifier === undefined) {
+    async saveIdentity(encodedAddress, publicKey, nonblockingApproval) {
+      if (encodedAddress === null || encodedAddress === undefined) {
         throw new Error('Tried to put identity key for undefined/null key');
       }
       if (!(publicKey instanceof ArrayBuffer)) {
@@ -524,14 +598,15 @@
         nonblockingApproval = false;
       }
 
-      const number = textsecure.utils.unencodeNumber(identifier)[0];
-      const identityRecord = this.identityKeys[number];
+      const identifer = textsecure.utils.unencodeNumber(encodedAddress)[0];
+      const identityRecord = this.getIdentityRecord(identifer);
+      const id = ConversationController.getConversationId(identifer);
 
       if (!identityRecord || !identityRecord.publicKey) {
         // Lookup failed, or the current key was removed, so save this one.
         window.log.info('Saving new identity...');
         await this._saveIdentityKey({
-          id: number,
+          id,
           publicKey,
           firstUse: true,
           timestamp: Date.now(),
@@ -557,7 +632,7 @@
         }
 
         await this._saveIdentityKey({
-          id: number,
+          id,
           publicKey,
           firstUse: false,
           timestamp: Date.now(),
@@ -566,14 +641,14 @@
         });
 
         try {
-          this.trigger('keychange', number);
+          this.trigger('keychange', identifer);
         } catch (error) {
           window.log.error(
             'saveIdentity error triggering keychange:',
             error && error.stack ? error.stack : error
           );
         }
-        await this.archiveSiblingSessions(identifier);
+        await this.archiveSiblingSessions(encodedAddress);
 
         return true;
       } else if (this.isNonBlockingApprovalRequired(identityRecord)) {
@@ -594,16 +669,21 @@
         !identityRecord.nonblockingApproval
       );
     },
-    async saveIdentityWithAttributes(identifier, attributes) {
-      if (identifier === null || identifier === undefined) {
+    async saveIdentityWithAttributes(encodedAddress, attributes) {
+      if (encodedAddress === null || encodedAddress === undefined) {
         throw new Error('Tried to put identity key for undefined/null key');
       }
 
-      const number = textsecure.utils.unencodeNumber(identifier)[0];
-      const identityRecord = this.identityKeys[number];
+      const identifier = textsecure.utils.unencodeNumber(encodedAddress)[0];
+      const identityRecord = this.getIdentityRecord(identifier);
+      const conv = await ConversationController.getOrCreateAndWait(
+        identifier,
+        'private'
+      );
+      const id = conv.get('id');
 
       const updates = {
-        id: number,
+        id,
         ...identityRecord,
         ...attributes,
       };
@@ -615,26 +695,26 @@
         throw model.validationError;
       }
     },
-    async setApproval(identifier, nonblockingApproval) {
-      if (identifier === null || identifier === undefined) {
+    async setApproval(encodedAddress, nonblockingApproval) {
+      if (encodedAddress === null || encodedAddress === undefined) {
         throw new Error('Tried to set approval for undefined/null identifier');
       }
       if (typeof nonblockingApproval !== 'boolean') {
         throw new Error('Invalid approval status');
       }
 
-      const number = textsecure.utils.unencodeNumber(identifier)[0];
-      const identityRecord = this.identityKeys[number];
+      const identifier = textsecure.utils.unencodeNumber(encodedAddress)[0];
+      const identityRecord = this.getIdentityRecord(identifier);
 
       if (!identityRecord) {
-        throw new Error(`No identity record for ${number}`);
+        throw new Error(`No identity record for ${identifier}`);
       }
 
       identityRecord.nonblockingApproval = nonblockingApproval;
       await this._saveIdentityKey(identityRecord);
     },
-    async setVerified(number, verifiedStatus, publicKey) {
-      if (number === null || number === undefined) {
+    async setVerified(encodedAddress, verifiedStatus, publicKey) {
+      if (encodedAddress === null || encodedAddress === undefined) {
         throw new Error('Tried to set verified for undefined/null key');
       }
       if (!validateVerifiedStatus(verifiedStatus)) {
@@ -644,9 +724,10 @@
         throw new Error('Invalid public key');
       }
 
-      const identityRecord = this.identityKeys[number];
+      const identityRecord = this.getIdentityRecord(encodedAddress);
+
       if (!identityRecord) {
-        throw new Error(`No identity record for ${number}`);
+        throw new Error(`No identity record for ${encodedAddress}`);
       }
 
       if (
@@ -665,14 +746,14 @@
         window.log.info('No identity record for specified publicKey');
       }
     },
-    async getVerified(number) {
-      if (number === null || number === undefined) {
+    async getVerified(identifier) {
+      if (identifier === null || identifier === undefined) {
         throw new Error('Tried to set verified for undefined/null key');
       }
 
-      const identityRecord = this.identityKeys[number];
+      const identityRecord = this.getIdentityRecord(identifier);
       if (!identityRecord) {
-        throw new Error(`No identity record for ${number}`);
+        throw new Error(`No identity record for ${identifier}`);
       }
 
       const verifiedStatus = identityRecord.verified;
@@ -696,15 +777,16 @@
     // This function encapsulates the non-Java behavior, since the mobile apps don't
     //   currently receive contact syncs and therefore will see a verify sync with
     //   UNVERIFIED status
-    async processUnverifiedMessage(number, verifiedStatus, publicKey) {
-      if (number === null || number === undefined) {
+    async processUnverifiedMessage(identifier, verifiedStatus, publicKey) {
+      if (identifier === null || identifier === undefined) {
         throw new Error('Tried to set verified for undefined/null key');
       }
       if (publicKey !== undefined && !(publicKey instanceof ArrayBuffer)) {
         throw new Error('Invalid public key');
       }
 
-      const identityRecord = this.identityKeys[number];
+      const identityRecord = this.getIdentityRecord(identifier);
+
       const isPresent = Boolean(identityRecord);
       let isEqual = false;
 
@@ -718,7 +800,7 @@
         identityRecord.verified !== VerifiedStatus.UNVERIFIED
       ) {
         await textsecure.storage.protocol.setVerified(
-          number,
+          identifier,
           verifiedStatus,
           publicKey
         );
@@ -726,17 +808,20 @@
       }
 
       if (!isPresent || !isEqual) {
-        await textsecure.storage.protocol.saveIdentityWithAttributes(number, {
-          publicKey,
-          verified: verifiedStatus,
-          firstUse: false,
-          timestamp: Date.now(),
-          nonblockingApproval: true,
-        });
+        await textsecure.storage.protocol.saveIdentityWithAttributes(
+          identifier,
+          {
+            publicKey,
+            verified: verifiedStatus,
+            firstUse: false,
+            timestamp: Date.now(),
+            nonblockingApproval: true,
+          }
+        );
 
         if (isPresent && !isEqual) {
           try {
-            this.trigger('keychange', number);
+            this.trigger('keychange', identifier);
           } catch (error) {
             window.log.error(
               'processUnverifiedMessage error triggering keychange:',
@@ -744,7 +829,7 @@
             );
           }
 
-          await this.archiveAllSessions(number);
+          await this.archiveAllSessions(identifier);
 
           return true;
         }
@@ -758,8 +843,8 @@
     },
     // This matches the Java method as of
     //   https://github.com/signalapp/Signal-Android/blob/d0bb68e1378f689e4d10ac6a46014164992ca4e4/src/org/thoughtcrime/securesms/util/IdentityUtil.java#L188
-    async processVerifiedMessage(number, verifiedStatus, publicKey) {
-      if (number === null || number === undefined) {
+    async processVerifiedMessage(identifier, verifiedStatus, publicKey) {
+      if (identifier === null || identifier === undefined) {
         throw new Error('Tried to set verified for undefined/null key');
       }
       if (!validateVerifiedStatus(verifiedStatus)) {
@@ -769,7 +854,7 @@
         throw new Error('Invalid public key');
       }
 
-      const identityRecord = this.identityKeys[number];
+      const identityRecord = this.getIdentityRecord(identifier);
 
       const isPresent = Boolean(identityRecord);
       let isEqual = false;
@@ -790,7 +875,7 @@
         verifiedStatus === VerifiedStatus.DEFAULT
       ) {
         await textsecure.storage.protocol.setVerified(
-          number,
+          identifier,
           verifiedStatus,
           publicKey
         );
@@ -803,17 +888,20 @@
           (isPresent && !isEqual) ||
           (isPresent && identityRecord.verified !== VerifiedStatus.VERIFIED))
       ) {
-        await textsecure.storage.protocol.saveIdentityWithAttributes(number, {
-          publicKey,
-          verified: verifiedStatus,
-          firstUse: false,
-          timestamp: Date.now(),
-          nonblockingApproval: true,
-        });
+        await textsecure.storage.protocol.saveIdentityWithAttributes(
+          identifier,
+          {
+            publicKey,
+            verified: verifiedStatus,
+            firstUse: false,
+            timestamp: Date.now(),
+            nonblockingApproval: true,
+          }
+        );
 
         if (isPresent && !isEqual) {
           try {
-            this.trigger('keychange', number);
+            this.trigger('keychange', identifier);
           } catch (error) {
             window.log.error(
               'processVerifiedMessage error triggering keychange:',
@@ -821,7 +909,7 @@
             );
           }
 
-          await this.archiveAllSessions(number);
+          await this.archiveAllSessions(identifier);
 
           // true signifies that we overwrote a previous key with a new one
           return true;
@@ -833,14 +921,14 @@
       //   state we had before.
       return false;
     },
-    async isUntrusted(number) {
-      if (number === null || number === undefined) {
+    async isUntrusted(identifier) {
+      if (identifier === null || identifier === undefined) {
         throw new Error('Tried to set verified for undefined/null key');
       }
 
-      const identityRecord = this.identityKeys[number];
+      const identityRecord = this.getIdentityRecord(identifier);
       if (!identityRecord) {
-        throw new Error(`No identity record for ${number}`);
+        throw new Error(`No identity record for ${identifier}`);
       }
 
       if (
@@ -853,10 +941,13 @@
 
       return false;
     },
-    async removeIdentityKey(number) {
-      delete this.identityKeys[number];
-      await window.Signal.Data.removeIdentityKeyById(number);
-      await textsecure.storage.protocol.removeAllSessions(number);
+    async removeIdentityKey(identifier) {
+      const id = ConversationController.getConversationId(identifier);
+      if (id) {
+        delete this.identityKeys[id];
+        await window.Signal.Data.removeIdentityKeyById(id);
+        await textsecure.storage.protocol.removeAllSessions(id);
+      }
     },
 
     // Not yet processed messages - for resiliency

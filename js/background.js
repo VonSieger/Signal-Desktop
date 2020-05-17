@@ -25,7 +25,7 @@
     wait: 500,
     maxSize: 500,
     processBatch: async items => {
-      const bySource = _.groupBy(items, item => item.source);
+      const bySource = _.groupBy(items, item => item.source || item.sourceUuid);
       const sources = Object.keys(bySource);
 
       for (let i = 0, max = sources.length; i < max; i += 1) {
@@ -33,13 +33,15 @@
         const timestamps = bySource[source].map(item => item.timestamp);
 
         try {
+          const c = ConversationController.get(source);
           const { wrap, sendOptions } = ConversationController.prepareForSend(
-            source
+            c.get('id')
           );
           // eslint-disable-next-line no-await-in-loop
           await wrap(
             textsecure.messaging.sendDeliveryReceipt(
-              source,
+              c.get('e164'),
+              c.get('uuid'),
               timestamps,
               sendOptions
             )
@@ -188,10 +190,7 @@
 
   const { IdleDetector, MessageDataMigrator } = Signal.Workflow;
   const {
-    mandatoryMessageUpgrade,
-    migrateAllToSQLCipher,
-    removeDatabase,
-    runMigrations,
+    removeDatabase: removeIndexedDB,
     doesDatabaseExist,
   } = Signal.IndexedDB;
   const { Errors, Message } = window.Signal.Types;
@@ -202,11 +201,6 @@
     doesAttachmentExist,
   } = window.Signal.Migrations;
   const { Views } = window.Signal;
-
-  // Implicitly used in `indexeddb-backbonejs-adapter`:
-  // https://github.com/signalapp/Signal-Desktop/blob/4033a9f8137e62ed286170ed5d4941982b1d3a64/components/indexeddb-backbonejs-adapter/backbone-indexeddb.js#L569
-  window.onInvalidStateError = error =>
-    window.log.error(error && error.stack ? error.stack : error);
 
   window.log.info('background page reloaded');
   window.log.info('environment:', window.getEnvironment());
@@ -234,13 +228,23 @@
   let accountManager;
   window.getAccountManager = () => {
     if (!accountManager) {
-      const USERNAME = storage.get('number_id');
+      const OLD_USERNAME = storage.get('number_id');
+      const USERNAME = storage.get('uuid_id');
       const PASSWORD = storage.get('password');
-      accountManager = new textsecure.AccountManager(USERNAME, PASSWORD);
+      accountManager = new textsecure.AccountManager(
+        USERNAME || OLD_USERNAME,
+        PASSWORD
+      );
       accountManager.addEventListener('registration', () => {
+        const ourNumber = textsecure.storage.user.getNumber();
+        const ourUuid = textsecure.storage.user.getUuid();
         const user = {
           regionCode: window.storage.get('regionCode'),
-          ourNumber: textsecure.storage.user.getNumber(),
+          ourNumber,
+          ourUuid,
+          ourConversationId: ConversationController.getConversationId(
+            ourNumber || ourUuid
+          ),
         };
         Whisper.events.trigger('userChanged', user);
 
@@ -255,13 +259,56 @@
   const cancelInitializationMessage = Views.Initialization.setMessage();
 
   const version = await window.Signal.Data.getItemById('version');
-  let isIndexedDBPresent = false;
   if (!version) {
-    isIndexedDBPresent = await doesDatabaseExist();
+    const isIndexedDBPresent = await doesDatabaseExist();
     if (isIndexedDBPresent) {
-      window.installStorage(window.legacyStorage);
-      window.log.info('Start IndexedDB migrations');
-      await runMigrations();
+      window.log.info('Found IndexedDB database.');
+      try {
+        window.log.info('Confirming deletion of old data with user...');
+
+        try {
+          await new Promise((resolve, reject) => {
+            const dialog = new Whisper.ConfirmationDialogView({
+              message: window.i18n('deleteOldIndexedDBData'),
+              okText: window.i18n('deleteOldData'),
+              cancelText: window.i18n('quit'),
+              resolve,
+              reject,
+            });
+            document.body.append(dialog.el);
+            dialog.focusCancel();
+          });
+        } catch (error) {
+          window.log.info(
+            'User chose not to delete old data. Shutting down.',
+            error && error.stack ? error.stack : error
+          );
+          window.shutdown();
+          return;
+        }
+
+        window.log.info('Deleting all previously-migrated data in SQL...');
+        window.log.info('Deleting IndexedDB file...');
+
+        await Promise.all([
+          removeIndexedDB(),
+          window.Signal.Data.removeAll(),
+          window.Signal.Data.removeIndexedDBFiles(),
+        ]);
+        window.log.info('Done with SQL deletion and IndexedDB file deletion.');
+      } catch (error) {
+        window.log.error(
+          'Failed to remove IndexedDB file or remove SQL data:',
+          error && error.stack ? error.stack : error
+        );
+      }
+
+      // Set a flag to delete IndexedDB on next startup if it wasn't deleted just now.
+      // We need to use direct data calls, since storage isn't ready yet.
+      await window.Signal.Data.createOrUpdateItem({
+        id: 'indexeddb-delete-needed',
+        value: true,
+      });
     }
   }
 
@@ -440,24 +487,6 @@
       },
     };
 
-    if (isIndexedDBPresent) {
-      await mandatoryMessageUpgrade({ upgradeMessageSchema });
-      await migrateAllToSQLCipher({ writeNewAttachmentData, Views });
-      await removeDatabase();
-      try {
-        await window.Signal.Data.removeIndexedDBFiles();
-      } catch (error) {
-        window.log.error(
-          'Failed to remove IndexedDB files:',
-          error && error.stack ? error.stack : error
-        );
-      }
-
-      window.installStorage(window.newStorage);
-      await window.storage.fetch();
-      await storage.put('indexeddb-delete-needed', true);
-    }
-
     // How long since we were last running?
     const now = Date.now();
     const lastHeartbeat = storage.get('lastHeartbeat');
@@ -594,6 +623,11 @@
     const conversations = convoCollection.map(
       conversation => conversation.cachedProps
     );
+    const ourNumber = textsecure.storage.user.getNumber();
+    const ourUuid = textsecure.storage.user.getUuid();
+    const ourConversationId = ConversationController.getConversationId(
+      ourNumber || ourUuid
+    );
     const initialState = {
       conversations: {
         conversationLookup: Signal.Util.makeLookup(conversations, 'id'),
@@ -612,7 +646,9 @@
         stickersPath: window.baseStickersPath,
         tempPath: window.baseTempPath,
         regionCode: window.storage.get('regionCode'),
-        ourNumber: textsecure.storage.user.getNumber(),
+        ourConversationId,
+        ourNumber,
+        ourUuid,
         platform: window.platform,
         i18n: window.i18n,
         interactionMode: window.getInteractionMode(),
@@ -711,6 +747,24 @@
       }
     };
 
+    function getConversationByIndex(index) {
+      const state = store.getState();
+      const lists = Signal.State.Selectors.conversations.getLeftPaneLists(
+        state
+      );
+      const toSearch = state.conversations.showArchived
+        ? lists.archivedConversations
+        : lists.conversations;
+
+      const target = toSearch[index];
+
+      if (target) {
+        return target.id;
+      }
+
+      return null;
+    }
+
     function findConversation(conversationId, direction, unreadOnly) {
       const state = store.getState();
       const lists = Signal.State.Selectors.conversations.getLeftPaneLists(
@@ -747,6 +801,18 @@
 
       return null;
     }
+
+    const NUMBERS = {
+      '1': 1,
+      '2': 2,
+      '3': 3,
+      '4': 4,
+      '5': 5,
+      '6': 6,
+      '7': 7,
+      '8': 8,
+      '9': 9,
+    };
 
     document.addEventListener('keydown', event => {
       const { altKey, ctrlKey, key, metaKey, shiftKey } = event;
@@ -920,8 +986,24 @@
         return;
       }
 
-      // Change currently selected conversation - up/down, to next/previous unread
-      if (!isSearching && optionOrAlt && !shiftKey && key === 'ArrowUp') {
+      // Change currently selected conversation by index
+      if (!isSearching && commandOrCtrl && NUMBERS[key]) {
+        const targetId = getConversationByIndex(NUMBERS[key] - 1);
+
+        if (targetId) {
+          window.Whisper.events.trigger('showConversation', targetId);
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+      }
+
+      // Change currently selected conversation
+      // up/previous
+      if (
+        (!isSearching && optionOrAlt && !shiftKey && key === 'ArrowUp') ||
+        (!isSearching && ctrlKey && shiftKey && key === 'Tab')
+      ) {
         const unreadOnly = false;
         const targetId = findConversation(
           conversation ? conversation.id : null,
@@ -936,7 +1018,11 @@
           return;
         }
       }
-      if (!isSearching && optionOrAlt && !shiftKey && key === 'ArrowDown') {
+      // down/next
+      if (
+        (!isSearching && optionOrAlt && !shiftKey && key === 'ArrowDown') ||
+        (!isSearching && ctrlKey && key === 'Tab')
+      ) {
         const unreadOnly = false;
         const targetId = findConversation(
           conversation ? conversation.id : null,
@@ -951,6 +1037,7 @@
           return;
         }
       }
+      // previous unread
       if (!isSearching && optionOrAlt && shiftKey && key === 'ArrowUp') {
         const unreadOnly = true;
         const targetId = findConversation(
@@ -966,6 +1053,7 @@
           return;
         }
       }
+      // next unread
       if (!isSearching && optionOrAlt && shiftKey && key === 'ArrowDown') {
         const unreadOnly = true;
         const targetId = findConversation(
@@ -1455,6 +1543,7 @@
     new textsecure.SyncRequest(textsecure.messaging, messageReceiver);
 
   let disconnectTimer = null;
+  let reconnectTimer = null;
   function onOffline() {
     window.log.info('offline');
 
@@ -1508,7 +1597,12 @@
 
   let connectCount = 0;
   async function connect(firstRun) {
-    window.log.info('connect', firstRun);
+    window.log.info('connect', { firstRun, connectCount });
+
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
 
     // Bootstrap our online/offline detection, only the first time we connect
     if (connectCount === 0 && navigator.onLine) {
@@ -1536,7 +1630,8 @@
       messageReceiver = null;
     }
 
-    const USERNAME = storage.get('number_id');
+    const OLD_USERNAME = storage.get('number_id');
+    const USERNAME = storage.get('uuid_id');
     const PASSWORD = storage.get('password');
     const mySignalingKey = storage.get('signaling_key');
 
@@ -1552,6 +1647,7 @@
     // initialize the socket and start listening for messages
     window.log.info('Initializing socket and listening for messages');
     messageReceiver = new textsecure.MessageReceiver(
+      OLD_USERNAME,
       USERNAME,
       PASSWORD,
       mySignalingKey,
@@ -1601,7 +1697,7 @@
     });
 
     window.textsecure.messaging = new textsecure.MessageSender(
-      USERNAME,
+      USERNAME || OLD_USERNAME,
       PASSWORD
     );
 
@@ -1637,7 +1733,10 @@
 
     const udSupportKey = 'hasRegisterSupportForUnauthenticatedDelivery';
     if (!storage.get(udSupportKey)) {
-      const server = WebAPI.connect({ username: USERNAME, password: PASSWORD });
+      const server = WebAPI.connect({
+        username: USERNAME || OLD_USERNAME,
+        password: PASSWORD,
+      });
       try {
         await server.registerSupportForUnauthenticatedDelivery();
         storage.put(udSupportKey, true);
@@ -1649,7 +1748,51 @@
       }
     }
 
+    // TODO: uncomment this once we want to start registering UUID support
+    // const hasRegisteredUuidSupportKey = 'hasRegisteredUuidSupport';
+    // if (
+    //   !storage.get(hasRegisteredUuidSupportKey) &&
+    //   textsecure.storage.user.getUuid()
+    // ) {
+    //   const server = WebAPI.connect({
+    //     username: USERNAME || OLD_USERNAME,
+    //     password: PASSWORD,
+    //   });
+    //   try {
+    //     await server.registerCapabilities({ uuid: true });
+    //     storage.put(hasRegisteredUuidSupportKey, true);
+    //   } catch (error) {
+    //     window.log.error(
+    //       'Error: Unable to register support for UUID messages.',
+    //       error && error.stack ? error.stack : error
+    //     );
+    //   }
+    // }
+
     const deviceId = textsecure.storage.user.getDeviceId();
+
+    if (!textsecure.storage.user.getUuid()) {
+      const server = WebAPI.connect({
+        username: OLD_USERNAME,
+        password: PASSWORD,
+      });
+      try {
+        const { uuid } = await server.whoami();
+        textsecure.storage.user.setUuidAndDeviceId(uuid, deviceId);
+        const ourNumber = textsecure.storage.user.getNumber();
+        const me = await ConversationController.getOrCreateAndWait(
+          ourNumber,
+          'private'
+        );
+        me.updateUuid(uuid);
+      } catch (error) {
+        window.log.error(
+          'Error: Unable to retrieve UUID from service.',
+          error && error.stack ? error.stack : error
+        );
+      }
+    }
+
     if (firstRun === true && deviceId !== '1') {
       const hasThemeSetting = Boolean(storage.get('theme-setting'));
       if (!hasThemeSetting && textsecure.storage.get('userAgent') === 'OWI') {
@@ -1671,9 +1814,10 @@
         Whisper.events.trigger('contactsync');
       });
 
+      const ourUuid = textsecure.storage.user.getUuid();
       const ourNumber = textsecure.storage.user.getNumber();
       const { wrap, sendOptions } = ConversationController.prepareForSend(
-        ourNumber,
+        ourNumber || ourUuid,
         {
           syncMessage: true,
         }
@@ -1763,6 +1907,11 @@
     }
   }
 
+  Whisper.events.on('manualConnect', manualConnect);
+  function manualConnect() {
+    connect();
+  }
+
   function onConfiguration(ev) {
     ev.confirm();
 
@@ -1798,7 +1947,7 @@
   function onTyping(ev) {
     // Note: this type of message is automatically removed from cache in MessageReceiver
 
-    const { typing, sender, senderDevice } = ev;
+    const { typing, sender, senderUuid, senderDevice } = ev;
     const { groupId, started } = typing || {};
 
     // We don't do anything with incoming typing messages if the setting is disabled
@@ -1806,12 +1955,18 @@
       return;
     }
 
-    const conversation = ConversationController.get(groupId || sender);
+    const conversation = ConversationController.get(
+      groupId || sender || senderUuid
+    );
+    const ourUuid = textsecure.storage.user.getUuid();
     const ourNumber = textsecure.storage.user.getNumber();
 
     if (conversation) {
       // We drop typing notifications in groups we're not a part of
-      if (!conversation.isPrivate() && !conversation.hasMember(ourNumber)) {
+      if (
+        !conversation.isPrivate() &&
+        !conversation.hasMember(ourNumber || ourUuid)
+      ) {
         window.log.warn(
           `Received typing indicator for group ${conversation.idForLogging()}, which we're not a part of. Dropping.`
         );
@@ -1821,6 +1976,7 @@
       conversation.notifyTyping({
         isTyping: started,
         sender,
+        senderUuid,
         senderDevice,
       });
     }
@@ -1968,9 +2124,10 @@
   async function onContactReceived(ev) {
     const details = ev.contactDetails;
 
-    const id = details.number;
-
-    if (id === textsecure.storage.user.getNumber()) {
+    if (
+      details.number === textsecure.storage.user.getNumber() ||
+      details.uuid === textsecure.storage.user.getUuid()
+    ) {
       // special case for syncing details about ourselves
       if (details.profileKey) {
         window.log.info('Got sync message with our own profile key');
@@ -1979,9 +2136,11 @@
     }
 
     const c = new Whisper.Conversation({
-      id,
+      e164: details.number,
+      uuid: details.uuid,
+      type: 'private',
     });
-    const validationError = c.validateNumber();
+    const validationError = c.validate();
     if (validationError) {
       window.log.error(
         'Invalid contact received:',
@@ -1992,7 +2151,7 @@
 
     try {
       const conversation = await ConversationController.getOrCreateAndWait(
-        id,
+        details.number || details.uuid,
         'private'
       );
       let activeAt = conversation.get('active_at');
@@ -2013,10 +2172,18 @@
       }
 
       if (typeof details.blocked !== 'undefined') {
-        if (details.blocked) {
-          storage.addBlockedNumber(id);
+        const e164 = conversation.get('e164');
+        if (details.blocked && e164) {
+          storage.addBlockedNumber(e164);
         } else {
-          storage.removeBlockedNumber(id);
+          storage.removeBlockedNumber(e164);
+        }
+
+        const uuid = conversation.get('uuid');
+        if (details.blocked && uuid) {
+          storage.addBlockedUuid(uuid);
+        } else {
+          storage.removeBlockedUuid(uuid);
         }
       }
 
@@ -2024,6 +2191,7 @@
         name: details.name,
         color: details.color,
         active_at: activeAt,
+        inbox_position: details.inboxPosition,
       });
 
       // Update the conversation avatar only if new avatar exists and hash differs
@@ -2047,17 +2215,18 @@
         conversation.set({ avatar: null });
       }
 
-      window.Signal.Data.updateConversation(id, conversation.attributes);
+      window.Signal.Data.updateConversation(conversation.attributes);
 
       const { expireTimer } = details;
       const isValidExpireTimer = typeof expireTimer === 'number';
       if (isValidExpireTimer) {
-        const source = textsecure.storage.user.getNumber();
+        const sourceE164 = textsecure.storage.user.getNumber();
+        const sourceUuid = textsecure.storage.user.getUuid();
         const receivedAt = Date.now();
 
         await conversation.updateExpirationTimer(
           expireTimer,
-          source,
+          sourceE164 || sourceUuid,
           receivedAt,
           { fromSync: true }
         );
@@ -2069,10 +2238,19 @@
         verifiedEvent.verified = {
           state: verified.state,
           destination: verified.destination,
+          destinationUuid: verified.destinationUuid,
           identityKey: verified.identityKey.toArrayBuffer(),
         };
         verifiedEvent.viaContactSync = true;
         await onVerified(verifiedEvent);
+      }
+
+      const { appView } = window.owsDesktopApp;
+      if (appView && appView.installView && appView.installView.didLink) {
+        window.log.info(
+          'onContactReceived: Adding the message history disclaimer on link'
+        );
+        await conversation.addMessageHistoryDisclaimer();
       }
     } catch (error) {
       window.log.error('onContactReceived error:', Errors.toLogFormat(error));
@@ -2088,11 +2266,26 @@
       'group'
     );
 
+    const memberConversations = await Promise.all(
+      (details.members || details.membersE164).map(member => {
+        if (member.e164 || member.uuid) {
+          return ConversationController.getOrCreateAndWait(
+            member.e164 || member.uuid,
+            'private'
+          );
+        }
+        return ConversationController.getOrCreateAndWait(member, 'private');
+      })
+    );
+
+    const members = memberConversations.map(c => c.get('id'));
+
     const updates = {
       name: details.name,
-      members: details.members,
+      members,
       color: details.color,
       type: 'group',
+      inbox_position: details.inboxPosition,
     };
 
     if (details.active) {
@@ -2131,19 +2324,32 @@
       conversation.set(newAttributes);
     }
 
-    window.Signal.Data.updateConversation(id, conversation.attributes);
+    window.Signal.Data.updateConversation(conversation.attributes);
 
+    const { appView } = window.owsDesktopApp;
+    if (appView && appView.installView && appView.installView.didLink) {
+      window.log.info(
+        'onGroupReceived: Adding the message history disclaimer on link'
+      );
+      await conversation.addMessageHistoryDisclaimer();
+    }
     const { expireTimer } = details;
     const isValidExpireTimer = typeof expireTimer === 'number';
     if (!isValidExpireTimer) {
       return;
     }
 
-    const source = textsecure.storage.user.getNumber();
+    const sourceE164 = textsecure.storage.user.getNumber();
+    const sourceUuid = textsecure.storage.user.getUuid();
     const receivedAt = Date.now();
-    await conversation.updateExpirationTimer(expireTimer, source, receivedAt, {
-      fromSync: true,
-    });
+    await conversation.updateExpirationTimer(
+      expireTimer,
+      sourceE164 || sourceUuid,
+      receivedAt,
+      {
+        fromSync: true,
+      }
+    );
   }
 
   // Descriptors
@@ -2159,10 +2365,10 @@
       : { type: Message.PRIVATE, id: destination };
 
   // Matches event data from `libtextsecure` `MessageReceiver::handleDataMessage`:
-  const getDescriptorForReceived = ({ message, source }) =>
+  const getDescriptorForReceived = ({ message, source, sourceUuid }) =>
     message.group
       ? getGroupDescriptor(message.group)
-      : { type: Message.PRIVATE, id: source };
+      : { type: Message.PRIVATE, id: source || sourceUuid };
 
   // Received:
   async function handleMessageReceivedProfileUpdate({
@@ -2185,7 +2391,7 @@
   // Note: We do very little in this function, since everything in handleDataMessage is
   //   inside a conversation-specific queue(). Any code here might run before an earlier
   //   message is processed in handleDataMessage().
-  async function onMessageReceived(event) {
+  function onMessageReceived(event) {
     const { data, confirm } = event;
 
     const messageDescriptor = getDescriptorForReceived(data);
@@ -2194,20 +2400,26 @@
     // eslint-disable-next-line no-bitwise
     const isProfileUpdate = Boolean(data.message.flags & PROFILE_KEY_UPDATE);
     if (isProfileUpdate) {
-      await handleMessageReceivedProfileUpdate({
+      return handleMessageReceivedProfileUpdate({
         data,
         confirm,
         messageDescriptor,
       });
-      return;
     }
 
-    const message = await initIncomingMessage(data);
+    const message = initIncomingMessage(data);
 
-    await ConversationController.getOrCreateAndWait(
+    const result = ConversationController.getOrCreate(
       messageDescriptor.id,
       messageDescriptor.type
     );
+
+    if (messageDescriptor.type === 'private') {
+      result.updateE164(data.source);
+      if (data.sourceUuid) {
+        result.updateUuid(data.sourceUuid);
+      }
+    }
 
     if (data.message.reaction) {
       const { reaction } = data.message;
@@ -2218,16 +2430,31 @@
         targetAuthorUuid: reaction.targetAuthorUuid,
         targetTimestamp: reaction.targetTimestamp.toNumber(),
         timestamp: Date.now(),
-        fromId: data.source,
+        fromId: data.source || data.sourceUuid,
       });
       // Note: We do not wait for completion here
       Whisper.Reactions.onReaction(reactionModel);
       confirm();
-      return;
+      return Promise.resolve();
+    }
+
+    if (data.message.delete) {
+      const { delete: del } = data.message;
+      const deleteModel = Whisper.Deletes.add({
+        targetSentTimestamp: del.targetSentTimestamp,
+        serverTimestamp: data.serverTimestamp,
+        fromId: data.source || data.sourceUuid,
+      });
+      // Note: We do not wait for completion here
+      Whisper.Deletes.onDelete(deleteModel);
+      confirm();
+      return Promise.resolve();
     }
 
     // Don't wait for handleDataMessage, as it has its own per-conversation queueing
     message.handleDataMessage(data.message, event.confirm);
+
+    return Promise.resolve();
   }
 
   async function handleMessageSentProfileUpdate({
@@ -2243,12 +2470,16 @@
     );
 
     conversation.set({ profileSharing: true });
-    window.Signal.Data.updateConversation(id, conversation.attributes);
+    window.Signal.Data.updateConversation(conversation.attributes);
 
     // Then we update our own profileKey if it's different from what we have
     const ourNumber = textsecure.storage.user.getNumber();
+    const ourUuid = textsecure.storage.user.getUuid();
     const profileKey = data.message.profileKey.toString('base64');
-    const me = await ConversationController.getOrCreate(ourNumber, 'private');
+    const me = await ConversationController.getOrCreate(
+      ourNumber || ourUuid,
+      'private'
+    );
 
     // Will do the save for us if needed
     await me.setProfileKey(profileKey);
@@ -2271,8 +2502,10 @@
 
     return new Whisper.Message({
       source: textsecure.storage.user.getNumber(),
+      sourceUuid: textsecure.storage.user.getUuid(),
       sourceDevice: data.device,
       sent_at: data.timestamp,
+      serverTimestamp: data.serverTimestamp,
       sent_to: sentTo,
       received_at: now,
       conversationId: data.destination,
@@ -2289,7 +2522,7 @@
   // Note: We do very little in this function, since everything in handleDataMessage is
   //   inside a conversation-specific queue(). Any code here might run before an earlier
   //   message is processed in handleDataMessage().
-  async function onSentMessage(event) {
+  function onSentMessage(event) {
     const { data, confirm } = event;
 
     const messageDescriptor = getDescriptorForSent(data);
@@ -2298,19 +2531,20 @@
     // eslint-disable-next-line no-bitwise
     const isProfileUpdate = Boolean(data.message.flags & PROFILE_KEY_UPDATE);
     if (isProfileUpdate) {
-      await handleMessageSentProfileUpdate({
+      return handleMessageSentProfileUpdate({
         data,
         confirm,
         messageDescriptor,
       });
-      return;
     }
 
-    const message = await createSentMessage(data);
+    const message = createSentMessage(data);
+
+    const ourNumber = textsecure.storage.user.getNumber();
+    const ourUuid = textsecure.storage.user.getUuid();
 
     if (data.message.reaction) {
       const { reaction } = data.message;
-      const ourNumber = textsecure.storage.user.getNumber();
       const reactionModel = Whisper.Reactions.add({
         emoji: reaction.emoji,
         remove: reaction.remove,
@@ -2318,34 +2552,55 @@
         targetAuthorUuid: reaction.targetAuthorUuid,
         targetTimestamp: reaction.targetTimestamp.toNumber(),
         timestamp: Date.now(),
-        fromId: ourNumber,
+        fromId: ourNumber || ourUuid,
         fromSync: true,
       });
       // Note: We do not wait for completion here
       Whisper.Reactions.onReaction(reactionModel);
 
       event.confirm();
-      return;
+      return Promise.resolve();
     }
 
-    await ConversationController.getOrCreateAndWait(
+    if (data.message.delete) {
+      const { delete: del } = data.message;
+      const deleteModel = Whisper.Deletes.add({
+        targetSentTimestamp: del.targetSentTimestamp,
+        serverTimestamp: del.serverTimestamp,
+        fromId: ourNumber || ourUuid,
+      });
+      // Note: We do not wait for completion here
+      Whisper.Deletes.onDelete(deleteModel);
+      confirm();
+      return Promise.resolve();
+    }
+
+    ConversationController.getOrCreate(
       messageDescriptor.id,
       messageDescriptor.type
     );
-
     // Don't wait for handleDataMessage, as it has its own per-conversation queueing
+
     message.handleDataMessage(data.message, event.confirm, {
       data,
     });
+
+    return Promise.resolve();
   }
 
-  async function initIncomingMessage(data) {
+  function initIncomingMessage(data) {
+    const targetId = data.source || data.sourceUuid;
+    const conversation = ConversationController.get(targetId);
+    const conversationId = conversation ? conversation.id : targetId;
+
     return new Whisper.Message({
       source: data.source,
+      sourceUuid: data.sourceUuid,
       sourceDevice: data.sourceDevice,
       sent_at: data.timestamp,
-      received_at: data.receivedAt || Date.now(),
-      conversationId: data.source,
+      serverTimestamp: data.serverTimestamp,
+      received_at: Date.now(),
+      conversationId,
       unidentifiedDeliveryReceived: data.unidentifiedDeliveryReceived,
       type: 'incoming',
       unread: 1,
@@ -2411,7 +2666,7 @@
     }
   }
 
-  async function onError(ev) {
+  function onError(ev) {
     const { error } = ev;
     window.log.error('background onError:', Errors.toLogFormat(error));
 
@@ -2420,19 +2675,22 @@
       error.name === 'HTTPError' &&
       (error.code === 401 || error.code === 403)
     ) {
-      await unlinkAndDisconnect();
-      return;
+      return unlinkAndDisconnect();
     }
 
-    if (error && error.name === 'HTTPError' && error.code === -1) {
+    if (
+      error &&
+      error.name === 'HTTPError' &&
+      (error.code === -1 || error.code === 502)
+    ) {
       // Failed to connect to server
       if (navigator.onLine) {
         window.log.info('retrying in 1 minute');
-        setTimeout(connect, 60000);
+        reconnectTimer = setTimeout(connect, 60000);
 
         Whisper.events.trigger('reconnectTimer');
       }
-      return;
+      return Promise.resolve();
     }
 
     if (ev.proto) {
@@ -2442,13 +2700,13 @@
         }
         // Ignore this message. It is likely a duplicate delivery
         // because the server lost our ack the first time.
-        return;
+        return Promise.resolve();
       }
       const envelope = ev.proto;
-      const message = await initIncomingMessage(envelope);
+      const message = initIncomingMessage(envelope);
 
       const conversationId = message.get('conversationId');
-      const conversation = await ConversationController.getOrCreateAndWait(
+      const conversation = ConversationController.getOrCreate(
         conversationId,
         'private'
       );
@@ -2506,10 +2764,7 @@
           ev.confirm();
         }
 
-        window.Signal.Data.updateConversation(
-          conversationId,
-          conversation.attributes
-        );
+        window.Signal.Data.updateConversation(conversation.attributes);
       });
     }
 
@@ -2519,11 +2774,12 @@
   async function onViewSync(ev) {
     ev.confirm();
 
-    const { source, timestamp } = ev;
+    const { source, sourceUuid, timestamp } = ev;
     window.log.info(`view sync ${source} ${timestamp}`);
 
     const sync = Whisper.ViewSyncs.add({
       source,
+      sourceUuid,
       timestamp,
     });
 
@@ -2533,12 +2789,12 @@
   function onReadReceipt(ev) {
     const readAt = ev.timestamp;
     const { timestamp } = ev.read;
-    const { reader } = ev.read;
+    const reader = ConversationController.getConversationId(ev.read.reader);
     window.log.info('read receipt', reader, timestamp);
 
     ev.confirm();
 
-    if (!storage.get('read-receipt-setting')) {
+    if (!storage.get('read-receipt-setting') || !reader) {
       return;
     }
 
@@ -2555,11 +2811,12 @@
   function onReadSync(ev) {
     const readAt = ev.timestamp;
     const { timestamp } = ev.read;
-    const { sender } = ev.read;
-    window.log.info('read sync', sender, timestamp);
+    const { sender, senderUuid } = ev.read;
+    window.log.info('read sync', sender, senderUuid, timestamp);
 
     const receipt = Whisper.ReadSyncs.add({
       sender,
+      senderUuid,
       timestamp,
       read_at: readAt,
     });
@@ -2572,7 +2829,8 @@
   }
 
   async function onVerified(ev) {
-    const number = ev.verified.destination;
+    const e164 = ev.verified.destination;
+    const uuid = ev.verified.destinationUuid;
     const key = ev.verified.identityKey;
     let state;
 
@@ -2581,12 +2839,16 @@
     }
 
     const c = new Whisper.Conversation({
-      id: number,
+      e164,
+      uuid,
+      type: 'private',
     });
-    const error = c.validateNumber();
+    const error = c.validate();
     if (error) {
       window.log.error(
         'Invalid verified sync received:',
+        e164,
+        uuid,
         Errors.toLogFormat(error)
       );
       return;
@@ -2608,13 +2870,14 @@
 
     window.log.info(
       'got verified sync for',
-      number,
+      e164,
+      uuid,
       state,
       ev.viaContactSync ? 'via contact sync' : ''
     );
 
     const contact = await ConversationController.getOrCreateAndWait(
-      number,
+      e164 || uuid,
       'private'
     );
     const options = {
@@ -2634,17 +2897,27 @@
 
   function onDeliveryReceipt(ev) {
     const { deliveryReceipt } = ev;
+    const { sourceUuid, source } = deliveryReceipt;
+    const identifier = source || sourceUuid;
+
     window.log.info(
       'delivery receipt from',
-      `${deliveryReceipt.source}.${deliveryReceipt.sourceDevice}`,
+      `${identifier}.${deliveryReceipt.sourceDevice}`,
       deliveryReceipt.timestamp
     );
 
     ev.confirm();
 
+    const deliveredTo = ConversationController.getConversationId(identifier);
+
+    if (!deliveredTo) {
+      window.log.info('no conversation for identifier', identifier);
+      return;
+    }
+
     const receipt = Whisper.DeliveryReceipts.add({
       timestamp: deliveryReceipt.timestamp,
-      source: deliveryReceipt.source,
+      deliveredTo,
     });
 
     // Note: We don't wait for completion here

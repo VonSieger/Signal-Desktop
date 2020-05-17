@@ -42,9 +42,15 @@ console.log('Set Windows Application User Model ID (AUMID)', {
 });
 app.setAppUserModelId(appUserModelId);
 
+// We don't navigate, but this is the way of the future
+//   https://github.com/electron/electron/issues/18397
+app.allowRendererProcessReuse = true;
+
 // Keep a global reference of the window object, if you don't, the window will
 //   be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let mainWindowCreated = false;
+let loadingWindow;
 
 function getMainWindow() {
   return mainWindow;
@@ -69,7 +75,8 @@ const userConfig = require('./app/user_config');
 const importMode =
   process.argv.some(arg => arg === '--import') || config.get('import');
 
-const development = config.environment === 'development';
+const development =
+  config.environment === 'development' || config.environment === 'staging';
 
 // We generally want to pull in our own modules after this point, after the user
 //   data directory has been set.
@@ -80,7 +87,7 @@ const createTrayIcon = require('./app/tray_icon');
 const dockIcon = require('./app/dock_icon');
 const ephemeralConfig = require('./app/ephemeral_config');
 const logging = require('./app/logging');
-const sql = require('./app/sql');
+const sql = require('./ts/sql/Server').default;
 const sqlChannels = require('./app/sql_channel');
 const windowState = require('./app/window_state');
 const { createTemplate } = require('./app/menu');
@@ -181,7 +188,8 @@ function prepareURL(pathSegments, moreKeys) {
       version: app.getVersion(),
       buildExpiration: config.get('buildExpiration'),
       serverUrl: config.get('serverUrl'),
-      cdnUrl: config.get('cdnUrl'),
+      cdnUrl0: config.get('cdn').get('0'),
+      cdnUrl2: config.get('cdn').get('2'),
       certificateAuthority: config.get('certificateAuthority'),
       environment: config.environment,
       node_version: process.versions.node,
@@ -190,6 +198,7 @@ function prepareURL(pathSegments, moreKeys) {
       proxyUrl: process.env.HTTPS_PROXY || process.env.https_proxy,
       contentProxyUrl: config.contentProxyUrl,
       importMode: importMode ? true : undefined, // for stringify()
+      serverPublicParams: config.get('serverPublicParams'),
       serverTrustRoot: config.get('serverTrustRoot'),
       appStartInitialSpellcheckSetting,
       ...moreKeys,
@@ -250,6 +259,17 @@ function isVisible(window, bounds) {
   );
 }
 
+let windowIcon;
+const OS = process.platform;
+
+if (OS === 'win32') {
+  windowIcon = path.join(__dirname, 'build', 'icons', 'win', 'icon.ico');
+} else if (OS === 'linux') {
+  windowIcon = path.join(__dirname, 'images', 'signal-logo-desktop-linux.png');
+} else {
+  windowIcon = path.join(__dirname, 'build', 'icons', 'png', '512x512.png');
+}
+
 async function createWindow() {
   const { screen } = electron;
   const windowOptions = Object.assign(
@@ -263,8 +283,7 @@ async function createWindow() {
       backgroundColor:
         config.environment === 'test' || config.environment === 'test-lib'
           ? '#ffffff' // Tests should always be rendered on a white background
-          : '#2090EA',
-      vibrancy: 'appearance-based',
+          : '#3a76f0',
       webPreferences: {
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
@@ -273,7 +292,7 @@ async function createWindow() {
         nativeWindowOpen: true,
         spellcheck: await getSpellCheckSetting(),
       },
-      icon: path.join(__dirname, 'images', 'icon_256.png'),
+      icon: windowIcon,
     },
     _.pick(windowConfig, ['autoHideMenuBar', 'width', 'height', 'x', 'y'])
   );
@@ -308,6 +327,7 @@ async function createWindow() {
 
   // Create the browser window.
   mainWindow = new BrowserWindow(windowOptions);
+  mainWindowCreated = true;
   setupSpellChecker(mainWindow, locale.messages);
   if (!usingTrayIcon && windowConfig && windowConfig.maximized) {
     mainWindow.maximize();
@@ -327,7 +347,7 @@ async function createWindow() {
     // so if we need to recreate the window, we have the most recent settings
     windowConfig = {
       maximized: mainWindow.isMaximized(),
-      autoHideMenuBar: mainWindow.isMenuBarAutoHide(),
+      autoHideMenuBar: mainWindow.autoHideMenuBar,
       fullscreen: mainWindow.isFullScreen(),
       width: size[0],
       height: size[1],
@@ -345,12 +365,6 @@ async function createWindow() {
   const debouncedCaptureStats = _.debounce(captureAndSaveWindowStats, 500);
   mainWindow.on('resize', debouncedCaptureStats);
   mainWindow.on('move', debouncedCaptureStats);
-
-  // Ingested in preload.js via a sendSync call
-  ipc.on('locale-data', event => {
-    // eslint-disable-next-line no-param-reassign
-    event.returnValue = locale.messages;
-  });
 
   if (config.environment === 'test') {
     mainWindow.loadURL(prepareURL([__dirname, 'test', 'index.html']));
@@ -516,9 +530,8 @@ function showAbout() {
     resizable: false,
     title: locale.messages.aboutSignalDesktop.message,
     autoHideMenuBar: true,
-    backgroundColor: '#2090EA',
+    backgroundColor: '#3a76f0',
     show: false,
-    vibrancy: 'appearance-based',
     webPreferences: {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
@@ -564,10 +577,9 @@ function showSettingsWindow() {
     resizable: false,
     title: locale.messages.signalDesktopPreferences.message,
     autoHideMenuBar: true,
-    backgroundColor: '#2090EA',
+    backgroundColor: '#3a76f0',
     show: false,
     modal: true,
-    vibrancy: 'appearance-based',
     webPreferences: {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
@@ -634,7 +646,7 @@ async function showStickerCreator() {
     height: 650,
     title: locale.messages.signalDesktopStickerCreator,
     autoHideMenuBar: true,
-    backgroundColor: '#2090EA',
+    backgroundColor: '#3a76f0',
     show: false,
     webPreferences: {
       nodeIntegration: false,
@@ -686,10 +698,9 @@ async function showDebugLogWindow() {
     resizable: false,
     title: locale.messages.debugLog.message,
     autoHideMenuBar: true,
-    backgroundColor: '#2090EA',
+    backgroundColor: '#3a76f0',
     show: false,
     modal: true,
-    vibrancy: 'appearance-based',
     webPreferences: {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
@@ -735,10 +746,9 @@ async function showPermissionsPopupWindow() {
     resizable: false,
     title: locale.messages.allowAccess.message,
     autoHideMenuBar: true,
-    backgroundColor: '#2090EA',
+    backgroundColor: '#3a76f0',
     show: false,
     modal: true,
-    vibrancy: 'appearance-based',
     webPreferences: {
       nodeIntegration: false,
       nodeIntegrationInWorker: false,
@@ -813,11 +823,52 @@ app.on('ready', async () => {
     key = crypto.randomBytes(32).toString('hex');
     userConfig.set('key', key);
   }
-  const success = await sql.initialize({
+  const sqlInitPromise = sql.initialize({
     configDir: userDataPath,
     key,
     messages: locale.messages,
   });
+
+  // If the sql initialization takes more than three seconds to complete, we
+  // want to notify the user that things are happening
+  const timeout = new Promise(resolve => setTimeout(resolve, 3000, 'timeout'));
+  // eslint-disable-next-line more/no-then
+  Promise.race([sqlInitPromise, timeout]).then(maybeTimeout => {
+    if (maybeTimeout !== 'timeout') {
+      return;
+    }
+
+    console.log(
+      'sql.initialize is taking more than three seconds; showing loading dialog'
+    );
+
+    loadingWindow = new BrowserWindow({
+      show: false,
+      width: 300,
+      height: 265,
+      resizable: false,
+      frame: false,
+      backgroundColor: '#3a76f0',
+      webPreferences: {
+        nodeIntegration: false,
+        preload: path.join(__dirname, 'loading_preload.js'),
+      },
+      icon: windowIcon,
+    });
+
+    loadingWindow.once('ready-to-show', async () => {
+      loadingWindow.show();
+      // Wait for sql initialization to complete
+      await sqlInitPromise;
+      loadingWindow.destroy();
+      loadingWindow = null;
+    });
+
+    loadingWindow.loadURL(prepareURL([__dirname, 'loading.html']));
+  });
+
+  const success = await sqlInitPromise;
+
   if (!success) {
     console.log('sql.initialize was unsuccessful; returning early');
     return;
@@ -970,13 +1021,18 @@ app.on('before-quit', () => {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
+  console.log('main process handling window-all-closed');
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (
+  const shouldAutoClose =
     process.platform !== 'darwin' ||
     config.environment === 'test' ||
-    config.environment === 'test-lib'
-  ) {
+    config.environment === 'test-lib';
+
+  // Only automatically quit if the main window has been created
+  // This is necessary because `window-all-closed` can be triggered by the
+  // "optimizing application" window closing
+  if (shouldAutoClose && mainWindowCreated) {
     app.quit();
   }
 });
@@ -1016,7 +1072,7 @@ app.on('will-finish-launching', () => {
 });
 
 ipc.on('set-badge-count', (event, count) => {
-  app.setBadgeCount(count);
+  app.badgeCount = count;
 });
 
 ipc.on('remove-setup-menu-items', () => {
@@ -1046,10 +1102,13 @@ ipc.on('restart', () => {
   app.relaunch();
   app.quit();
 });
+ipc.on('shutdown', () => {
+  app.quit();
+});
 
 ipc.on('set-auto-hide-menu-bar', (event, autoHide) => {
   if (mainWindow) {
-    mainWindow.setAutoHideMenuBar(autoHide);
+    mainWindow.autoHideMenuBar = autoHide;
   }
 });
 
@@ -1172,6 +1231,12 @@ ipc.on('get-built-in-images', async () => {
       console.error('Error handling get-built-in-images:', error.stack);
     }
   }
+});
+
+// Ingested in preload.js via a sendSync call
+ipc.on('locale-data', event => {
+  // eslint-disable-next-line no-param-reassign
+  event.returnValue = locale.messages;
 });
 
 function getDataFromMainWindow(name, callback) {

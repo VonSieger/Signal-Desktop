@@ -3,11 +3,7 @@ import { omit, reject } from 'lodash';
 import { normalize } from '../../types/PhoneNumber';
 import { trigger } from '../../shims/events';
 import { cleanSearchTerm } from '../../util/cleanSearchTerm';
-import {
-  searchConversations as dataSearchConversations,
-  searchMessages as dataSearchMessages,
-  searchMessagesInConversation,
-} from '../../../js/modules/data';
+import dataInterface from '../../sql/Client';
 import { makeLookup } from '../../util/makeLookup';
 
 import {
@@ -19,6 +15,12 @@ import {
   SelectedConversationChangedActionType,
   ShowArchivedConversationsActionType,
 } from './conversations';
+
+const {
+  searchConversations: dataSearchConversations,
+  searchMessages: dataSearchMessages,
+  searchMessagesInConversation,
+} = dataInterface;
 
 // State
 
@@ -148,7 +150,7 @@ function searchMessages(
 function searchDiscussions(
   query: string,
   options: {
-    ourNumber: string;
+    ourConversationId: string;
     noteToSelf: string;
   }
 ): SearchDiscussionsResultsKickoffActionType {
@@ -180,15 +182,15 @@ async function doSearchMessages(
 async function doSearchDiscussions(
   query: string,
   options: {
-    ourNumber: string;
+    ourConversationId: string;
     noteToSelf: string;
   }
 ): Promise<SearchDiscussionsResultsPayloadType> {
-  const { ourNumber, noteToSelf } = options;
+  const { ourConversationId, noteToSelf } = options;
   const { conversations, contacts } = await queryConversationsAndContacts(
     query,
     {
-      ourNumber,
+      ourConversationId,
       noteToSelf,
     }
   );
@@ -271,9 +273,12 @@ async function queryMessages(query: string, searchConversationId?: string) {
 
 async function queryConversationsAndContacts(
   providedQuery: string,
-  options: { ourNumber: string; noteToSelf: string }
+  options: {
+    ourConversationId: string;
+    noteToSelf: string;
+  }
 ) {
-  const { ourNumber, noteToSelf } = options;
+  const { ourConversationId, noteToSelf } = options;
   const query = providedQuery.replace(/[+-.()]*/g, '');
 
   const searchResults: Array<DBConversationType> = await dataSearchConversations(
@@ -294,13 +299,20 @@ async function queryConversationsAndContacts(
     }
   }
 
+  // // @ts-ignore
+  // console._log(
+  //   '%cqueryConversationsAndContacts',
+  //   'background:black;color:red;',
+  //   { searchResults, conversations, ourNumber, ourUuid }
+  // );
+
   // Inject synthetic Note to Self entry if query matches localized 'Note to Self'
   if (noteToSelf.indexOf(providedQuery.toLowerCase()) !== -1) {
     // ensure that we don't have duplicates in our results
-    contacts = contacts.filter(id => id !== ourNumber);
-    conversations = conversations.filter(id => id !== ourNumber);
+    contacts = contacts.filter(id => id !== ourConversationId);
+    conversations = conversations.filter(id => id !== ourConversationId);
 
-    contacts.unshift(ourNumber);
+    contacts.unshift(ourConversationId);
   }
 
   return { conversations, contacts };

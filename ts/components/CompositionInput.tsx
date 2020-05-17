@@ -20,14 +20,9 @@ import classNames from 'classnames';
 import emojiRegex from 'emoji-regex';
 import { Emoji } from './emoji/Emoji';
 import { EmojiPickDataType } from './emoji/EmojiPicker';
-import {
-  convertShortName,
-  EmojiData,
-  replaceColons,
-  search,
-} from './emoji/lib';
+import { convertShortName, EmojiData, search } from './emoji/lib';
 import { LocalizerType } from '../types/Util';
-import { mergeRefs } from './_util';
+import { createRefMerger } from './_util';
 
 const MAX_LENGTH = 64 * 1024;
 const colonsRegex = /(?:^|\s):[a-z0-9-_+]+:?/gi;
@@ -237,6 +232,7 @@ export const CompositionInput = ({
   const focusRef = React.useRef(false);
   const editorStateRef = React.useRef<EditorState>(editorRenderState);
   const rootElRef = React.useRef<HTMLDivElement>();
+  const rootElRefMerger = React.useMemo(createRefMerger, []);
 
   // This function sets editorState and also keeps a reference to the newly set
   // state so we can reference the state in effects and callbacks without
@@ -394,9 +390,10 @@ export const CompositionInput = ({
 
   const submit = React.useCallback(() => {
     const { current: state } = editorStateRef;
-    const text = state.getCurrentContent().getPlainText();
-    const emojidText = replaceColons(text);
-    const trimmedText = emojidText.trim();
+    const trimmedText = state
+      .getCurrentContent()
+      .getPlainText()
+      .trim();
     onSubmit(trimmedText);
   }, [editorStateRef, onSubmit]);
 
@@ -757,7 +754,7 @@ export const CompositionInput = ({
             {({ measureRef }) => (
               <div
                 className="module-composition-input__input"
-                ref={mergeRefs(popperRef, measureRef, rootElRef)}
+                ref={rootElRefMerger(popperRef, measureRef, rootElRef)}
               >
                 <div
                   className={classNames(

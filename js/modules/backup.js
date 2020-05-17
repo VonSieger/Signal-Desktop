@@ -19,7 +19,7 @@ const pify = require('pify');
 const rimraf = require('rimraf');
 const electronRemote = require('electron').remote;
 
-const crypto = require('./crypto');
+const crypto = require('../../ts/Crypto');
 
 const { dialog, BrowserWindow } = electronRemote;
 
@@ -387,7 +387,7 @@ function _getExportAttachmentFileName(message, index, attachment) {
     return _trimFileName(attachment.fileName);
   }
 
-  let name = attachment.id;
+  let name = attachment.cdnId || attachment.cdnKey || attachment.id;
 
   if (attachment.contentType) {
     const components = attachment.contentType.split('/');
@@ -1118,8 +1118,14 @@ async function importConversations(dir, options) {
 
 function getMessageKey(message) {
   const ourNumber = textsecure.storage.user.getNumber();
+  const ourUuid = textsecure.storage.user.getUuid();
   const source = message.source || ourNumber;
-  if (source === ourNumber) {
+  const sourceUuid = message.sourceUuid || ourUuid;
+
+  if (
+    (source && source === ourNumber) ||
+    (sourceUuid && sourceUuid === ourUuid)
+  ) {
     return `${source} ${message.timestamp}`;
   }
 

@@ -20,7 +20,7 @@
         "description": "The label that is used for the File menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
     },
     "mainMenuCreateStickers": {
-        "message": "Create/upload sticker pack",
+        "message": "Vytvoriť/nahrať balík nálepiek",
         "description": "The label that is used for the Create/upload sticker pack option in the File menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
     },
     "mainMenuEdit": {
@@ -135,10 +135,6 @@
         "message": "Nástroje pre vývojárov",
         "description": "View menu command to show or hide the developer tools"
     },
-    "menuSetupWithImport": {
-        "message": "Nastaviť  Importovaním",
-        "description": "When the application is not yet set up, menu option to start up the import sequence"
-    },
     "menuSetupAsNewDevice": {
         "message": "Nastaviť ako Nové Zariadenie",
         "description": "When the application is not yet set up, menu option to start up the set up as fresh device"
@@ -146,6 +142,14 @@
     "menuSetupAsStandalone": {
         "message": "Nastaviť ako Samostatné Zariadenie",
         "description": "Only available on development modes, menu option to open up the standalone device setup sequence"
+    },
+    "contextMenuCopyLink": {
+        "message": "Kopírovať odkaz",
+        "description": "Shown in the context menu for a link to indicate that the user can copy the link"
+    },
+    "contextMenuNoSuggestions": {
+        "message": "Žiadne návrhy",
+        "description": "Shown in the context menu for a misspelled word to indicate that there are no suggestions to replace the misspelled word"
     },
     "avatarMenuViewArchive": {
         "message": "Zobraziť archív",
@@ -255,16 +259,12 @@
             }
         }
     },
-    "me": {
-        "message": "Ja",
-        "description": "The label for yourself when shown in a group member list"
-    },
     "view": {
         "message": "Zobraziť",
         "description": "Used as a label on a button allowing user to see more information"
     },
     "youLeftTheGroup": {
-        "message": "Opustili ste skupinu",
+        "message": "You left the group.",
         "description": "Displayed when a user can't send a message because they have left the group"
     },
     "scrollDown": {
@@ -288,6 +288,10 @@
                 "example": "5"
             }
         }
+    },
+    "messageHistoryUnsynced": {
+        "message": "Kvôli vašej bezpečnosti sa história konverzácii do nových pripojených zariadení neprenáša.",
+        "description": "Shown in the conversation history when a user links a new device to explain what is not supported."
     },
     "youMarkedAsVerified": {
         "message": "Označili ste bezpečnostné číslo s $name$ za overené",
@@ -372,7 +376,7 @@
         }
     },
     "identityKeyErrorOnSend": {
-        "message": "Your safety number with $name$ has changed. This could either mean that someone is trying to intercept your communication or that $name$ has simply reinstalled Signal. You may wish to verify your safety number with this contact.",
+        "message": "Vaše bezpečnostné číslo s $name$ sa zmenilo. Môže to znamenať, že sa niekto snaží odpočúvať vašu komunikáciu, alebo si $name$ len znovu nainštaloval/a Signal. V prípade potreby bezpečnostné číslo opätovne overte.",
         "description": "Shown when user clicks on a failed recipient in the message detail view after an identity key change",
         "placeholders": {
             "name": {
@@ -524,7 +528,7 @@
         "description": "Shown while Signal Desktop is fetching metadata for a url in composition area"
     },
     "stagedPreviewThumbnail": {
-        "message": "Draft thumbnail link preview for $domain$",
+        "message": "Náhľad odkazu pre $domain$",
         "description": "Shown while Signal Desktop is fetching metadata for a url in composition area",
         "placeholders": {
             "path": {
@@ -534,7 +538,7 @@
         }
     },
     "previewThumbnail": {
-        "message": "Thumbnail link preview for $domain$",
+        "message": "Náhľad odkazu pre $domain$",
         "description": "Shown while Signal Desktop is fetching metadata for a url in composition area",
         "placeholders": {
             "path": {
@@ -544,7 +548,7 @@
         }
     },
     "stagedImageAttachment": {
-        "message": "Draft image attachment: $path$",
+        "message": "Koncept príhohy obrázku: $path$",
         "description": "Alt text for staged attachments",
         "placeholders": {
             "path": {
@@ -581,6 +585,14 @@
         "message": "Pripojovanie",
         "description": "Displayed when the desktop client is currently connecting to the server."
     },
+    "connect": {
+        "message": "Pripojiť sa",
+        "description": "Shown to allow the user to manually attempt a reconnect."
+    },
+    "connectingHangOn": {
+        "message": "Už to bude...",
+        "description": "Subtext description for when the client is connecting to the server."
+    },
     "offline": {
         "message": "Offline",
         "description": "Displayed when the desktop client has no network connection."
@@ -588,16 +600,6 @@
     "checkNetworkConnection": {
         "message": "Skontrolujte svoje sieťové pripojenie.",
         "description": "Obvious instructions for when a user's computer loses its network connection"
-    },
-    "attemptingReconnection": {
-        "message": "Pokus o znovupripojenie za $reconnect_duration_in_seconds$ sekúnd",
-        "description": "",
-        "placeholders": {
-            "reconnect_duration_in_seconds": {
-                "content": "$1",
-                "example": "10"
-            }
-        }
     },
     "submitDebugLog": {
         "message": "Ladiaci log",
@@ -608,7 +610,7 @@
         "description": "View menu item to open the debug log (title case)"
     },
     "helpMenuShowKeyboardShortcuts": {
-        "message": "Show Keyboard Shortcuts",
+        "message": "Ukázať klávesové skratky",
         "description": "Item under the help menu, pops up a screen showing the application's keyboard shortcuts"
     },
     "goToReleaseNotes": {
@@ -632,7 +634,7 @@
         "description": "Title of the window that pops up with Signal Desktop preferences in it"
     },
     "signalDesktopStickerCreator": {
-        "message": "Sticker pack creator",
+        "message": "Nástroj na vytváranie nálepiek",
         "description": "Title of the window that pops up with Signal Desktop preferences in it"
     },
     "aboutSignalDesktop": {
@@ -767,6 +769,10 @@
         "message": "Stiahnuť prílohu",
         "description": "Shown in a message's triple-dot menu if there isn't room for a dedicated download button"
     },
+    "reactToMessage": {
+        "message": "Reagovať na správu",
+        "description": "Shown in triple-dot menu next to message to allow user to react to the associated message"
+    },
     "replyToMessage": {
         "message": "Odpovedať na správu",
         "description": "Shown in triple-dot menu next to message to allow user to start crafting a message with a quotation"
@@ -783,12 +789,24 @@
         "message": "Pôvodná správa sa našla, ale ešte nebola načítaná. Pre načítanie sa posuňte vyššie.",
         "description": "Shown in toast if user clicks on quote references messages not loaded in view, but in database"
     },
+    "voiceRecordingInterruptedMax": {
+        "message": "Nahrávanie hlasovej správy sa zastavilo, lebo bol dosiahnutý maximálny čas nahrávania.",
+        "description": "Confirmation dialog message for when the voice recording is interrupted due to max time limit"
+    },
+    "voiceRecordingInterruptedBlur": {
+        "message": "Nahrávanie zvukovej správy bolo zastavené, pretože ste prešli do inej aplikácie",
+        "description": "Confirmation dialog message for when the voice recording is interrupted due to app losing focus"
+    },
+    "voiceNoteLimit": {
+        "message": "Hlasové správy môžu mať maximálne 5 minút. Nahrávanie sa zastaví ak prepnete na inú aplikáciu.",
+        "description": "Shown in toast to warn user about limited time and that window must be in focus"
+    },
     "voiceNoteMustBeOnlyAttachment": {
-        "message": "A voice message must have only one attachment.",
+        "message": "Hlasová správa môže mať iba jednu prílohu.",
         "description": "Shown in toast if tries to record a voice note with any staged attachments"
     },
     "attachmentSaved": {
-        "message": "Attachment saved. Click to show in folder.",
+        "message": "Príloha uložená. Kliknite pre zobrazenie v priečinku.",
         "description": "Shown after user selects to save to downloads",
         "placeholders": {
             "name": {
@@ -799,7 +817,7 @@
     },
     "you": {
         "message": "Vy",
-        "description": "In Android theme, shown in quote if you or someone else replies to you"
+        "description": "Shown when the user represented is the current user."
     },
     "replyingTo": {
         "message": "Odpoveď pre $name$",
@@ -840,12 +858,28 @@
         "description": "Shown as the title of our update error dialogs on windows"
     },
     "cannotUpdateDetail": {
-        "message": "Signal Desktop sa nepodarilo aktualizovať, no je k dispozícii nová verzia. Prosím, navštívte stránku https://signal.org/download a nainštalujte novú verziu manuálne, následne buď kontaktujte podporu alebo nahláste technickú chybu.",
-        "description": "Shown if a general error happened while trying to install update package"
+        "message": "Aplikáciu Signal Desktop sa nepodarilo akualizovať. Prosím navštívte  $url$, nainštalujte novú verziu manuálne a potom buď kontaktujte podporu alebo nahláste technickú chybu.",
+        "description": "Shown if a general error happened while trying to install update package",
+        "placeholders": {
+            "url": {
+                "content": "$1",
+                "example": "https://signal.org/download"
+            }
+        }
     },
     "readOnlyVolume": {
-        "message": "Signal Desktop is likely in a macOS quarantine, and will not be able to auto-update. Please try moving Signal.app to /Applications with Finder.",
-        "description": "Shown on MacOS if running on a read-only volume and we cannot update"
+        "message": "Signal Desktop je pravdepodobne v karanténe macOS a preto sa nedokáže automaticky aktualizovať. Prosím skúste premiestniť $app$ do $folder$ pomocou programu Finder.",
+        "description": "Shown on MacOS if running on a read-only volume and we cannot update",
+        "placeholders": {
+            "app": {
+                "content": "$1",
+                "example": "Signal.app"
+            },
+            "folder": {
+                "content": "$2",
+                "example": "/Applications"
+            }
+        }
     },
     "ok": {
         "message": "OK",
@@ -853,6 +887,10 @@
     },
     "cancel": {
         "message": "Zrušiť",
+        "description": ""
+    },
+    "discard": {
+        "message": "Zahodiť",
         "description": ""
     },
     "failedToSend": {
@@ -1069,6 +1107,14 @@
         "message": "Povoliť kontrolu pravopisu textu zadaného do textového poľa",
         "description": "Description of the media permission description"
     },
+    "spellCheckWillBeEnabled": {
+        "message": "Kontrola pravopisu bude zapnutá po nasledujúcom štarte Signalu.",
+        "description": "Shown when the user enables spellcheck to indicate that they must restart Signal."
+    },
+    "spellCheckWillBeDisabled": {
+        "message": "Kontrola pravopisu bude vypnutá po nasledujúcom štarte Signalu.",
+        "description": "Shown when the user disables spellcheck to indicate that they must restart Signal."
+    },
     "clearDataHeader": {
         "message": "Mazanie dát",
         "description": "Header in the settings dialog for the section dealing with data deletion"
@@ -1142,7 +1188,7 @@
         "description": "Displayed in notifications when setting is 'name and message' and more than one message is waiting"
     },
     "notificationReaction": {
-        "message": "$sender$ reacted $emoji$ to your message",
+        "message": "$sender$ reagoval/a $emoji$ na vašu správu.",
         "description": "",
         "placeholders": {
             "sender": {
@@ -1156,7 +1202,7 @@
         }
     },
     "notificationReactionMostRecent": {
-        "message": "Most recent: $sender$ reacted $emoji$ to your message",
+        "message": "Najnovšie:$sender$ reagoval/a $emoji$ na vašu správu.",
         "description": "",
         "placeholders": {
             "sender": {
@@ -1166,6 +1212,42 @@
             "emoji": {
                 "content": "$2",
                 "example": "👍"
+            }
+        }
+    },
+    "notificationReactionMessage": {
+        "message": "$sender$ reagoval/a $emoji$ na: $message$",
+        "description": "",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "John"
+            },
+            "emoji": {
+                "content": "$2",
+                "example": "👍"
+            },
+            "message": {
+                "content": "$3",
+                "example": "Sounds good."
+            }
+        }
+    },
+    "notificationReactionMessageMostRecent": {
+        "message": "Najnovšie:$sender$ reagoval/a $emoji$ na: $message$",
+        "description": "",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "John"
+            },
+            "emoji": {
+                "content": "$2",
+                "example": "👍"
+            },
+            "message": {
+                "content": "$3",
+                "example": "Sounds good."
             }
         }
     },
@@ -1495,6 +1577,10 @@
         "message": "Začať nový rozhovor…",
         "description": "Label underneath number a user enters that is not an existing contact"
     },
+    "notSupportedSMS": {
+        "message": "SMS/MMS správy nie sú podporované.",
+        "description": "Label underneath number informing user that SMS is not supported on desktop"
+    },
     "newPhoneNumber": {
         "message": "Pre pridanie kontaktu zadajte telefónne číslo.",
         "description": "Placeholder for adding a new number to a contact"
@@ -1536,7 +1622,7 @@
         "description": ""
     },
     "leftTheGroup": {
-        "message": "$name$ opustil/a skupinu",
+        "message": "$name$ left the group.",
         "description": "Shown in the conversation history when a single person leaves the group",
         "placeholders": {
             "name": {
@@ -1546,7 +1632,7 @@
         }
     },
     "multipleLeftTheGroup": {
-        "message": "$name$ opustil/a skupinu",
+        "message": "$name$ left the group.",
         "description": "Shown in the conversation history when multiple people leave the group",
         "placeholders": {
             "name": {
@@ -1556,11 +1642,25 @@
         }
     },
     "updatedTheGroup": {
-        "message": "Skupina bola aktualizovaná",
+        "message": "$name$ updated the group.",
+        "description": "Shown in the conversation history when someone updates the group",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "youUpdatedTheGroup": {
+        "message": "Aktualizovali ste skupinu.",
+        "description": "Shown in the conversation history when you update a group"
+    },
+    "updatedGroupAvatar": {
+        "message": "Group avatar was updated.",
         "description": "Shown in the conversation history when someone updates the group"
     },
     "titleIsNow": {
-        "message": "Názov skupiny sa zmenil na \"$name$\"",
+        "message": "Group name is now '$name$'.",
         "description": "Shown in the conversation history when someone changes the title of the group",
         "placeholders": {
             "name": {
@@ -1569,8 +1669,12 @@
             }
         }
     },
+    "youJoinedTheGroup": {
+        "message": "Pridali ste sa do skupiny.",
+        "description": "Shown in the conversation history when you are added to a group."
+    },
     "joinedTheGroup": {
-        "message": "$name$ sa pripojil/a k skupine",
+        "message": "$name$ joined the group.",
         "description": "Shown in the conversation history when a single person joins the group",
         "placeholders": {
             "name": {
@@ -1580,7 +1684,7 @@
         }
     },
     "multipleJoinedTheGroup": {
-        "message": "$names$ sa pripojili k skupine",
+        "message": "$names$ joined the group.",
         "description": "Shown in the conversation history when more than one person joins the group",
         "placeholders": {
             "names": {
@@ -1602,15 +1706,15 @@
         "description": "Shown in notifications and in the left pane when a message has features too new for this signal install."
     },
     "message--getDescription--disappearing-media": {
-        "message": "View-once Media",
+        "message": "Médiá na jedno zobrazenie",
         "description": "Shown in notifications and in the left pane after view-once message is deleted."
     },
     "message--getDescription--disappearing-photo": {
-        "message": "View-once Photo",
+        "message": "Fotka na jedno zobrazenie",
         "description": "Shown in notifications and in the left pane when a message is a view once photo."
     },
     "message--getDescription--disappearing-video": {
-        "message": "View-once Video",
+        "message": "Video na jedno zobrazenie",
         "description": "Shown in notifications and in the left pane when a message is a view once video."
     },
     "stickers--toast--InstallFailed": {
@@ -1654,7 +1758,7 @@
         "description": "Shown in the sticker pack manager next to sticker packs which are already installed."
     },
     "stickers--StickerManager--Introduction--Image": {
-        "message": "Introducing Stickers: Bandit the Cat",
+        "message": "Predstavujeme nálepky: Mačka Bandit",
         "description": "Alt text on a tooltip image when the user upgrades to a version of Signal supporting stickers."
     },
     "stickers--StickerManager--Introduction--Title": {
@@ -1706,7 +1810,7 @@
         "description": "Shown as a placeholder inside the emoji picker search field."
     },
     "EmojiPicker--skin-tone": {
-        "message": "Skin tone $tone$",
+        "message": "Farba pleti $tone$",
         "description": "Shown as a tooltip over the emoji tone buttons.",
         "placeholders": {
             "status": {
@@ -1764,7 +1868,7 @@
         "description": "Shown when user clicks on an expired incoming view-once bubble"
     },
     "Message--tap-to-view--outgoing--expired-toast": {
-        "message": "View-once messages are not stored in your conversation history.",
+        "message": "Jednorázové správy sa neukladajú do histórie konverzácie",
         "description": "Shown when user clicks on an expired outgoing view-once bubble"
     },
     "Message--tap-to-view--incoming": {
@@ -1780,7 +1884,7 @@
         "description": "Text shown in left pane as preview for conversation with saved a saved draft message"
     },
     "Conversation--getDraftPreview--quote": {
-        "message": "(quote)",
+        "message": "(citát)",
         "description": "Text shown in left pane as preview for conversation with saved a saved draft message"
     },
     "Conversation--getDraftPreview--draft": {
@@ -1788,23 +1892,23 @@
         "description": "Text shown in left pane as preview for conversation with saved a saved draft message"
     },
     "Keyboard--navigate-by-section": {
-        "message": "Navigate by section",
+        "message": "Prepnúť medzi sekciami",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--previous-conversation": {
-        "message": "Previous conversation",
+        "message": "Predchádzajúca konverzácia",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--next-conversation": {
-        "message": "Next conversation",
+        "message": "Ďalšia konverzácia",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--previous-unread-conversation": {
-        "message": "Previous unread conversation",
+        "message": "Predchádzajúca neprečítaná konverzácia",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--next-unread-conversation": {
-        "message": "Next unread conversation",
+        "message": "Ďalšia neprečítaná konverzácia",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--preferences": {
@@ -1812,7 +1916,7 @@
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-conversation-menu": {
-        "message": "Open conversation menu",
+        "message": "Otvorí možnosti konverzácie",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--archive-conversation": {
@@ -1832,19 +1936,19 @@
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--focus-composer": {
-        "message": "Focus composer",
+        "message": "Prepne na pole písanej správy",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-all-media-view": {
-        "message": "Open All Media view",
+        "message": "Zobrazí zoznam médií v konverzácii",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-emoji-chooser": {
-        "message": "Open emoji chooser",
+        "message": "Otvorí ponuku emotikonov",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-sticker-chooser": {
-        "message": "Open sticker chooser",
+        "message": "Otvoriť galériu nálepiek",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--begin-recording-voice-note": {
@@ -1852,35 +1956,39 @@
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--default-message-action": {
-        "message": "Default action for selected message",
+        "message": "Prednastavená akcia pre vybranú správu",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--view-details-for-selected-message": {
-        "message": "View selected message details",
+        "message": "Zobrazí detaily vybranej správy",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--toggle-reply": {
-        "message": "Toggle reply to selected message",
+        "message": "Spustí odpoveď na vybranú správu",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--toggle-reaction-picker": {
+        "message": "Zobrazí možnosti reakcie na vybranú správu",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--save-attachment": {
-        "message": "Save attachment from selected message",
+        "message": "Uloží prílohu z vybranej správy",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--delete-message": {
-        "message": "Delete selected message",
+        "message": "Vymazať zvolenú správu",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--add-newline": {
-        "message": "Add newline to message",
+        "message": "Pridá nový riadok ku správe",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--expand-composer": {
-        "message": "Expand composer",
+        "message": "Zväčší pole pre písanie správy",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--send-in-expanded-composer": {
-        "message": "Send (in expanded composer)",
+        "message": "Poslať (vo zväčšenom poli pre písanie správy)",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--attach-file": {
@@ -1888,11 +1996,11 @@
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--remove-draft-link-preview": {
-        "message": "Remove draft link preview",
+        "message": "Odstráni náhľad odkazu z rozpísanej správy",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--remove-draft-attachments": {
-        "message": "Remove all draft attachments",
+        "message": "Odstráni všetky prílohy z rozpísanej správy",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--Key--ctrl": {
@@ -1900,7 +2008,7 @@
         "description": "Key shown in shortcut combination in shortcuts guide"
     },
     "Keyboard--Key--option": {
-        "message": "Option",
+        "message": "Možnosť",
         "description": "Key shown in shortcut combination in shortcuts guide"
     },
     "Keyboard--Key--alt": {
@@ -1920,7 +2028,7 @@
         "description": "Title header of the keyboard shortcuts guide"
     },
     "Keyboard--navigation-header": {
-        "message": "Navigation",
+        "message": "Navigácia",
         "description": "Header of the keyboard shortcuts guide - navigation section"
     },
     "Keyboard--messages-header": {
@@ -1928,19 +2036,19 @@
         "description": "Header of the keyboard shortcuts guide - messages section"
     },
     "Keyboard--composer-header": {
-        "message": "Composer",
+        "message": "Pole pre písanie správy",
         "description": "Header of the keyboard shortcuts guide - composer section"
     },
     "Keyboard--scroll-to-top": {
-        "message": "Scroll to top of list",
+        "message": "Posunie na začiatok konverzácie",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--scroll-to-bottom": {
-        "message": "Scroll to bottom of list",
+        "message": "Posunie na koniec konverzácie",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--close-curent-conversation": {
-        "message": "Close current conversation",
+        "message": "Zavrieť práve používanú konverzáciu",
         "description": "Shown in the shortcuts guide"
     },
     "close-popup": {
@@ -1948,39 +2056,39 @@
         "description": "Used as alt text for any button closing a popup"
     },
     "add-image-attachment": {
-        "message": "Add image attachment",
+        "message": "Pripojiť obrázkovú prílohu",
         "description": "Used in draft attachment list for the big 'add new attachment' button"
     },
     "remove-attachment": {
-        "message": "Remove attachment",
+        "message": "Odstrániť prílohu",
         "description": "Used in draft attachment list to remove an individual attachment"
     },
     "backToInbox": {
-        "message": "Back to inbox",
+        "message": "Späť na prijaté správy",
         "description": "Used as alt-text of button on archived conversations screen"
     },
     "conversationArchived": {
-        "message": "Conversation archived",
+        "message": "Konverzácia archivovaná",
         "description": "A toast that shows up when user archives a conversation"
     },
     "conversationReturnedToInbox": {
-        "message": "Conversation returned to inbox",
+        "message": "Konverzácia bola presunutá do prijatých správ",
         "description": "A toast that shows up when the user unarchives a conversation"
     },
     "StickerCreator--title": {
-        "message": "Sticker pack creator",
+        "message": "Nástroj na vytváranie nálepiek",
         "description": "The title of the Sticker Pack Creator window"
     },
     "StickerCreator--DropZone--staticText": {
-        "message": "Click to add or drop images here",
+        "message": "Klikni pre pridanie obrázkov alebo ich tu presuň myšou",
         "description": "Text which appears on the Sticker Creator drop zone when there is no active drag"
     },
     "StickerCreator--DropZone--activeText": {
-        "message": "Drop images here",
+        "message": "Presuň obrázky sem",
         "description": "Text which appears on the Sticker Creator drop zone when there is an active drag"
     },
     "StickerCreator--Preview--title": {
-        "message": "Sticker pack",
+        "message": "Balíček nálepiek",
         "description": "The 'title' of the sticker pack preview 'modal'"
     },
     "StickerCreator--ConfirmDialog--cancel": {
@@ -2016,11 +2124,11 @@
         "description": "Default text for the previous button on all stages of the sticker creator"
     },
     "StickerCreator--DropStage--title": {
-        "message": "Add your stickers",
+        "message": "Pridaj vlastné nálepky",
         "description": "Title for the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--help": {
-        "message": "Stickers must be in PNG or WebP format with a transparent background and 512x512 pixels. Recommended margin is 16px.",
+        "message": "Nálepky musia byť vo formáte PNG alebo WebP s priehľadným pozadím rozmeru 512x512 pixelov. Doporučený okraj je 16 px.",
         "description": "Help text for the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--showMargins": {
@@ -2028,7 +2136,7 @@
         "description": "Text for the show margins toggle on the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--addMore": {
-        "message": "Add $count$ or more",
+        "message": "Pridaj $count$ alebo viac ;)",
         "description": "Text to show user how many more stickers they must add",
         "placeholders": {
             "hashtag": {
@@ -2038,11 +2146,11 @@
         }
     },
     "StickerCreator--EmojiStage--title": {
-        "message": "Add an emoji to each sticker",
+        "message": "Pridaj smajlík ku každej nálepke",
         "description": "Title for the drop stage of the sticker creator"
     },
     "StickerCreator--EmojiStage--help": {
-        "message": "This allows us to suggest stickers to you as you're messaging.",
+        "message": "Táto možnosť nám dovolí navrhovať vám nálepky keď si s niekým píšete.",
         "description": "Help text for the drop stage of the sticker creator"
     },
     "StickerCreator--MetaStage--title": {
@@ -2058,15 +2166,15 @@
         "description": "Label for the author input of the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--Field--cover": {
-        "message": "Cover image",
+        "message": "Titulný obrázok",
         "description": "Label for the cover image picker of the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--Field--cover--help": {
-        "message": "This is the image that will show up when you share your sticker pack",
+        "message": "Toto je obrázok, ktorý sa zobrazí, keď budete zdielať svoj balíček nálepiek",
         "description": "Help text for the cover image picker of the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--title": {
-        "message": "Are you sure you want to upload your sticker pack?",
+        "message": "Ste si istí, že chcete nahrať svoj balíček nálepiek?",
         "description": "Title for the confirm dialog on the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--confirm": {
@@ -2074,15 +2182,15 @@
         "description": "Text for the upload button in the confirmation dialog on the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--text": {
-        "message": "You will no longer be able to make edits or delete after creating a sticker pack.",
+        "message": "Po vytvorení balíčku nálepiek ho už viac nebudete môcť upravovať alebo zmazať.",
         "description": "The text inside the confirmation dialog on the meta stage of the sticker creator"
     },
     "StickerCreator--UploadStage--title": {
-        "message": "Creating your sticker pack",
+        "message": "Vytváram váš balíček nálepiek",
         "description": "Title for the upload stage of the sticker creator"
     },
     "StickerCreator--UploadStage-uploaded": {
-        "message": "$count$ of $total$ uploaded",
+        "message": "$count$ z $total$ je nahratých",
         "description": "Title for the upload stage of the sticker creator",
         "placeholders": {
             "count": {
@@ -2096,15 +2204,15 @@
         }
     },
     "StickerCreator--ShareStage--title": {
-        "message": "Congratulations! You created a sticker pack.",
+        "message": "Gratulujeme! Vytvorili ste balíček nálepiek. ",
         "description": "Title for the share stage of the sticker creator"
     },
     "StickerCreator--ShareStage--help": {
-        "message": "Access your new stickers through the sticker icon, or share with your friends using the link below.",
+        "message": "Ku svojim novým nálepkám sa dostanete cez ikonu nálepiek alebo ich môžete zdielať pomocou odkazu nižšie.",
         "description": "Help text for the share stage of the sticker creator"
     },
     "StickerCreator--ShareStage--callToAction": {
-        "message": "Use the hashtag $hashtag$ to help other people find the URLs for any custom sticker packs that you would like to make publicly accessible.",
+        "message": "Použite hashtag $hashtag$ aby ste pomohli ostatným nájsť adresu pre ktorýkoľvek vytvorený balíček nálepiek, ktorý by ste chceli zverejniť.",
         "description": "Call to action text for the share stage of the sticker creator",
         "placeholders": {
             "hashtag": {
@@ -2114,7 +2222,7 @@
         }
     },
     "StickerCreator--ShareStage--copyTitle": {
-        "message": "Sticker Pack URL",
+        "message": "Adresa balíčku nálepiek",
         "description": "Title for the copy button on the share stage of the sticker creator"
     },
     "StickerCreator--ShareStage--close": {
@@ -2122,15 +2230,15 @@
         "description": "Text for the close button on the share stage of the sticker creator"
     },
     "StickerCreator--ShareStage--createAnother": {
-        "message": "Create another sticker pack",
+        "message": "Vytvoriť ďalší balíček nálepiek",
         "description": "Text for the create another sticker pack button on the share stage of the sticker creator"
     },
     "StickerCreator--ShareStage--socialMessage": {
-        "message": "Check out this new sticker pack I created for Signal. #makeprivacystick",
+        "message": "Vyskúšajte môj nový balíček nálepiek, ktorý som vytvoril pre Signal. #zalepsvojesúkromie",
         "description": "Text which is shared to social media platforms for sticker packs"
     },
     "StickerCreator--Toasts--imagesAdded": {
-        "message": "$count$ image(s) added",
+        "message": "$count$ obrázk(ov) pridaný(ch)",
         "description": "Text for the toast when images are added to the sticker creator",
         "placeholders": {
             "count": {
@@ -2140,19 +2248,19 @@
         }
     },
     "StickerCreator--Toasts--animated": {
-        "message": "Animated stickers are not currently supported",
+        "message": "Animované nálepky v súčastnosti nepodporujeme :'(",
         "description": "Text for the toast when an image that is animated was dropped on the sticker creator"
     },
     "StickerCreator--Toasts--tooLarge": {
-        "message": "Dropped image is too large",
+        "message": "Presunutý obrázok je príliš veľký",
         "description": "Text for the toast when an image that is too large was dropped on the sticker creator"
     },
     "StickerCreator--Toasts--errorProcessing": {
-        "message": "Error processing image",
+        "message": "Chyba pri spracovaní obrázku",
         "description": "Text for the toast when an image cannot be processed was dropped on the sticker creator"
     },
     "StickerCreator--Toasts--errorUploading": {
-        "message": "Error uploading stickers: $message$",
+        "message": "Prekážka v nahratí nálepiek: $message$",
         "description": "Text for the toast when a sticker pack cannot be uploaded",
         "placeholders": {
             "message": {
@@ -2166,16 +2274,24 @@
         "description": "Text for the toast when a link for sharing is copied from the Sticker Creator"
     },
     "StickerCreator--StickerPreview--light": {
-        "message": "My sticker in light theme",
+        "message": "Moja nálepka vo svetlej téme",
         "description": "Text for the sticker preview for the light theme"
     },
     "StickerCreator--StickerPreview--dark": {
-        "message": "My sticker in dark theme",
+        "message": "Moja nálepka v tmavej téme",
         "description": "Text for the sticker preview for the dark theme"
     },
     "StickerCreator--Authentication--error": {
-        "message": "Please set up Signal on your phone and desktop to use the Sticker Pack Creator",
+        "message": "Pre používanie nástroja na vytvorenie nálepiek si musíte nastaviť Signal na telefóne a počítači",
         "description": "The error message which appears when the user has not linked their account and attempts to use the Sticker Creator"
+    },
+    "Reactions--error": {
+        "message": "Nepodarilo sa mi odoslať reakciu. Skúste to prosím znovu",
+        "description": "Shown when a reaction fails to send"
+    },
+    "ReactionsViewer--all": {
+        "message": "Všetko",
+        "description": "Shown in reaction viewer as the title for the 'all' category"
     },
     "privacyPolicy": {
         "message": "Podmienky a Ochrana osobných údajov",

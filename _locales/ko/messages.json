@@ -135,10 +135,6 @@
         "message": "개발자 도구 전환",
         "description": "View menu command to show or hide the developer tools"
     },
-    "menuSetupWithImport": {
-        "message": "가져오기로 설정",
-        "description": "When the application is not yet set up, menu option to start up the import sequence"
-    },
     "menuSetupAsNewDevice": {
         "message": "새 기기로 설정",
         "description": "When the application is not yet set up, menu option to start up the set up as fresh device"
@@ -146,6 +142,14 @@
     "menuSetupAsStandalone": {
         "message": "독립 실행형 기기로 설정",
         "description": "Only available on development modes, menu option to open up the standalone device setup sequence"
+    },
+    "contextMenuCopyLink": {
+        "message": "링크 복사",
+        "description": "Shown in the context menu for a link to indicate that the user can copy the link"
+    },
+    "contextMenuNoSuggestions": {
+        "message": "No Suggestions",
+        "description": "Shown in the context menu for a misspelled word to indicate that there are no suggestions to replace the misspelled word"
     },
     "avatarMenuViewArchive": {
         "message": "View Archive",
@@ -255,16 +259,12 @@
             }
         }
     },
-    "me": {
-        "message": "나",
-        "description": "The label for yourself when shown in a group member list"
-    },
     "view": {
         "message": "보기",
         "description": "Used as a label on a button allowing user to see more information"
     },
     "youLeftTheGroup": {
-        "message": "그룹에서 나갔습니다",
+        "message": "You left the group.",
         "description": "Displayed when a user can't send a message because they have left the group"
     },
     "scrollDown": {
@@ -288,6 +288,10 @@
                 "example": "5"
             }
         }
+    },
+    "messageHistoryUnsynced": {
+        "message": "For your security, conversation history isn't transferred to new linked devices.",
+        "description": "Shown in the conversation history when a user links a new device to explain what is not supported."
     },
     "youMarkedAsVerified": {
         "message": "$name$와의 안전 번호를 검증 상태로 표시했습니다",
@@ -581,6 +585,14 @@
         "message": "연결 중",
         "description": "Displayed when the desktop client is currently connecting to the server."
     },
+    "connect": {
+        "message": "Connect",
+        "description": "Shown to allow the user to manually attempt a reconnect."
+    },
+    "connectingHangOn": {
+        "message": "Shouldn't be long...",
+        "description": "Subtext description for when the client is connecting to the server."
+    },
     "offline": {
         "message": "오프라인",
         "description": "Displayed when the desktop client has no network connection."
@@ -588,16 +600,6 @@
     "checkNetworkConnection": {
         "message": "네트워크 연결을 확인하세요.",
         "description": "Obvious instructions for when a user's computer loses its network connection"
-    },
-    "attemptingReconnection": {
-        "message": "$reconnect_duration_in_seconds$초 후 재연결 시도",
-        "description": "",
-        "placeholders": {
-            "reconnect_duration_in_seconds": {
-                "content": "$1",
-                "example": "10"
-            }
-        }
     },
     "submitDebugLog": {
         "message": "디버그 로그",
@@ -608,7 +610,7 @@
         "description": "View menu item to open the debug log (title case)"
     },
     "helpMenuShowKeyboardShortcuts": {
-        "message": "Show Keyboard Shortcuts",
+        "message": "키보드 단축키 보기 ",
         "description": "Item under the help menu, pops up a screen showing the application's keyboard shortcuts"
     },
     "goToReleaseNotes": {
@@ -767,6 +769,10 @@
         "message": "첨부 파일 다운로드",
         "description": "Shown in a message's triple-dot menu if there isn't room for a dedicated download button"
     },
+    "reactToMessage": {
+        "message": "React to Message",
+        "description": "Shown in triple-dot menu next to message to allow user to react to the associated message"
+    },
     "replyToMessage": {
         "message": "메시지 답장",
         "description": "Shown in triple-dot menu next to message to allow user to start crafting a message with a quotation"
@@ -783,8 +789,20 @@
         "message": "원본 메시지를 찾았으나 불러오지 못했습니다. 위로 스크롤하여 불러올 수 있습니다.",
         "description": "Shown in toast if user clicks on quote references messages not loaded in view, but in database"
     },
+    "voiceRecordingInterruptedMax": {
+        "message": "Voice message recording stopped because the maximum time limit was reached.",
+        "description": "Confirmation dialog message for when the voice recording is interrupted due to max time limit"
+    },
+    "voiceRecordingInterruptedBlur": {
+        "message": "Voice message recording stopped because you switched to another app.",
+        "description": "Confirmation dialog message for when the voice recording is interrupted due to app losing focus"
+    },
+    "voiceNoteLimit": {
+        "message": "Voice messages are limited to five minutes. Recording will stop if you switch to another app.",
+        "description": "Shown in toast to warn user about limited time and that window must be in focus"
+    },
     "voiceNoteMustBeOnlyAttachment": {
-        "message": "A voice message must have only one attachment.",
+        "message": "음성 메시지에는 첨부 파일이 하나만 있어야 합니다.",
         "description": "Shown in toast if tries to record a voice note with any staged attachments"
     },
     "attachmentSaved": {
@@ -799,7 +817,7 @@
     },
     "you": {
         "message": "나",
-        "description": "In Android theme, shown in quote if you or someone else replies to you"
+        "description": "Shown when the user represented is the current user."
     },
     "replyingTo": {
         "message": "$name$에게 답장",
@@ -840,12 +858,28 @@
         "description": "Shown as the title of our update error dialogs on windows"
     },
     "cannotUpdateDetail": {
-        "message": "Signal Desktop의 업데이트에 실패했으나 새로운 버전이 있습니다. https://signal.org/download 페이지에서 새 버전을 수동으로 설치하세요. 이후 고객지원에 연락하거나 버그를 제보할 수 있습니다.",
-        "description": "Shown if a general error happened while trying to install update package"
+        "message": "Signal Desktop failed to update, but there is a new version available. Please go to $url$ and install the new version manually, then either contact support or file a bug about this problem.",
+        "description": "Shown if a general error happened while trying to install update package",
+        "placeholders": {
+            "url": {
+                "content": "$1",
+                "example": "https://signal.org/download"
+            }
+        }
     },
     "readOnlyVolume": {
-        "message": "Signal Desktop이 macOS 검역소에 있는 것 같습니다. 파인더에서 Signal.app을 /Applications로 이동하세요.",
-        "description": "Shown on MacOS if running on a read-only volume and we cannot update"
+        "message": "Signal Desktop is likely in a macOS quarantine, and will not be able to auto-update. Please try moving $app$ to $folder$ with Finder.",
+        "description": "Shown on MacOS if running on a read-only volume and we cannot update",
+        "placeholders": {
+            "app": {
+                "content": "$1",
+                "example": "Signal.app"
+            },
+            "folder": {
+                "content": "$2",
+                "example": "/Applications"
+            }
+        }
     },
     "ok": {
         "message": "확인",
@@ -853,6 +887,10 @@
     },
     "cancel": {
         "message": "취소",
+        "description": ""
+    },
+    "discard": {
+        "message": "버리기",
         "description": ""
     },
     "failedToSend": {
@@ -1069,6 +1107,14 @@
         "message": "메시지 작성 박스에 입력된 텍스트의 맞춤법 검사를 허용",
         "description": "Description of the media permission description"
     },
+    "spellCheckWillBeEnabled": {
+        "message": "Spell check will be enabled the next time Signal starts.",
+        "description": "Shown when the user enables spellcheck to indicate that they must restart Signal."
+    },
+    "spellCheckWillBeDisabled": {
+        "message": "Spell check will be disabled the next time Signal starts.",
+        "description": "Shown when the user disables spellcheck to indicate that they must restart Signal."
+    },
     "clearDataHeader": {
         "message": "데이터 비우기",
         "description": "Header in the settings dialog for the section dealing with data deletion"
@@ -1166,6 +1212,42 @@
             "emoji": {
                 "content": "$2",
                 "example": "👍"
+            }
+        }
+    },
+    "notificationReactionMessage": {
+        "message": "$sender$ reacted $emoji$ to: $message$",
+        "description": "",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "John"
+            },
+            "emoji": {
+                "content": "$2",
+                "example": "👍"
+            },
+            "message": {
+                "content": "$3",
+                "example": "Sounds good."
+            }
+        }
+    },
+    "notificationReactionMessageMostRecent": {
+        "message": "Most recent: $sender$ reacted $emoji$ to: $message$",
+        "description": "",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "John"
+            },
+            "emoji": {
+                "content": "$2",
+                "example": "👍"
+            },
+            "message": {
+                "content": "$3",
+                "example": "Sounds good."
             }
         }
     },
@@ -1495,6 +1577,10 @@
         "message": "새 대화 시작…",
         "description": "Label underneath number a user enters that is not an existing contact"
     },
+    "notSupportedSMS": {
+        "message": "SMS/MMS messages are not supported.",
+        "description": "Label underneath number informing user that SMS is not supported on desktop"
+    },
     "newPhoneNumber": {
         "message": "연락처를 추가하려면 전화번호를 입력하세요.",
         "description": "Placeholder for adding a new number to a contact"
@@ -1536,7 +1622,7 @@
         "description": ""
     },
     "leftTheGroup": {
-        "message": "$name$(이)가 그룹에서 나감",
+        "message": "$name$ left the group.",
         "description": "Shown in the conversation history when a single person leaves the group",
         "placeholders": {
             "name": {
@@ -1546,7 +1632,7 @@
         }
     },
     "multipleLeftTheGroup": {
-        "message": "$name$(이)가 그룹에서 나감",
+        "message": "$name$ left the group.",
         "description": "Shown in the conversation history when multiple people leave the group",
         "placeholders": {
             "name": {
@@ -1556,11 +1642,25 @@
         }
     },
     "updatedTheGroup": {
-        "message": "그룹 업데이트됨",
+        "message": "$name$ updated the group.",
+        "description": "Shown in the conversation history when someone updates the group",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "youUpdatedTheGroup": {
+        "message": "그룹을 업데이트했습니다.",
+        "description": "Shown in the conversation history when you update a group"
+    },
+    "updatedGroupAvatar": {
+        "message": "Group avatar was updated.",
         "description": "Shown in the conversation history when someone updates the group"
     },
     "titleIsNow": {
-        "message": "제목이 '$name$'(으)로 변경됨",
+        "message": "Group name is now '$name$'.",
         "description": "Shown in the conversation history when someone changes the title of the group",
         "placeholders": {
             "name": {
@@ -1569,8 +1669,12 @@
             }
         }
     },
+    "youJoinedTheGroup": {
+        "message": "그룹에 참가하였습니다.",
+        "description": "Shown in the conversation history when you are added to a group."
+    },
     "joinedTheGroup": {
-        "message": "$name$(이)가 그룹에 참여함",
+        "message": "$name$ joined the group.",
         "description": "Shown in the conversation history when a single person joins the group",
         "placeholders": {
             "name": {
@@ -1580,7 +1684,7 @@
         }
     },
     "multipleJoinedTheGroup": {
-        "message": "$names$(이)가 그룹에 참여함",
+        "message": "$names$ joined the group.",
         "description": "Shown in the conversation history when more than one person joins the group",
         "placeholders": {
             "names": {
@@ -1752,7 +1856,7 @@
         "description": "Text for a button which will take user to Signal download page"
     },
     "Message--tap-to-view-expired": {
-        "message": "Viewed",
+        "message": "조회함",
         "description": "Text shown on messages with with individual timers, after user has viewed it"
     },
     "Message--tap-to-view--outgoing": {
@@ -1768,11 +1872,11 @@
         "description": "Shown when user clicks on an expired outgoing view-once bubble"
     },
     "Message--tap-to-view--incoming": {
-        "message": "View Photo",
+        "message": "사진 보기",
         "description": "Text shown on photo messages with with individual timers, before user has viewed it"
     },
     "Message--tap-to-view--incoming-video": {
-        "message": "View Video",
+        "message": "동영상 보기",
         "description": "Text shown on video messages with with individual timers, before user has viewed it"
     },
     "Conversation--getDraftPreview--attachment": {
@@ -1808,11 +1912,11 @@
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--preferences": {
-        "message": "Preferences",
+        "message": "환경설정",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-conversation-menu": {
-        "message": "Open conversation menu",
+        "message": "대화 메뉴 열기",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--archive-conversation": {
@@ -1861,6 +1965,10 @@
     },
     "Keyboard--toggle-reply": {
         "message": "Toggle reply to selected message",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--toggle-reaction-picker": {
+        "message": "Toggle reaction picker for selected message",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--save-attachment": {
@@ -1916,7 +2024,7 @@
         "description": "Key shown in shortcut combination in shortcuts guide"
     },
     "Keyboard--header": {
-        "message": "Keyboard Shortcuts",
+        "message": "키보드 단축키",
         "description": "Title header of the keyboard shortcuts guide"
     },
     "Keyboard--navigation-header": {
@@ -1992,11 +2100,11 @@
         "description": "The text which appears on the copy button for the sticker creator share screen"
     },
     "StickerCreator--ShareButtons--facebook": {
-        "message": "Facebook",
+        "message": "페이스북",
         "description": "Title for Facebook button"
     },
     "StickerCreator--ShareButtons--twitter": {
-        "message": "Twitter",
+        "message": "트위터",
         "description": "Title for Twitter button"
     },
     "StickerCreator--ShareButtons--pinterest": {
@@ -2050,15 +2158,15 @@
         "description": "Title for the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--Field--title": {
-        "message": "Title",
+        "message": "제목",
         "description": "Label for the title input of the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--Field--author": {
-        "message": "Author",
+        "message": "저자",
         "description": "Label for the author input of the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--Field--cover": {
-        "message": "Cover image",
+        "message": "커버 사진",
         "description": "Label for the cover image picker of the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--Field--cover--help": {
@@ -2070,7 +2178,7 @@
         "description": "Title for the confirm dialog on the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--confirm": {
-        "message": "Upload",
+        "message": "업로드",
         "description": "Text for the upload button in the confirmation dialog on the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--text": {
@@ -2176,6 +2284,14 @@
     "StickerCreator--Authentication--error": {
         "message": "Please set up Signal on your phone and desktop to use the Sticker Pack Creator",
         "description": "The error message which appears when the user has not linked their account and attempts to use the Sticker Creator"
+    },
+    "Reactions--error": {
+        "message": "Failed to send reaction. Please try again.",
+        "description": "Shown when a reaction fails to send"
+    },
+    "ReactionsViewer--all": {
+        "message": "모두",
+        "description": "Shown in reaction viewer as the title for the 'all' category"
     },
     "privacyPolicy": {
         "message": "이용약관 및 개인정보 처리방침",

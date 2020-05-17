@@ -135,10 +135,6 @@
         "message": "বিকাশকারী সরঞ্জামগুলি দেখান",
         "description": "View menu command to show or hide the developer tools"
     },
-    "menuSetupWithImport": {
-        "message": "আমদানি সহ সেট আপ করুন",
-        "description": "When the application is not yet set up, menu option to start up the import sequence"
-    },
     "menuSetupAsNewDevice": {
         "message": "নতুন ডিভাইস হিসেবে সেট করুন",
         "description": "When the application is not yet set up, menu option to start up the set up as fresh device"
@@ -146,6 +142,14 @@
     "menuSetupAsStandalone": {
         "message": "স্বাধীন ডিভাইস হিসেবে সেট করুন",
         "description": "Only available on development modes, menu option to open up the standalone device setup sequence"
+    },
+    "contextMenuCopyLink": {
+        "message": "লিংক অনুলিপি করুন",
+        "description": "Shown in the context menu for a link to indicate that the user can copy the link"
+    },
+    "contextMenuNoSuggestions": {
+        "message": "No Suggestions",
+        "description": "Shown in the context menu for a misspelled word to indicate that there are no suggestions to replace the misspelled word"
     },
     "avatarMenuViewArchive": {
         "message": "সংরক্ষণাগার দেখুন",
@@ -255,16 +259,12 @@
             }
         }
     },
-    "me": {
-        "message": "আমি",
-        "description": "The label for yourself when shown in a group member list"
-    },
     "view": {
         "message": "দেখান",
         "description": "Used as a label on a button allowing user to see more information"
     },
     "youLeftTheGroup": {
-        "message": "আপনি গ্রুপ ত্যাগ করেছেন।",
+        "message": "You left the group.",
         "description": "Displayed when a user can't send a message because they have left the group"
     },
     "scrollDown": {
@@ -288,6 +288,10 @@
                 "example": "5"
             }
         }
+    },
+    "messageHistoryUnsynced": {
+        "message": "For your security, conversation history isn't transferred to new linked devices.",
+        "description": "Shown in the conversation history when a user links a new device to explain what is not supported."
     },
     "youMarkedAsVerified": {
         "message": "$name$ এর সাথে আপনি আপনার নিরাপত্তা নাম্বার যাচাইকৃত হিসেবে চিহ্নিত করেছেন।",
@@ -581,6 +585,14 @@
         "message": "সংযুক্ত হচ্ছে ...",
         "description": "Displayed when the desktop client is currently connecting to the server."
     },
+    "connect": {
+        "message": "Connect",
+        "description": "Shown to allow the user to manually attempt a reconnect."
+    },
+    "connectingHangOn": {
+        "message": "Shouldn't be long...",
+        "description": "Subtext description for when the client is connecting to the server."
+    },
     "offline": {
         "message": "অফলাইন",
         "description": "Displayed when the desktop client has no network connection."
@@ -588,16 +600,6 @@
     "checkNetworkConnection": {
         "message": "আপনার নেটওয়ার্ক সংযোগ পরীক্ষা করুন।",
         "description": "Obvious instructions for when a user's computer loses its network connection"
-    },
-    "attemptingReconnection": {
-        "message": "পুনরায় সংযোগ করার চেষ্টা করছে $reconnect_duration_in_seconds$ সেকেন্ডে",
-        "description": "",
-        "placeholders": {
-            "reconnect_duration_in_seconds": {
-                "content": "$1",
-                "example": "10"
-            }
-        }
     },
     "submitDebugLog": {
         "message": "ডিবাগ লগ",
@@ -767,6 +769,10 @@
         "message": "সংযুক্তি ডাউনলোড",
         "description": "Shown in a message's triple-dot menu if there isn't room for a dedicated download button"
     },
+    "reactToMessage": {
+        "message": "React to Message",
+        "description": "Shown in triple-dot menu next to message to allow user to react to the associated message"
+    },
     "replyToMessage": {
         "message": "বার্তার জবাব দিন",
         "description": "Shown in triple-dot menu next to message to allow user to start crafting a message with a quotation"
@@ -782,6 +788,18 @@
     "messageFoundButNotLoaded": {
         "message": "মূল বার্তা পাওয়া গেছে, তবে লোড হয়নি। এটিকে লোড করতে স্ক্রোল করুন।",
         "description": "Shown in toast if user clicks on quote references messages not loaded in view, but in database"
+    },
+    "voiceRecordingInterruptedMax": {
+        "message": "Voice message recording stopped because the maximum time limit was reached.",
+        "description": "Confirmation dialog message for when the voice recording is interrupted due to max time limit"
+    },
+    "voiceRecordingInterruptedBlur": {
+        "message": "Voice message recording stopped because you switched to another app.",
+        "description": "Confirmation dialog message for when the voice recording is interrupted due to app losing focus"
+    },
+    "voiceNoteLimit": {
+        "message": "Voice messages are limited to five minutes. Recording will stop if you switch to another app.",
+        "description": "Shown in toast to warn user about limited time and that window must be in focus"
     },
     "voiceNoteMustBeOnlyAttachment": {
         "message": "A voice message must have only one attachment.",
@@ -799,7 +817,7 @@
     },
     "you": {
         "message": "আপনি",
-        "description": "In Android theme, shown in quote if you or someone else replies to you"
+        "description": "Shown when the user represented is the current user."
     },
     "replyingTo": {
         "message": "$name$কে প্রতিউত্তর দেওয়া হচ্ছে",
@@ -840,18 +858,38 @@
         "description": "Shown as the title of our update error dialogs on windows"
     },
     "cannotUpdateDetail": {
-        "message": "Signal ডেস্কটপ আপডেট করতে ব্যর্থ হয়েছে, তবে একটি নতুন সংস্করণ পাওয়া যাচ্ছে। দয়া করে https://signal.org/download এ যান এবং ম্যানুয়ালি নতুন সংস্করণ ইনস্টল করুন, তারপরে হয় সহয়ায়তার জন্য পরিচিতি করুন বা এই সমস্যা সম্পর্কে একটি বাগ ফাইল করুন।",
-        "description": "Shown if a general error happened while trying to install update package"
+        "message": "Signal Desktop failed to update, but there is a new version available. Please go to $url$ and install the new version manually, then either contact support or file a bug about this problem.",
+        "description": "Shown if a general error happened while trying to install update package",
+        "placeholders": {
+            "url": {
+                "content": "$1",
+                "example": "https://signal.org/download"
+            }
+        }
     },
     "readOnlyVolume": {
-        "message": "Signal ডেস্কটপ সম্ভবত  ম্যাক ওএস এর মধ্যে পৃথক অবস্থায় রয়েছে এবং স্বয়ংক্রিয়ভাবে আপডেট করতে সক্ষম হবে না। দয়া করে ফাইন্ডারের মাধ্যমে Signal.app অ্যাপ টি /Applications এ স্থানান্তরিত করার চেষ্টা করুন।",
-        "description": "Shown on MacOS if running on a read-only volume and we cannot update"
+        "message": "Signal Desktop is likely in a macOS quarantine, and will not be able to auto-update. Please try moving $app$ to $folder$ with Finder.",
+        "description": "Shown on MacOS if running on a read-only volume and we cannot update",
+        "placeholders": {
+            "app": {
+                "content": "$1",
+                "example": "Signal.app"
+            },
+            "folder": {
+                "content": "$2",
+                "example": "/Applications"
+            }
+        }
     },
     "ok": {
         "message": "ঠিক আছে",
         "description": ""
     },
     "cancel": {
+        "message": "বাতিল",
+        "description": ""
+    },
+    "discard": {
         "message": "বাতিল",
         "description": ""
     },
@@ -1069,6 +1107,14 @@
         "message": "বার্তা লেখার বাক্সে প্রবেশ করা পাঠ্যের বানান পরীক্ষা সচল করুন",
         "description": "Description of the media permission description"
     },
+    "spellCheckWillBeEnabled": {
+        "message": "Spell check will be enabled the next time Signal starts.",
+        "description": "Shown when the user enables spellcheck to indicate that they must restart Signal."
+    },
+    "spellCheckWillBeDisabled": {
+        "message": "Spell check will be disabled the next time Signal starts.",
+        "description": "Shown when the user disables spellcheck to indicate that they must restart Signal."
+    },
     "clearDataHeader": {
         "message": "ডেটা মুছে ফেল",
         "description": "Header in the settings dialog for the section dealing with data deletion"
@@ -1166,6 +1212,42 @@
             "emoji": {
                 "content": "$2",
                 "example": "👍"
+            }
+        }
+    },
+    "notificationReactionMessage": {
+        "message": "$sender$ reacted $emoji$ to: $message$",
+        "description": "",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "John"
+            },
+            "emoji": {
+                "content": "$2",
+                "example": "👍"
+            },
+            "message": {
+                "content": "$3",
+                "example": "Sounds good."
+            }
+        }
+    },
+    "notificationReactionMessageMostRecent": {
+        "message": "Most recent: $sender$ reacted $emoji$ to: $message$",
+        "description": "",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "John"
+            },
+            "emoji": {
+                "content": "$2",
+                "example": "👍"
+            },
+            "message": {
+                "content": "$3",
+                "example": "Sounds good."
             }
         }
     },
@@ -1495,6 +1577,10 @@
         "message": "নতুন কথোপকথন শুরু করুন...",
         "description": "Label underneath number a user enters that is not an existing contact"
     },
+    "notSupportedSMS": {
+        "message": "SMS/MMS messages are not supported.",
+        "description": "Label underneath number informing user that SMS is not supported on desktop"
+    },
     "newPhoneNumber": {
         "message": "একটি পরিচিতি যুক্ত করতে একটি ফোন নাম্বার প্রবেশ করান।",
         "description": "Placeholder for adding a new number to a contact"
@@ -1536,7 +1622,7 @@
         "description": ""
     },
     "leftTheGroup": {
-        "message": "$name$গ্রুপ ত্যাগ করেছে",
+        "message": "$name$ left the group.",
         "description": "Shown in the conversation history when a single person leaves the group",
         "placeholders": {
             "name": {
@@ -1546,7 +1632,7 @@
         }
     },
     "multipleLeftTheGroup": {
-        "message": "$name$গ্রুপ ত্যাগ করেছে",
+        "message": "$name$ left the group.",
         "description": "Shown in the conversation history when multiple people leave the group",
         "placeholders": {
             "name": {
@@ -1556,11 +1642,25 @@
         }
     },
     "updatedTheGroup": {
-        "message": "গ্রুপ অাপডেট হয়েছে",
+        "message": "$name$ updated the group.",
+        "description": "Shown in the conversation history when someone updates the group",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "youUpdatedTheGroup": {
+        "message": "আপনি গ্রুপ আপডেট করেছেন।",
+        "description": "Shown in the conversation history when you update a group"
+    },
+    "updatedGroupAvatar": {
+        "message": "Group avatar was updated.",
         "description": "Shown in the conversation history when someone updates the group"
     },
     "titleIsNow": {
-        "message": "শিরোনাম এখন '$name$'",
+        "message": "Group name is now '$name$'.",
         "description": "Shown in the conversation history when someone changes the title of the group",
         "placeholders": {
             "name": {
@@ -1569,8 +1669,12 @@
             }
         }
     },
+    "youJoinedTheGroup": {
+        "message": "You joined the group.",
+        "description": "Shown in the conversation history when you are added to a group."
+    },
     "joinedTheGroup": {
-        "message": "$name$ গ্রুপে যোগ দিয়েছে",
+        "message": "$name$ joined the group.",
         "description": "Shown in the conversation history when a single person joins the group",
         "placeholders": {
             "name": {
@@ -1580,7 +1684,7 @@
         }
     },
     "multipleJoinedTheGroup": {
-        "message": "$names$গ্রুপে যোগ দিয়েছেন।",
+        "message": "$names$ joined the group.",
         "description": "Shown in the conversation history when more than one person joins the group",
         "placeholders": {
             "names": {
@@ -1861,6 +1965,10 @@
     },
     "Keyboard--toggle-reply": {
         "message": "নির্বাচিত বার্তায় উত্তর টগল করুন",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--toggle-reaction-picker": {
+        "message": "Toggle reaction picker for selected message",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--save-attachment": {
@@ -2176,6 +2284,14 @@
     "StickerCreator--Authentication--error": {
         "message": "Please set up Signal on your phone and desktop to use the Sticker Pack Creator",
         "description": "The error message which appears when the user has not linked their account and attempts to use the Sticker Creator"
+    },
+    "Reactions--error": {
+        "message": "Failed to send reaction. Please try again.",
+        "description": "Shown when a reaction fails to send"
+    },
+    "ReactionsViewer--all": {
+        "message": "সব",
+        "description": "Shown in reaction viewer as the title for the 'all' category"
     },
     "privacyPolicy": {
         "message": "শর্তাদি এবং গোপনীয়তা নীতি",

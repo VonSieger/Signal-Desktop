@@ -3,11 +3,12 @@ import React from 'react';
 import { LocalizerType } from '../types/Util';
 import { NetworkStateType } from '../state/ducks/network';
 
+const FIVE_SECONDS = 5 * 1000;
+
 export interface PropsType extends NetworkStateType {
   hasNetworkDialog: boolean;
   i18n: LocalizerType;
-  isRegistrationDone: boolean;
-  relinkDevice: () => void;
+  manualReconnect: () => void;
 }
 
 type RenderDialogTypes = {
@@ -36,33 +37,57 @@ export const NetworkStatus = ({
   hasNetworkDialog,
   i18n,
   isOnline,
-  isRegistrationDone,
   socketStatus,
-  relinkDevice,
+  manualReconnect,
 }: PropsType): JSX.Element | null => {
   if (!hasNetworkDialog) {
     return null;
   }
 
-  if (!isOnline) {
+  const [isConnecting, setIsConnecting] = React.useState<boolean>(false);
+  React.useEffect(() => {
+    let timeout: any;
+
+    if (isConnecting) {
+      timeout = setTimeout(() => {
+        setIsConnecting(false);
+      }, FIVE_SECONDS);
+    }
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+  }, [isConnecting, setIsConnecting]);
+
+  const reconnect = () => {
+    setIsConnecting(true);
+    manualReconnect();
+  };
+
+  const manualReconnectButton = (): JSX.Element => (
+    <div className="module-left-pane-dialog__actions">
+      <button onClick={reconnect}>{i18n('connect')}</button>
+    </div>
+  );
+
+  if (isConnecting) {
     return renderDialog({
+      subtext: i18n('connectingHangOn'),
+      title: i18n('connecting'),
+    });
+  } else if (!isOnline) {
+    return renderDialog({
+      renderActionableButton: manualReconnectButton,
       subtext: i18n('checkNetworkConnection'),
       title: i18n('offline'),
-    });
-  } else if (!isRegistrationDone) {
-    return renderDialog({
-      renderActionableButton: (): JSX.Element => (
-        <div className="module-left-pane-dialog__actions">
-          <button onClick={relinkDevice}>{i18n('relink')}</button>
-        </div>
-      ),
-      subtext: i18n('unlinkedWarning'),
-      title: i18n('unlinked'),
     });
   }
 
   let subtext = '';
   let title = '';
+  let renderActionableButton;
 
   switch (socketStatus) {
     case WebSocket.CONNECTING:
@@ -72,11 +97,13 @@ export const NetworkStatus = ({
     case WebSocket.CLOSED:
     case WebSocket.CLOSING:
     default:
+      renderActionableButton = manualReconnectButton;
       title = i18n('disconnected');
       subtext = i18n('checkNetworkConnection');
   }
 
   return renderDialog({
+    renderActionableButton,
     subtext,
     title,
   });

@@ -3,6 +3,7 @@ import { readdir as readdirCallback } from 'fs';
 
 import pify from 'pify';
 
+// tslint:disable-next-line no-implicit-dependencies
 import { notarize } from 'electron-notarize';
 
 // @ts-ignore
@@ -12,8 +13,11 @@ const readdir = pify(readdirCallback);
 
 /* tslint:disable:no-console */
 
-// tslint:disable-next-line:no-floating-promises
-go();
+go().catch(error => {
+  console.error(error.stack);
+
+  process.exit(1);
+});
 
 async function go() {
   if (process.platform !== 'darwin') {

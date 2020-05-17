@@ -36105,7 +36105,6 @@ SessionCipher.prototype = {
               var ourIdentityKeyBuffer = util.toArrayBuffer(ourIdentityKey.pubKey);
               var theirIdentityKey = util.toArrayBuffer(session.indexInfo.remoteIdentityKey);
               var macInput = new Uint8Array(encodedMsg.byteLength + 33*2 + 1);
-
               macInput.set(new Uint8Array(ourIdentityKeyBuffer));
               macInput.set(new Uint8Array(theirIdentityKey), 33);
               macInput[33*2] = (3 << 4) | 3;
@@ -36512,16 +36511,26 @@ Internal.SessionLock = {};
 var jobQueue = {};
 
 Internal.SessionLock.queueJobForNumber = function queueJobForNumber(number, runJob) {
-     jobQueue[number] = jobQueue[number] || new window.PQueue({ concurrency: 1 });
-     var queue = jobQueue[number];
+    if (window.PQueue) {
+        jobQueue[number] = jobQueue[number] || new window.PQueue({ concurrency: 1 });
+        var queue = jobQueue[number];
+        return queue.add(runJob);
+    }
 
-     return queue.add(runJob);
+    var runPrevious = jobQueue[number] || Promise.resolve();
+    var runCurrent = jobQueue[number] = runPrevious.then(runJob, runJob);
+    runCurrent.then(function() {
+        if (jobQueue[number] === runCurrent) {
+            delete jobQueue[number];
+        }
+    });
+    return runCurrent;
 };
 
 })();
 
 (function() {
-    var VERSION = 0;
+    var VERSION = shortToArrayBuffer(0);
 
     function iterateHash(data, key, count) {
         data = dcodeIO.ByteBuffer.concat([data, key]).toArrayBuffer();
@@ -36551,10 +36560,21 @@ Internal.SessionLock.queueJobForNumber = function queueJobForNumber(number, runJ
         return s;
     }
 
+    function decodeUuid(uuid) {
+        let i = 0;
+        let buf = new Uint8Array(16);
+
+        uuid.replace(/[0-9A-F]{2}/ig, function(oct) {
+            buf[i++] = parseInt(oct, 16);
+        });
+
+        return buf;
+    }
+
     function getDisplayStringFor(identifier, key, iterations) {
-        var bytes = dcodeIO.ByteBuffer.concat([
-            shortToArrayBuffer(VERSION), key, identifier
-        ]).toArrayBuffer();
+        var isUuid = /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i.test(identifier);
+        var encodedIdentifier = isUuid ? decodeUuid(identifier) : identifier;
+        var bytes = dcodeIO.ByteBuffer.concat([VERSION, key, encodedIdentifier]).toArrayBuffer();
         return iterateHash(bytes, key, iterations).then(function(output) {
             output = new Uint8Array(output);
             return getEncodedChunk(output, 0) +

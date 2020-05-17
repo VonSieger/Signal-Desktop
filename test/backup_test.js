@@ -65,7 +65,7 @@ describe('Backup', () => {
       };
       const index = 0;
       const attachment = {
-        id: '123',
+        cdnId: '123',
       };
       const expected = '123';
 
@@ -77,13 +77,13 @@ describe('Backup', () => {
       assert.strictEqual(actual, expected);
     });
 
-    it('uses filename and contentType if available', () => {
+    it('uses attachment id and contentType if available', () => {
       const message = {
         body: 'something',
       };
       const index = 0;
       const attachment = {
-        id: '123',
+        cdnId: '123',
         contentType: 'image/jpeg',
       };
       const expected = '123.jpeg';
@@ -102,10 +102,47 @@ describe('Backup', () => {
       };
       const index = 0;
       const attachment = {
-        id: '123',
+        cdnId: '123',
         contentType: 'something',
       };
       const expected = '123.something';
+
+      const actual = Signal.Backup._getExportAttachmentFileName(
+        message,
+        index,
+        attachment
+      );
+      assert.strictEqual(actual, expected);
+    });
+
+    it('uses CDN key if attachment ID not available', () => {
+      const message = {
+        body: 'something',
+      };
+      const index = 0;
+      const attachment = {
+        cdnKey: 'abc',
+      };
+      const expected = 'abc';
+
+      const actual = Signal.Backup._getExportAttachmentFileName(
+        message,
+        index,
+        attachment
+      );
+      assert.strictEqual(actual, expected);
+    });
+
+    it('uses CDN key and contentType if available', () => {
+      const message = {
+        body: 'something',
+      };
+      const index = 0;
+      const attachment = {
+        cdnKey: 'def',
+        contentType: 'image/jpeg',
+      };
+      const expected = 'def.jpeg';
 
       const actual = Signal.Backup._getExportAttachmentFileName(
         message,
@@ -261,6 +298,8 @@ describe('Backup', () => {
       const CONTACT_ONE_NUMBER = '+12025550001';
       const CONTACT_TWO_NUMBER = '+12025550002';
 
+      const CONVERSATION_ID = 'bdaa7f4f-e9bd-493e-ab0d-8331ad604269';
+
       const toArrayBuffer = nodeBuffer =>
         nodeBuffer.buffer.slice(
           nodeBuffer.byteOffset,
@@ -405,7 +444,7 @@ describe('Backup', () => {
         const CONVERSATION_COUNT = 1;
 
         const messageWithAttachments = {
-          conversationId: CONTACT_ONE_NUMBER,
+          conversationId: CONVERSATION_ID,
           body: 'Totally!',
           source: OUR_NUMBER,
           received_at: 1524185933350,
@@ -493,7 +532,7 @@ describe('Backup', () => {
           active_at: 1524185933350,
           color: 'orange',
           expireTimer: 0,
-          id: CONTACT_ONE_NUMBER,
+          id: CONVERSATION_ID,
           name: 'Someone Somewhere',
           profileAvatar: {
             contentType: 'image/jpeg',
@@ -568,7 +607,7 @@ describe('Backup', () => {
         );
 
         console.log('Backup test: Check messages');
-        const messageCollection = await window.Signal.Data.getAllMessages({
+        const messageCollection = await window.Signal.Data._getAllMessages({
           MessageCollection: Whisper.MessageCollection,
         });
         assert.strictEqual(messageCollection.length, MESSAGE_COUNT);

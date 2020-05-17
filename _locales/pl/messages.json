@@ -135,10 +135,6 @@
         "message": "Narzędzia dla programistów",
         "description": "View menu command to show or hide the developer tools"
     },
-    "menuSetupWithImport": {
-        "message": "Skonfiguruj za pomocą importowania",
-        "description": "When the application is not yet set up, menu option to start up the import sequence"
-    },
     "menuSetupAsNewDevice": {
         "message": "Skonfiguruj jako nowe urządzenie",
         "description": "When the application is not yet set up, menu option to start up the set up as fresh device"
@@ -146,6 +142,14 @@
     "menuSetupAsStandalone": {
         "message": "Skonfiguruj jako samodzielne urządzenie",
         "description": "Only available on development modes, menu option to open up the standalone device setup sequence"
+    },
+    "contextMenuCopyLink": {
+        "message": "Kopiuj link",
+        "description": "Shown in the context menu for a link to indicate that the user can copy the link"
+    },
+    "contextMenuNoSuggestions": {
+        "message": "Brak sugestii",
+        "description": "Shown in the context menu for a misspelled word to indicate that there are no suggestions to replace the misspelled word"
     },
     "avatarMenuViewArchive": {
         "message": "Zobacz archiwum",
@@ -255,16 +259,12 @@
             }
         }
     },
-    "me": {
-        "message": "Ja",
-        "description": "The label for yourself when shown in a group member list"
-    },
     "view": {
         "message": "Zobacz",
         "description": "Used as a label on a button allowing user to see more information"
     },
     "youLeftTheGroup": {
-        "message": "Opuściłeś(aś) grupę",
+        "message": "Opuściłeś(aś) tę grupę.",
         "description": "Displayed when a user can't send a message because they have left the group"
     },
     "scrollDown": {
@@ -288,6 +288,10 @@
                 "example": "5"
             }
         }
+    },
+    "messageHistoryUnsynced": {
+        "message": "Dla Twojego bezpieczeństwa, historia konwersacji nie jest przenoszona na nowo połączone urządzenia.",
+        "description": "Shown in the conversation history when a user links a new device to explain what is not supported."
     },
     "youMarkedAsVerified": {
         "message": "Oznaczyłeś(aś) Twój numer bezpieczeństwa z $name$ jako zweryfikowany",
@@ -581,6 +585,14 @@
         "message": "Trwa łączenie",
         "description": "Displayed when the desktop client is currently connecting to the server."
     },
+    "connect": {
+        "message": "Połącz",
+        "description": "Shown to allow the user to manually attempt a reconnect."
+    },
+    "connectingHangOn": {
+        "message": "To potrwa tylko chwilę...",
+        "description": "Subtext description for when the client is connecting to the server."
+    },
     "offline": {
         "message": "Rozłączony",
         "description": "Displayed when the desktop client has no network connection."
@@ -588,16 +600,6 @@
     "checkNetworkConnection": {
         "message": "Sprawdź połączenie z internetem.",
         "description": "Obvious instructions for when a user's computer loses its network connection"
-    },
-    "attemptingReconnection": {
-        "message": "Ponowne połączenie za $reconnect_duration_in_seconds$ sekund(-y)",
-        "description": "",
-        "placeholders": {
-            "reconnect_duration_in_seconds": {
-                "content": "$1",
-                "example": "10"
-            }
-        }
     },
     "submitDebugLog": {
         "message": "Dziennik debugowania",
@@ -767,6 +769,10 @@
         "message": "Pobierz załącznik",
         "description": "Shown in a message's triple-dot menu if there isn't room for a dedicated download button"
     },
+    "reactToMessage": {
+        "message": "Zareaguj na wiadomość",
+        "description": "Shown in triple-dot menu next to message to allow user to react to the associated message"
+    },
     "replyToMessage": {
         "message": "Odpowiedz na wiadomość",
         "description": "Shown in triple-dot menu next to message to allow user to start crafting a message with a quotation"
@@ -782,6 +788,18 @@
     "messageFoundButNotLoaded": {
         "message": "Znaleziono oryginalną wiadomość, ale nie została załadowana. Przewiń w górę, aby załadować.",
         "description": "Shown in toast if user clicks on quote references messages not loaded in view, but in database"
+    },
+    "voiceRecordingInterruptedMax": {
+        "message": "Nagrywanie wiadomości głosowej zostało zatrzymane, ponieważ osiągnięto limit czasu.",
+        "description": "Confirmation dialog message for when the voice recording is interrupted due to max time limit"
+    },
+    "voiceRecordingInterruptedBlur": {
+        "message": "Nagrywanie wiadomości głosowej zostało zatrzymane, ponieważ przełączyłeś się na inną aplikację.",
+        "description": "Confirmation dialog message for when the voice recording is interrupted due to app losing focus"
+    },
+    "voiceNoteLimit": {
+        "message": "Maksymalna długość wiadomości głosowych to pięć minut. Jeśli przełączysz się na inną aplikację, nagrywanie zostanie zatrzymane.",
+        "description": "Shown in toast to warn user about limited time and that window must be in focus"
     },
     "voiceNoteMustBeOnlyAttachment": {
         "message": "Wiadomość głosowa musi mieć tylko jeden załącznik.",
@@ -799,7 +817,7 @@
     },
     "you": {
         "message": "Ty",
-        "description": "In Android theme, shown in quote if you or someone else replies to you"
+        "description": "Shown when the user represented is the current user."
     },
     "replyingTo": {
         "message": "Odpowiedz $name$",
@@ -840,12 +858,28 @@
         "description": "Shown as the title of our update error dialogs on windows"
     },
     "cannotUpdateDetail": {
-        "message": "Dostępna jest nowa wersja Signal Desktop, ale automatyczna aktualizacja nie powiodła się. Przejdź do https://signal.org/download i ręcznie zainstaluj nową wersję, a następnie skontaktuj się z pomocą techniczną lub zgłoś błąd dotyczący tego problemu.",
-        "description": "Shown if a general error happened while trying to install update package"
+        "message": "Dostępna jest nowa wersja Signal Desktop, ale automatyczna aktualizacja nie powiodła się. Przejdź do  $url$ i zainstaluj nową wersję ręcznie, a następnie skontaktuj się z pomocą techniczną lub zgłoś błąd dotyczący tego problemu.",
+        "description": "Shown if a general error happened while trying to install update package",
+        "placeholders": {
+            "url": {
+                "content": "$1",
+                "example": "https://signal.org/download"
+            }
+        }
     },
     "readOnlyVolume": {
-        "message": "Signal Desktop prawdopodobnie znajduje się w kwarantannie systemu MacOS i nie będzie można dokonać automatycznej aktualizacji. Spróbuj przenieść Signal.app do / Aplikacje za pomocą Findera.",
-        "description": "Shown on MacOS if running on a read-only volume and we cannot update"
+        "message": "Signal Desktop prawdopodobnie znajduje się w kwarantannie systemu MacOS i nie będzie można dokonać automatycznej aktualizacji. Spróbuj przenieść  $app$ do  $folder$ za pomocą Findera.",
+        "description": "Shown on MacOS if running on a read-only volume and we cannot update",
+        "placeholders": {
+            "app": {
+                "content": "$1",
+                "example": "Signal.app"
+            },
+            "folder": {
+                "content": "$2",
+                "example": "/Applications"
+            }
+        }
     },
     "ok": {
         "message": "OK",
@@ -853,6 +887,10 @@
     },
     "cancel": {
         "message": "Anuluj",
+        "description": ""
+    },
+    "discard": {
+        "message": "Odrzuć",
         "description": ""
     },
     "failedToSend": {
@@ -1069,6 +1107,14 @@
         "message": "Włącz sprawdzanie pisowni podczas pisania wiadomości",
         "description": "Description of the media permission description"
     },
+    "spellCheckWillBeEnabled": {
+        "message": "Sprawdzanie pisowni zostanie włączone przy kolejnym uruchomieniu Signal.",
+        "description": "Shown when the user enables spellcheck to indicate that they must restart Signal."
+    },
+    "spellCheckWillBeDisabled": {
+        "message": "Sprawdzanie pisowni zostanie wyłączone przy kolejnym uruchomieniu Signal.",
+        "description": "Shown when the user disables spellcheck to indicate that they must restart Signal."
+    },
     "clearDataHeader": {
         "message": "Wyczyść dane",
         "description": "Header in the settings dialog for the section dealing with data deletion"
@@ -1166,6 +1212,42 @@
             "emoji": {
                 "content": "$2",
                 "example": "👍"
+            }
+        }
+    },
+    "notificationReactionMessage": {
+        "message": "$sender$ zareagował(a) w ten sposób $emoji$ na  $message$",
+        "description": "",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "John"
+            },
+            "emoji": {
+                "content": "$2",
+                "example": "👍"
+            },
+            "message": {
+                "content": "$3",
+                "example": "Sounds good."
+            }
+        }
+    },
+    "notificationReactionMessageMostRecent": {
+        "message": "Ostatnio: $sender$ zareagował(a) w ten sposób $emoji$ na  $message$",
+        "description": "",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "John"
+            },
+            "emoji": {
+                "content": "$2",
+                "example": "👍"
+            },
+            "message": {
+                "content": "$3",
+                "example": "Sounds good."
             }
         }
     },
@@ -1495,6 +1577,10 @@
         "message": "Rozpocznij nową rozmowę…",
         "description": "Label underneath number a user enters that is not an existing contact"
     },
+    "notSupportedSMS": {
+        "message": "Wiadomości SMS/MMS nie są obsługiwane.",
+        "description": "Label underneath number informing user that SMS is not supported on desktop"
+    },
     "newPhoneNumber": {
         "message": "Wprowadź numer telefonu, aby dodać kontakt",
         "description": "Placeholder for adding a new number to a contact"
@@ -1536,7 +1622,7 @@
         "description": ""
     },
     "leftTheGroup": {
-        "message": "$name$ opuścił(a) grupę",
+        "message": "$name$ opuścił(a) tę grupę.",
         "description": "Shown in the conversation history when a single person leaves the group",
         "placeholders": {
             "name": {
@@ -1546,7 +1632,7 @@
         }
     },
     "multipleLeftTheGroup": {
-        "message": "$name$ opuścił(a) grupę",
+        "message": "$name$ opuścili(ły) tę grupę.",
         "description": "Shown in the conversation history when multiple people leave the group",
         "placeholders": {
             "name": {
@@ -1556,11 +1642,25 @@
         }
     },
     "updatedTheGroup": {
-        "message": "Grupa została uaktualniona",
+        "message": "$name$ zaktualizował(a) tę grupę.",
+        "description": "Shown in the conversation history when someone updates the group",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "youUpdatedTheGroup": {
+        "message": "Zaktualizowałeś(aś) grupę.",
+        "description": "Shown in the conversation history when you update a group"
+    },
+    "updatedGroupAvatar": {
+        "message": "Awatar tej grupy został zaktualizowany.",
         "description": "Shown in the conversation history when someone updates the group"
     },
     "titleIsNow": {
-        "message": "Zmiana tytułu na '$name$'",
+        "message": "Aktualna nazwa grupy to “$name$”.",
         "description": "Shown in the conversation history when someone changes the title of the group",
         "placeholders": {
             "name": {
@@ -1569,8 +1669,12 @@
             }
         }
     },
+    "youJoinedTheGroup": {
+        "message": "Dołączyłeś(aś) do tej grupy.",
+        "description": "Shown in the conversation history when you are added to a group."
+    },
     "joinedTheGroup": {
-        "message": "$name$ dołączył(a) do grupy",
+        "message": "$name$ dołączył(a) do tej grupy.",
         "description": "Shown in the conversation history when a single person joins the group",
         "placeholders": {
             "name": {
@@ -1580,7 +1684,7 @@
         }
     },
     "multipleJoinedTheGroup": {
-        "message": "$names$ dołączyli do grupy",
+        "message": "$names$ dołączyli(ły) do tej grupy.",
         "description": "Shown in the conversation history when more than one person joins the group",
         "placeholders": {
             "names": {
@@ -1863,6 +1967,10 @@
         "message": "Odpowiedź na wybraną wiadomość",
         "description": "Shown in the shortcuts guide"
     },
+    "Keyboard--toggle-reaction-picker": {
+        "message": "Wybierz reakcję dla zaznaczonej wiadomości",
+        "description": "Shown in the shortcuts guide"
+    },
     "Keyboard--save-attachment": {
         "message": "Zapisz załącznik z wybranej wiadomości",
         "description": "Shown in the shortcuts guide"
@@ -2020,7 +2128,7 @@
         "description": "Title for the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--help": {
-        "message": "Naklejki muszą być w formacie PNG lub WerbP z przezroczystym tłem i mieć rozmiar 512x512 pikseli. Zalecany margines to 16 pikseli.",
+        "message": "Naklejki muszą być w formacie PNG lub WebP z przezroczystym tłem i mieć rozmiar 512x512 pikseli. Zalecany margines to 16 pikseli.",
         "description": "Help text for the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--showMargins": {
@@ -2066,7 +2174,7 @@
         "description": "Help text for the cover image picker of the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--title": {
-        "message": "Czy na pewno chcesz wysłać swój pakiet etykiet?",
+        "message": "Czy na pewno chcesz wysłać swój pakiet naklejek?",
         "description": "Title for the confirm dialog on the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--confirm": {
@@ -2176,6 +2284,14 @@
     "StickerCreator--Authentication--error": {
         "message": "Połącz Signal na swoim telefonie i komputerze, aby móc używać Kreatora pakietów naklejek",
         "description": "The error message which appears when the user has not linked their account and attempts to use the Sticker Creator"
+    },
+    "Reactions--error": {
+        "message": "Nie udało się zareagować. Spróbuj ponownie.",
+        "description": "Shown when a reaction fails to send"
+    },
+    "ReactionsViewer--all": {
+        "message": "Wszystkie",
+        "description": "Shown in reaction viewer as the title for the 'all' category"
     },
     "privacyPolicy": {
         "message": "Regulamin i zasady prywatności",

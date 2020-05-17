@@ -7,7 +7,7 @@ import { createPortal } from 'react-dom';
 import { showSettings } from '../shims/Whisper';
 import { Avatar } from './Avatar';
 import { AvatarPopup } from './AvatarPopup';
-import { LocalizerType } from '../types/Util';
+import { ColorType, LocalizerType } from '../types/Util';
 
 export interface PropsType {
   searchTerm: string;
@@ -16,6 +16,8 @@ export interface PropsType {
   startSearchCounter: number;
 
   // To be used as an ID
+  ourConversationId: string;
+  ourUuid: string;
   ourNumber: string;
   regionCode: string;
 
@@ -23,7 +25,7 @@ export interface PropsType {
   phoneNumber: string;
   isMe: boolean;
   name?: string;
-  color: string;
+  color: ColorType;
   verified: boolean;
   profileName?: string;
   avatarPath?: string;
@@ -40,7 +42,9 @@ export interface PropsType {
   searchDiscussions: (
     query: string,
     options: {
+      ourConversationId: string;
       ourNumber: string;
+      ourUuid: string;
       noteToSelf: string;
     }
   ) => void;
@@ -147,7 +151,9 @@ export class MainHeader extends React.Component<PropsType, StateType> {
   public search = debounce((searchTerm: string) => {
     const {
       i18n,
+      ourConversationId,
       ourNumber,
+      ourUuid,
       regionCode,
       searchDiscussions,
       searchMessages,
@@ -157,7 +163,9 @@ export class MainHeader extends React.Component<PropsType, StateType> {
     if (searchDiscussions && !searchConversationId) {
       searchDiscussions(searchTerm, {
         noteToSelf: i18n('noteToSelf').toLowerCase(),
+        ourConversationId,
         ourNumber,
+        ourUuid,
       });
     }
 

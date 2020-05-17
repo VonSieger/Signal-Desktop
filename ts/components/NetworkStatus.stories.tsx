@@ -16,9 +16,8 @@ const defaultProps = {
   hasNetworkDialog: true,
   i18n,
   isOnline: true,
-  isRegistrationDone: true,
   socketStatus: 0,
-  relinkDevice: action('relink-device'),
+  manualReconnect: action('manual-reconnect'),
   withinConnectingGracePeriod: false,
 };
 
@@ -47,26 +46,12 @@ const permutations = [
       isOnline: false,
     },
   },
-  {
-    title: 'Unlinked (online)',
-    props: {
-      isRegistrationDone: false,
-    },
-  },
-  {
-    title: 'Unlinked (offline)',
-    props: {
-      isOnline: false,
-      isRegistrationDone: false,
-    },
-  },
 ];
 
 storiesOf('Components/NetworkStatus', module)
   .add('Knobs Playground', () => {
     const hasNetworkDialog = boolean('hasNetworkDialog', true);
     const isOnline = boolean('isOnline', true);
-    const isRegistrationDone = boolean('isRegistrationDone', true);
     const socketStatus = select(
       'socketStatus',
       {
@@ -83,7 +68,6 @@ storiesOf('Components/NetworkStatus', module)
         {...defaultProps}
         hasNetworkDialog={hasNetworkDialog}
         isOnline={isOnline}
-        isRegistrationDone={isRegistrationDone}
         socketStatus={socketStatus}
       />
     );

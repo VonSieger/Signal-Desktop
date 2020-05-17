@@ -4,13 +4,13 @@ import classNames from 'classnames';
 import { Avatar } from './Avatar';
 import { Emojify } from './conversation/Emojify';
 
-import { LocalizerType } from '../types/Util';
+import { ColorType, LocalizerType } from '../types/Util';
 
 interface Props {
   phoneNumber: string;
   isMe?: boolean;
   name?: string;
-  color: string;
+  color: ColorType;
   verified: boolean;
   profileName?: string;
   avatarPath?: string;
@@ -55,7 +55,7 @@ export class ContactListItem extends React.Component<Props> {
     } = this.props;
 
     const title = name ? name : phoneNumber;
-    const displayName = isMe ? i18n('me') : title;
+    const displayName = isMe ? i18n('you') : title;
 
     const profileElement =
       !isMe && profileName && !name ? (

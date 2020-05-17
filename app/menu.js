@@ -189,10 +189,6 @@ exports.createTemplate = (options, messages) => {
       label: messages.menuSetupAsNewDevice.message,
       click: setupAsNewDevice,
     });
-    fileMenu.submenu.unshift({
-      label: messages.menuSetupWithImport.message,
-      click: setupWithImport,
-    });
   }else {
     const fileMenu = template[0];
     fileMenu.submenu.unshift({
