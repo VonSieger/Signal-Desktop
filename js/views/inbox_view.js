@@ -209,7 +209,7 @@
       if(!e.altKey){
         return;
       }
-      const conversationsAll = Object.values(window.reduxStore.getState()["conversations"]["conversationLookup"]);
+      const conversationsAll = Object.values(this.store.getState()["conversations"]["conversationLookup"]);
       var conversationsSorted = [];
       conversationsAll.forEach(function(element){
         if(element.activeAt != undefined){
@@ -224,7 +224,7 @@
       }
     },
     cycleConversations(keyCode, conversationsSorted){
-      const activeConversationID = window.reduxStore.getState()["conversations"]["selectedConversation"];
+      const activeConversationID = this.store.getState()["conversations"]["selectedConversation"];
       if(activeConversationID == null){
         if(keyCode === 38){
           this.jumpToConversation(49, conversationsSorted);
