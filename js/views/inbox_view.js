@@ -105,7 +105,10 @@
     },
     events: {
       click: 'onClick',
-      keydown: 'hotKey',
+      keydown : 'hotKey',
+      'click #header': 'focusHeader',
+      'click .conversation': 'focusConversation',
+      'input input.search': 'filterContacts',
     },
     setupLeftPane() {
       if (this.leftPaneView) {
@@ -209,47 +212,57 @@
       if(!e.altKey){
         return;
       }
-      const conversationsSorted = Object.values(this.store.getState()["conversations"]["conversationLookup"]);
-      conversationsSorted.sort(function(a, b){return b.lastUpdated - a.lastUpdated});
-
       if(keyCode === 38 || keyCode === 40){//up/down arrow
-        this.cycleConversations(keyCode, conversationsSorted);
+        this.cycleConversations(keyCode);
       }else if(49 <= keyCode && keyCode <= 57){//numbers from 0-9
-        this.jumpToConversation(keyCode, conversationsSorted);
+        this.jumpToConversation(keyCode);
       }
     },
-    cycleConversations(keyCode, conversationsSorted){
-      const activeConversationID = this.store.getState()["conversations"]["selectedConversation"];
-      if(activeConversationID == null){
+    cycleConversations(keyCode){
+      const activeConversation = ConversationController.findActive();
+      if(activeConversation == null){
         if(keyCode === 38){
-          this.jumpToConversation(49, conversationsSorted);
+          this.jumpToConversation(49);
         }else if(keyCode === 40){
-          this.jumpToConversation(57, conversationsSorted);
+          this.jumpToConversation(57);
         }
         return;
       }
-      const activeIndex = conversationsSorted.findIndex(function(element){return element.id == activeConversationID});
+      const activeConversationCID = activeConversation.cid;
+      const conversationsInbox = document.getElementsByClassName('conversation-list-item');
+      var activeIndex = 0;
+      for(activeIndex = 0; activeIndex < conversationsInbox.length; activeIndex++){
+        if(conversationsInbox[activeIndex].classList.contains(activeConversationCID)){
+          break;
+        }
+      }
+
+      var openCID = 0;
       if(keyCode === 38){//up Arrow
         if(activeIndex === 0){
           return;
         }
-        this.openConversation(conversationsSorted[activeIndex -1].id, null);
+        openCID = conversationsInbox[activeIndex -1].classList[2];
+        this.openConversation(ConversationController.getUnsafe(openCID));
       }else if (keyCode === 40) {//down Arrow
-        if(activeIndex >= conversationsSorted.length -1){
+        if(activeIndex >= conversationsInbox.length -1){
           return;
         }
-        this.openConversation(conversationsSorted[activeIndex +1].id, null);
+        openCID = conversationsInbox[activeIndex +1].classList[2];
+        this.openConversation(ConversationController.getUnsafe(openCID));
       }
     },
-    jumpToConversation(keyCode, conversationsSorted){
+    jumpToConversation(keyCode){
       var index = keyCode - 49;
+      const conversationsInbox = document.getElementsByClassName('conversation-list-item');
       if(index === 8){
-        index = conversationsSorted.length -1;
+        index = conversationsInbox.length -1;
       }
-      if(conversationsSorted[index] == null){
+      if(conversationsInbox[index] == null){
         return;
       }
-      this.openConversation(conversationsSorted[index].id, null);
+      const openCID = conversationsInbox[index].classList[2];
+      this.openConversation(ConversationController.getUnsafe(openCID));
     },
   });
 })();
