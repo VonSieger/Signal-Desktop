@@ -220,15 +220,10 @@
     },
     cycleConversations(keyCode){
       const activeConversation = ConversationController.findActive();
+      const activeConversationCID = activeConversation.cid;
       if(activeConversation == null){
-        if(keyCode === 38){
-          this.jumpToConversation(49);
-        }else if(keyCode === 40){
-          this.jumpToConversation(57);
-        }
         return;
       }
-      const activeConversationCID = activeConversation.cid;
       const conversationsInbox = document.getElementsByClassName('conversation-list-item');
       var activeIndex = 0;
       for(activeIndex = 0; activeIndex < conversationsInbox.length; activeIndex++){
