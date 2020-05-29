@@ -105,7 +105,9 @@
     },
     events: {
       click: 'onClick',
-      keydown: 'hotKey',
+      'click #header': 'focusHeader',
+      'click .conversation': 'focusConversation',
+      'input input.search': 'filterContacts',
     },
     setupLeftPane() {
       if (this.leftPaneView) {
@@ -203,58 +205,6 @@
     },
     onClick(e) {
       this.closeRecording(e);
-    },
-    hotKey(e){
-      const keyCode = e.which || e.keyCode;
-      if(!e.altKey){
-        return;
-      }
-      const conversationsAll = Object.values(window.reduxStore.getState()["conversations"]["conversationLookup"]);
-      var conversationsSorted = [];
-      conversationsAll.forEach(function(element){
-        if(element.activeAt != undefined){
-          conversationsSorted.push(element);
-        }
-      });
-      conversationsSorted.sort(function(a, b){return b.lastUpdated - a.lastUpdated});
-      if(keyCode === 38 || keyCode === 40){//up/down arrow
-        this.cycleConversations(keyCode, conversationsSorted);
-      }else if(49 <= keyCode && keyCode <= 57){//numbers from 0-9
-        this.jumpToConversation(keyCode, conversationsSorted);
-      }
-    },
-    cycleConversations(keyCode, conversationsSorted){
-      const activeConversationID = window.reduxStore.getState()["conversations"]["selectedConversation"];
-      if(activeConversationID == null){
-        if(keyCode === 38){
-          this.jumpToConversation(49, conversationsSorted);
-        }else if(keyCode === 40){
-          this.jumpToConversation(57, conversationsSorted);
-        }
-        return;
-      }
-      const activeIndex = conversationsSorted.findIndex(function(element){return element.id == activeConversationID});
-      if(keyCode === 38){//up Arrow
-        if(activeIndex === 0){
-          return;
-        }
-        this.openConversation(conversationsSorted[activeIndex -1].id, null);
-      }else if (keyCode === 40) {//down Arrow
-        if(activeIndex >= conversationsSorted.length -1){
-          return;
-        }
-        this.openConversation(conversationsSorted[activeIndex +1].id, null);
-      }
-    },
-    jumpToConversation(keyCode, conversationsSorted){
-      var index = keyCode - 49;
-      if(index === 8){
-        index = conversationsSorted.length -1;
-      }
-      if(conversationsSorted[index] == null){
-        return;
-      }
-      this.openConversation(conversationsSorted[index].id, null);
     },
   });
 })();
