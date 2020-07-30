@@ -65,10 +65,13 @@
 
     idForLogging() {
       if (this.isPrivate()) {
-        return this.id;
+        const uuid = this.get('uuid');
+        const e164 = this.get('e164');
+        return `${uuid || e164} (${this.id})`;
       }
 
-      return `group(${this.id})`;
+      const groupId = this.get('groupId');
+      return `group(${groupId})`;
     },
 
     handleMessageError(message, errors) {
@@ -1666,6 +1669,15 @@
     },
 
     async addMessageHistoryDisclaimer() {
+      const lastMessage = this.messageCollection.last();
+      if (
+        lastMessage &&
+        lastMessage.get('type') === 'message-history-unsynced'
+      ) {
+        // We do not need another message history disclaimer
+        return lastMessage;
+      }
+
       const timestamp = Date.now();
 
       const model = new Whisper.Message({
@@ -1727,7 +1739,8 @@
         message.send(
           this.wrapSend(
             textsecure.messaging.resetSession(
-              this.get('uuid') || this.get('e164'),
+              this.get('uuid'),
+              this.get('e164'),
               now,
               options
             )
@@ -1942,9 +1955,7 @@
 
         const profileKey = c.get('profileKey');
         const uuid = c.get('uuid');
-        const profileKeyVersionHex = window.VERSIONED_PROFILE_FETCH
-          ? c.get('profileKeyVersion')
-          : null;
+        const profileKeyVersionHex = c.get('profileKeyVersion');
         const existingProfileKeyCredential = c.get('profileKeyCredential');
 
         const weHaveVersion = Boolean(
@@ -1966,7 +1977,8 @@
         }
 
         const sendMetadata = c.getSendMetadata({ disableMeCheck: true }) || {};
-        const getInfo = sendMetadata[c.id] || {};
+        const getInfo =
+          sendMetadata[c.get('e164')] || sendMetadata[c.get('uuid')] || {};
 
         if (getInfo.accessKey) {
           try {
@@ -2246,10 +2258,6 @@
       if (!profileKey) {
         return;
       }
-      // We won't even save derived profile key versions if we haven't flipped this switch
-      if (!window.VERSIONED_PROFILE_FETCH) {
-        return;
-      }
 
       const uuid = this.get('uuid');
       if (!uuid || this.get('profileKeyVersion')) {
@@ -2323,9 +2331,9 @@
 
     getTitle() {
       if (this.isPrivate()) {
-        return this.get('name') || this.getNumber();
+        return this.get('name') || this.getNumber() || i18n('unknownContact');
       }
-      return this.get('name') || 'Unknown group';
+      return this.get('name') || i18n('unknownGroup');
     },
 
     getProfileName() {

@@ -32,26 +32,28 @@
         const source = sources[i];
         const timestamps = bySource[source].map(item => item.timestamp);
 
-        try {
-          const c = ConversationController.get(source);
-          const { wrap, sendOptions } = ConversationController.prepareForSend(
-            c.get('id')
-          );
-          // eslint-disable-next-line no-await-in-loop
-          await wrap(
-            textsecure.messaging.sendDeliveryReceipt(
-              c.get('e164'),
-              c.get('uuid'),
-              timestamps,
-              sendOptions
-            )
-          );
-        } catch (error) {
-          window.log.error(
-            `Failed to send delivery receipt to ${source} for timestamps ${timestamps}:`,
-            error && error.stack ? error.stack : error
-          );
-        }
+        const c = ConversationController.get(source);
+        c.queueJob(async () => {
+          try {
+            const { wrap, sendOptions } = ConversationController.prepareForSend(
+              c.get('id')
+            );
+            // eslint-disable-next-line no-await-in-loop
+            await wrap(
+              textsecure.messaging.sendDeliveryReceipt(
+                c.get('e164'),
+                c.get('uuid'),
+                timestamps,
+                sendOptions
+              )
+            );
+          } catch (error) {
+            window.log.error(
+              `Failed to send delivery receipt to ${source} for timestamps ${timestamps}:`,
+              error && error.stack ? error.stack : error
+            );
+          }
+        });
       }
     },
   });
@@ -426,6 +428,7 @@
       },
 
       shutdown: async () => {
+        window.log.info('background/shutdown');
         // Stop background processing
         window.Signal.AttachmentDownloads.stop();
         if (idleDetector) {
@@ -1653,6 +1656,7 @@
       mySignalingKey,
       options
     );
+    window.textsecure.messageReceiver = messageReceiver;
 
     function addQueuedEventListener(name, handler) {
       messageReceiver.addEventListener(name, (...args) =>
@@ -2125,8 +2129,9 @@
     const details = ev.contactDetails;
 
     if (
-      details.number === textsecure.storage.user.getNumber() ||
-      details.uuid === textsecure.storage.user.getUuid()
+      (details.number &&
+        details.number === textsecure.storage.user.getNumber()) ||
+      (details.uuid && details.uuid === textsecure.storage.user.getUuid())
     ) {
       // special case for syncing details about ourselves
       if (details.profileKey) {
@@ -2260,6 +2265,15 @@
   async function onGroupReceived(ev) {
     const details = ev.groupDetails;
     const { id } = details;
+
+    const idBuffer = window.Signal.Crypto.fromEncodedBinaryToArrayBuffer(id);
+    const idBytes = idBuffer.byteLength;
+    if (idBytes !== 16) {
+      window.log.error(
+        `onGroupReceived: Id was ${idBytes} bytes, expected 16 bytes. Dropping group.`
+      );
+      return;
+    }
 
     const conversation = await ConversationController.getOrCreateAndWait(
       id,
