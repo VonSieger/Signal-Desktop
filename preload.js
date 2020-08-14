@@ -146,8 +146,14 @@ try {
 
   installGetter('read-receipt-setting', 'getReadReceiptSetting');
   installSetter('read-receipt-setting', 'setReadReceiptSetting');
-  installGetter('unidentified-delivery-indicator-setting', 'getUnidentifiedDeliveryIndicatorSetting');
-  installSetter('unidentified-delivery-indicator-setting', 'setUnidentifiedDeliveryIndicatorSetting');
+  installGetter(
+    'unidentified-delivery-indicator-setting',
+    'getUnidentifiedDeliveryIndicatorSetting'
+  );
+  installSetter(
+    'unidentified-delivery-indicator-setting',
+    'setUnidentifiedDeliveryIndicatorSetting'
+  );
   installGetter('typing-indicator-setting', 'getTypingIndicatorSetting');
   installSetter('typing-indicator-setting', 'setTypingIndicatorSetting');
   installGetter('link-preview-setting', 'getLinkPreviewSetting');

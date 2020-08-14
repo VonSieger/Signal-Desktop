@@ -110,11 +110,11 @@
     },
 
     /*
-    * add an other device
-    * deviceIdentifier, deviceKey -> correspond to the other device
-    * identityKeyPair, profileKey, code -> information stored on this device
-    */
-    addDevice(deviceIdentifier, deviceKey){
+     * add an other device
+     * deviceIdentifier, deviceKey -> correspond to the other device
+     * identityKeyPair, profileKey, code -> information stored on this device
+     */
+    addDevice(deviceIdentifier, deviceKey) {
       return this.server.getNewDeviceVerificationCode().then(response => {
         return Promise.all([
           textsecure.storage.protocol.getIdentityKeyPair(),
@@ -127,7 +127,7 @@
           deviceKey = window.StringView.base64ToBytes(deviceKey);
 
           const code = response.verificationCode;
-          if(!code){
+          if (!code) {
             return;
           }
 
@@ -139,10 +139,13 @@
           });
 
           const provisioningCipher = new libsignal.ProvisioningCipher();
-          return provisioningCipher.encrypt(provisionMessage, deviceKey)
-          .then(provisionEnvelope => {
-            return this.server.linkOtherDevice(deviceIdentifier, {body: provisionEnvelope.encode64()});
-          });
+          return provisioningCipher
+            .encrypt(provisionMessage, deviceKey)
+            .then(provisionEnvelope => {
+              return this.server.linkOtherDevice(deviceIdentifier, {
+                body: provisionEnvelope.encode64(),
+              });
+            });
         });
       });
     },
@@ -629,13 +632,13 @@
 
       this.dispatchEvent(new Event('registration'));
     },
-    async getDevices(){
+    async getDevices() {
       return this.server.getDevices().then(list => {
         list = JSON.parse(list);
         var deviceList = new Array();
         list.devices.forEach(element => {
           const name = element.name;
-          if(name === null){
+          if (name === null) {
             return;
           }
           deviceList.push({
@@ -646,13 +649,13 @@
         return deviceList;
       });
     },
-    async removeDevice(id){
+    async removeDevice(id) {
       return this.server.removeDevice(id);
     },
-    isStandaloneDevice(){
+    isStandaloneDevice() {
       const name = textsecure.storage.user.getDeviceName();
       return name == undefined || name == null;
-    }
+    },
   });
   textsecure.AccountManager = AccountManager;
 })();

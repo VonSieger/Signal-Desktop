@@ -41,35 +41,42 @@
   } = window.Signal.Data;
 
   Whisper.ConversationHeaderView = Whisper.View.extend({
-    initialize(options){
+    initialize(options) {
       this.props = options.props;
       this.model = options.model;
 
       this.render();
     },
-    render(){
+    render() {
       this.titleViewWrapper = new Whisper.ReactWrapperView({
         className: 'title-wrapper',
         Component: window.Signal.Components.ConversationHeader,
         props: this.props,
-        events: this.model.isPrivate() && !this.model.isMe() ? {
-          'click #titleShow': () => {
-            this.$('#titleShow').hide();
-            this.$('#titleInput').css('display', '');
-            this.$('#titleInput').focus();
-          },
-          'blur #titleInput': () => {
-            this.model.setName($('<div>').html(this.$('#titleInput').val()).text());
+        events:
+          this.model.isPrivate() && !this.model.isMe()
+            ? {
+                'click #titleShow': () => {
+                  this.$('#titleShow').hide();
+                  this.$('#titleInput').css('display', '');
+                  this.$('#titleInput').focus();
+                },
+                'blur #titleInput': () => {
+                  this.model.setName(
+                    $('<div>')
+                      .html(this.$('#titleInput').val())
+                      .text()
+                  );
 
-            this.$('#titleInput').hide();
-            this.$('#titleShow').css('display', '');
-          },
-        } : null,
+                  this.$('#titleInput').hide();
+                  this.$('#titleShow').css('display', '');
+                },
+              }
+            : null,
       });
       this.$el.empty();
       this.$el.append(this.titleViewWrapper.el);
     },
-    update(props){
+    update(props) {
       this.props = props;
       this.titleViewWrapper.update(props);
     },
@@ -465,7 +472,7 @@
 
       this.titleView = new Whisper.ConversationHeaderView({
         model: this.model,
-        props: getHeaderProps(this.model)
+        props: getHeaderProps(this.model),
       });
 
       this.updateHeader = () => this.titleView.update(getHeaderProps());

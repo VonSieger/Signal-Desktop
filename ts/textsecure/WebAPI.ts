@@ -487,8 +487,8 @@ const URL_CALLS = {
   signed: 'v2/keys/signed',
   getStickerPackUpload: 'v1/sticker/pack/form',
   whoami: 'v1/accounts/whoami',
-  newDeviceVerificationCode : 'v1/devices/provisioning/code',
-  provisioningLink : 'v1/provisioning'
+  newDeviceVerificationCode: 'v1/devices/provisioning/code',
+  provisioningLink: 'v1/provisioning',
 };
 
 type InitializeOptionsType = {
@@ -1140,19 +1140,19 @@ export function initialize({
       }).then(handleKeys);
     }
 
-    function getNewDeviceVerificationCode(){
+    function getNewDeviceVerificationCode() {
       return _ajax({
         call: 'newDeviceVerificationCode',
         httpType: 'GET',
-        responseType: 'json'
+        responseType: 'json',
       });
     }
 
-    function linkOtherDevice(destination: string, data: string){
+    function linkOtherDevice(destination: string, data: string) {
       return _ajax({
         call: 'provisioningLink',
         urlParameters: `/${destination}`,
-        responseType : 'json',
+        responseType: 'json',
         httpType: 'PUT',
         jsonData: data,
       });

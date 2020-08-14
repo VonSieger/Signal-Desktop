@@ -59,32 +59,48 @@
         const plainText = provisionMessage.toArrayBuffer();
         const masterEphemeral = publicKey;
 
-        return libsignal.Curve.async.calculateAgreement(masterEphemeral, privKey).then(sharedSecret => {
-          return libsignal.HKDF.deriveSecrets(sharedSecret, new ArrayBuffer(32), 'TextSecure Provisioning Message')
-            .then(derivedSecret => {
-              const derivedSecretSplit = [derivedSecret.slice(0,33), derivedSecret.slice(33,65)];
+        return libsignal.Curve.async
+          .calculateAgreement(masterEphemeral, privKey)
+          .then(sharedSecret => {
+            return libsignal.HKDF.deriveSecrets(
+              sharedSecret,
+              new ArrayBuffer(32),
+              'TextSecure Provisioning Message'
+            ).then(derivedSecret => {
+              const derivedSecretSplit = [
+                derivedSecret.slice(0, 33),
+                derivedSecret.slice(33, 65),
+              ];
 
               const version = Uint8Array.from([1]).buffer;
               const iv = libsignal.crypto.getRandomBytes(16);
-              return libsignal.crypto.encrypt(derivedSecret[0], plainText, iv)
-              .then(cypherText => {
-                cypherText = this._appendBuffer(iv, cypherText);
-                return libsignal.crypto.calculateMAC(derivedSecret[1], this._appendBuffer(version, cypherText))
-                .then(mac => {
-                  const body = this._appendBuffer(this._appendBuffer(version, cypherText), mac);
+              return libsignal.crypto
+                .encrypt(derivedSecret[0], plainText, iv)
+                .then(cypherText => {
+                  cypherText = this._appendBuffer(iv, cypherText);
+                  return libsignal.crypto
+                    .calculateMAC(
+                      derivedSecret[1],
+                      this._appendBuffer(version, cypherText)
+                    )
+                    .then(mac => {
+                      const body = this._appendBuffer(
+                        this._appendBuffer(version, cypherText),
+                        mac
+                      );
 
-                  const provisionEnvelope = new textsecure.protobuf.ProvisionEnvelope();
+                      const provisionEnvelope = new textsecure.protobuf.ProvisionEnvelope();
 
-                  return this.getPublicKey().then(ownPubKey => {
-                    return new textsecure.protobuf.ProvisionEnvelope({
-                      publicKey: new Uint8Array(ownPubKey),
-                      body: new Uint8Array(body),
+                      return this.getPublicKey().then(ownPubKey => {
+                        return new textsecure.protobuf.ProvisionEnvelope({
+                          publicKey: new Uint8Array(ownPubKey),
+                          body: new Uint8Array(body),
+                        });
+                      });
                     });
-                  });
-                })
-              });
+                });
             });
-        });
+          });
       });
     },
     getPublicKey() {
@@ -100,7 +116,7 @@
         })
         .then(() => this.keyPair.pubKey);
     },
-    getPrivateKey(){
+    getPrivateKey() {
       return Promise.resolve()
         .then(() => {
           if (!this.keyPair) {
@@ -113,7 +129,7 @@
         })
         .then(() => this.keyPair.privKey);
     },
-    _appendBuffer (buffer1, buffer2) {
+    _appendBuffer(buffer1, buffer2) {
       var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
       tmp.set(new Uint8Array(buffer1), 0);
       tmp.set(new Uint8Array(buffer2), buffer1.byteLength);

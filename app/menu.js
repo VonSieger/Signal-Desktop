@@ -189,15 +189,17 @@ exports.createTemplate = (options, messages) => {
       label: messages.menuSetupAsNewDevice.message,
       click: setupAsNewDevice,
     });
-  }else {
+  } else {
     const fileMenu = template[0];
-    fileMenu.submenu.unshift({
-      label: messages.menuManageDevices.message,
-      click: manageDevices,
-    },
-    {
-      type: 'separator',
-    });
+    fileMenu.submenu.unshift(
+      {
+        label: messages.menuManageDevices.message,
+        click: manageDevices,
+      },
+      {
+        type: 'separator',
+      }
+    );
   }
 
   if (platform === 'darwin') {

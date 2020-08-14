@@ -4,54 +4,57 @@
 
 // eslint-disable-next-line func-names
 
-(function(){
+(function() {
   'use strict';
   window.Whisper = window.Whisper || {};
 
   Whisper.ManageDevicesView = Whisper.View.extend({
     templateName: 'manageDevices',
     className: 'full-screen-flow',
-    initialize(){
+    initialize() {
       this._outer_render();
     },
-    _outer_render(){
+    _outer_render() {
       Whisper.View.prototype.render.call(this);
       this.render();
     },
-    render(){
+    render() {
       const accountManager = getAccountManager();
-      if(!accountManager.isStandaloneDevice()){
+      if (!accountManager.isStandaloneDevice()) {
         this.$('.button').hide();
       }
       accountManager.getDevices().then(devices => {
         devices.forEach(device => {
           device.name.then(name => {
-            const deviceModel = new Whisper.Device({id: device.id,
+            const deviceModel = new Whisper.Device({
+              id: device.id,
               name: name,
               accountManager: accountManager,
             });
-            deviceModel.on("removeDevice", this.render);
-            var deviceListRow = new Whisper.DeviceListRowView({model: deviceModel});
+            deviceModel.on('removeDevice', this.render);
+            var deviceListRow = new Whisper.DeviceListRowView({
+              model: deviceModel,
+            });
             this.$('#linkedDevicesTable').append(deviceListRow.el);
           });
         });
       });
     },
-    render_attributes(){
+    render_attributes() {
       return {
         linkedDevices: i18n('linkedDevices'),
         linkNewDevice: i18n('linkNewDevice'),
       };
     },
-    events:{
+    events: {
       'click .close': 'onClose',
       'click .button': 'onAddNewDevice',
     },
-    onAddNewDevice(){
+    onAddNewDevice() {
       Whisper.events.trigger('addDevice');
     },
-    onClose(){
+    onClose() {
       this.$el.trigger('openInbox');
     },
-  })
+  });
 })();

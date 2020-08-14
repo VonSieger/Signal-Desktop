@@ -101,14 +101,14 @@ export class ConversationHeader extends React.Component<Props> {
 
     if (isMe) {
       return (
-        <div className="module-conversation-header__title" id='titleShow'>
+        <div className="module-conversation-header__title" id="titleShow">
           {i18n('noteToSelf')}
         </div>
       );
     }
 
     return (
-      <div className="module-conversation-header__title" id='titleShow'>
+      <div className="module-conversation-header__title" id="titleShow">
         {name ? <Emojify text={name} /> : null}
         {name && phoneNumber ? ' · ' : null}
         {phoneNumber ? phoneNumber : null}{' '}
@@ -282,12 +282,14 @@ export class ConversationHeader extends React.Component<Props> {
   }
 
   public renderTitleInput() {
-    const {
-      name,
-      isGroup,
-    } = this.props;
+    const { name, isGroup } = this.props;
     return !isGroup ? (
-      <input type='text' style={{display: 'none'}} id='titleInput' defaultValue={name}/>
+      <input
+        type="text"
+        style={{ display: 'none' }}
+        id="titleInput"
+        defaultValue={name}
+      />
     ) : null;
   }
 

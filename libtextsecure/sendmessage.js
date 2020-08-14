@@ -462,16 +462,17 @@ MessageSender.prototype = {
 
     return syncMessage;
   },
-  async sendSyncMessageResponse(syncOptions){
+  async sendSyncMessageResponse(syncOptions) {
     const content = new textsecure.protobuf.Content();
     const syncMessage = new textsecure.protobuf.SyncMessage();
     content.syncMessage = syncMessage;
     const timestamp = undefined;
 
-    if(syncOptions.contactDetailsList || syncOptions.groupDetailsList){
-      const detailsList = syncOptions.contactDetailsList || syncOptions.groupDetailsList;
+    if (syncOptions.contactDetailsList || syncOptions.groupDetailsList) {
+      const detailsList =
+        syncOptions.contactDetailsList || syncOptions.groupDetailsList;
 
-      if(!detailsList.length || detailsList.length == 0) return;
+      if (!detailsList.length || detailsList.length == 0) return;
 
       var byteBuffer = new dcodeIO.ByteBuffer(detailsList.length * 50);
       var position = 0;
@@ -487,28 +488,27 @@ MessageSender.prototype = {
       const attachmentPointer = await this.makeAttachmentPointer({
         data: attachment,
         size: attachment.byteLength,
-        contentType: "application/octet-stream",
+        contentType: 'application/octet-stream',
       });
 
-      if(syncOptions.contactDetailsList){
+      if (syncOptions.contactDetailsList) {
         syncMessage.contacts = new textsecure.protobuf.SyncMessage.Contacts({
-          blob : attachmentPointer,
+          blob: attachmentPointer,
           complete: syncOptions.complete ? syncOptions.complete : undefined,
         });
-      }else{
+      } else {
         syncMessage.groups = new textsecure.protobuf.SyncMessage.Groups({
           blob: attachmentPointer,
-        })
+        });
       }
-    }else if(syncOptions.configuration){
+    } else if (syncOptions.configuration) {
       syncMessage.configuration = syncOptions.configuration;
     }
 
     const ourNumber = textsecure.storage.user.getNumber();
-    const sendOptions = ConversationController.prepareForSend(
-      ourNumber,
-      {syncMessage: true}
-    );
+    const sendOptions = ConversationController.prepareForSend(ourNumber, {
+      syncMessage: true,
+    });
     sendOptions.online = false;
 
     return this.sendIndividualProto(
