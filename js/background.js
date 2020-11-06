@@ -1999,33 +1999,31 @@
           idKey => {
             contacts.push(
               new textsecure.protobuf.ContactDetails({
-                number: attributes.id,
-                name: attributes.name ? attributes.name : undefined,
-                color: attributes.color ? attributes.colol : undefined,
-                verified: attributes.verified
-                  ? (function() {
-                      if (idKey.publicKey) {
-                        return new textsecure.protobuf.Verified({
-                          state: attributes.verified,
-                          identityKey: idKey.publicKey,
-                          destination: attributes.id,
-                        });
-                      } else {
-                        return new textsecure.protobuf.Verified({
-                          state: attributes.verified,
-                          destination: attributes.id,
-                        });
-                      }
-                    })()
-                  : undefined,
+                uuid: attributes.uuid,
+                number: attributes.e164,
+                name: attributes.name,
+                color: attributes.color,
+                verified: idKey.publicKey
+                  ? new textsecure.protobuf.Verified({
+                      state: attributes.verified,
+                      identityKey: idKey.publicKey,
+                      destination: attributes.e164,
+                      destinationUuid: attributes.uuid,
+                    })
+                  : new textsecure.protobuf.Verified({
+                      state: attributes.verified,
+                      destination: attributes.e164,
+                      destinationUuid: attributes.uuid,
+                    }),
                 profileKey: attributes.profileKey
                   ? window.StringView.base64ToBytes(attributes.profileKey)
                   : undefined,
-                blocked: attributes.blocked ? attributes.blocked : undefined,
+                blocked: attributes.blocked,
                 expireTimer:
                   attributes.expireTimer && attributes.expireTimer > 0
                     ? attributes.expireTimer
                     : undefined,
+                archived: attributes.archived,
               })
             );
           }
@@ -2037,7 +2035,9 @@
           complete: true,
         })
         .catch(err =>
-          window.log.error('Failed to send syncMessage.contacts: ' + err)
+          window.log.error(
+            'Failed to send syncMessage.contacts: ' + err.toString()
+          )
         );
     });
   }
@@ -2071,7 +2071,9 @@
           groupDetailsList: groups,
         })
         .catch(err =>
-          window.log.error('Failed to send syncMessage.groups: ' + err)
+          window.log.error(
+            'Failed to send syncMessage.groups: ' + err.toString()
+          )
         );
     });
   }
@@ -2096,7 +2098,9 @@
           configuration: config,
         })
         .catch(err =>
-          window.log.error('Failed to send syncMessage.configuration: ' + err)
+          window.log.error(
+            'Failed to send syncMessage.configuration: ' + err.toString()
+          )
         );
     });
   }
