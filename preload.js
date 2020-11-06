@@ -106,6 +106,10 @@ try {
   window.updateTrayIcon = unreadCount =>
     ipc.send('update-tray-icon', unreadCount);
 
+  ipc.on('manage-devices', () => {
+    Whisper.events.trigger('manageDevices');
+  });
+
   ipc.on('set-up-as-new-device', () => {
     Whisper.events.trigger('setupAsNewDevice');
   });
