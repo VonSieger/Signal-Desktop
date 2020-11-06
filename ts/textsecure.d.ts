@@ -116,6 +116,7 @@ export type StorageProtocolType = StorageType & {
   ) => Promise<void>;
   removeSignedPreKey: (keyId: number) => Promise<void>;
   removeAllData: () => Promise<void>;
+  getProfileKey: () => Promise<string>;
 };
 
 // Protobufs
@@ -451,6 +452,7 @@ declare class ProvisionEnvelopeClass {
     encoding?: string
   ) => ProvisionEnvelopeClass;
   encode: () => ProvisionEnvelopeClass;
+  encode64: () => string;
   toArrayBuffer: () => ArrayBuffer;
 
   publicKey?: ProtoBinaryType;

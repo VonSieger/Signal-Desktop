@@ -10,6 +10,7 @@ import ProvisioningCipher from './ProvisioningCipher';
 import WebSocketResource, {
   IncomingWebSocketRequest,
 } from './WebsocketResources';
+import StringView from './StringView';
 
 const ARCHIVE_AGE = 7 * 24 * 60 * 60 * 1000;
 
@@ -120,6 +121,41 @@ export default class AccountManager extends EventTarget {
       await this.server.removeSignalingKey();
     }
   }
+
+  addDevice(deviceIdentifier: string, deviceKey: string): Promise<any> {
+    return this.server.getNewDeviceVerificationCode().then(response => {
+      return Promise.all([
+        window.textsecure.storage.protocol.getIdentityKeyPair(),
+        window.textsecure.storage.protocol.getProfileKey(),
+      ]).then(values => {
+        const identityKeyPair = values[0] as KeyPairType;
+        const profileKey = values[1] as string;
+
+        const deviceKeyBytes = StringView.base64ToBytes(deviceKey);
+
+        const code = response.verificationCode;
+        if (!code) {
+          return;
+        }
+
+        const provisionMessage = new window.textsecure.protobuf.ProvisionMessage();
+        provisionMessage.identityKeyPrivate = identityKeyPair.privKey;
+        provisionMessage.number = window.textsecure.storage.user.getNumber();
+        provisionMessage.provisioningCode = code;
+        provisionMessage.profileKey = profileKey;
+
+        const provisioningCipher = new ProvisioningCipher();
+        return provisioningCipher
+          .encrypt(provisionMessage, deviceKeyBytes)
+          .then(provisionEnvelope => {
+            return this.server.linkOtherDevice(deviceIdentifier, {
+              body: provisionEnvelope.encode64(),
+            });
+          });
+      });
+    });
+  }
+
   async registerSingleDevice(number: string, verificationCode: string) {
     const registerKeys = this.server.registerKeys.bind(this.server);
     const createAccount = this.createAccount.bind(this);
@@ -695,5 +731,29 @@ export default class AccountManager extends EventTarget {
     window.log.info('dispatching registration event');
 
     this.dispatchEvent(new Event('registration'));
+  }
+
+  getDevices(): Promise<Array<any>> {
+    return this.server.getDevices().then(list => {
+      list = JSON.parse(list);
+
+      return (list.devices as Array<{ id: string; name: string }>)
+        .filter(device => device.name != null)
+        .map(device => {
+          return {
+            id: device.id,
+            name: this.decryptDeviceName(device.name),
+          };
+        });
+    });
+  }
+
+  removeDevice(id: string): Promise<void> {
+    return this.server.removeDevice(id);
+  }
+
+  isStandaloneDevice(): boolean {
+    const name = window.textsecure.storage.user.getDeviceName();
+    return name === undefined || name === null;
   }
 }

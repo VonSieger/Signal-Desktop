@@ -551,6 +551,7 @@ export type WebAPIType = {
   ) => Promise<ServerKeysType>;
   getMessageSocket: () => WebSocket;
   getMyKeys: () => Promise<number>;
+  getNewDeviceVerificationCode: () => Promise<any>;
   getProfile: (
     identifier: string,
     options?: {
@@ -570,6 +571,10 @@ export type WebAPIType = {
   getSenderCertificate: (withUuid?: boolean) => Promise<any>;
   getSticker: (packId: string, stickerId: string) => Promise<any>;
   getStickerPackManifest: (packId: string) => Promise<StickerPackManifestType>;
+  linkOtherDevice: (
+    destination: string,
+    data: { body: string }
+  ) => Promise<any>;
   makeProxiedRequest: (
     targetUrl: string,
     options?: ProxiedRequestOptionsType
@@ -583,6 +588,7 @@ export type WebAPIType = {
   ) => Promise<string>;
   registerKeys: (genKeys: KeysType) => Promise<void>;
   registerSupportForUnauthenticatedDelivery: () => Promise<any>;
+  removeDevice: (id: string) => Promise<void>;
   removeSignalingKey: () => Promise<void>;
   requestVerificationSMS: (number: string) => Promise<any>;
   requestVerificationVoice: (number: string) => Promise<any>;
@@ -1148,7 +1154,7 @@ export function initialize({
       });
     }
 
-    function linkOtherDevice(destination: string, data: string) {
+    function linkOtherDevice(destination: string, data: { body: string }) {
       return _ajax({
         call: 'provisioningLink',
         urlParameters: `/${destination}`,
