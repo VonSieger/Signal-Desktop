@@ -11,6 +11,9 @@ import {
   AttachmentPointerClass,
   ContentClass,
   DataMessageClass,
+  ContactDetailsClass,
+  GroupDetailsClass,
+  SyncMessageClass,
 } from '../textsecure.d';
 import { MessageError, SignedPreKeyRotationError } from './Errors';
 
@@ -591,6 +594,74 @@ export default class MessageSender {
     syncMessage.padding = window.libsignal.crypto.getRandomBytes(paddingLength);
 
     return syncMessage;
+  }
+
+  async sendSyncMessageResponse(syncOptions: {
+    contactDetailsList: ContactDetailsClass[];
+    complete: boolean;
+    groupDetailsList: GroupDetailsClass[];
+    configuration: SyncMessageClass.Configuration;
+  }) {
+    let content = new window.textsecure.protobuf.Content();
+    let syncMessage = new window.textsecure.protobuf.SyncMessage();
+    content.syncMessage = syncMessage;
+    let timestamp = Date.now();
+
+    let detailsList =
+      syncOptions.contactDetailsList || syncOptions.groupDetailsList;
+    if (detailsList) {
+      if (detailsList.length == 0) {
+        return;
+      }
+
+      let byteBuffer = new window.dcodeIO.ByteBuffer(detailsList.length * 50);
+      detailsList.forEach(details => {
+        let detailsBytes = details.toArrayBuffer();
+        byteBuffer.writeVarint32(detailsBytes.byteLength);
+        byteBuffer.append(detailsBytes);
+      });
+      byteBuffer.limit = byteBuffer.offset;
+      byteBuffer.offset = 0;
+      let attachment = byteBuffer.toArrayBuffer();
+
+      let attachmentPointer = await this.makeAttachmentPointer({
+        data: attachment,
+        size: attachment.byteLength,
+        contentType: 'application/octet-stream',
+      } as AttachmentType);
+
+      if (syncOptions.contactDetailsList) {
+        syncMessage.contacts = new window.textsecure.protobuf.SyncMessage.Contacts();
+        syncMessage.contacts.blob = attachmentPointer;
+        syncMessage.contacts.complete = syncOptions.complete
+          ? syncOptions.complete
+          : undefined;
+      } else {
+        syncMessage.groups = new window.textsecure.protobuf.SyncMessage.Groups();
+        syncMessage.groups.blob = attachmentPointer;
+      }
+    } else if (syncOptions.configuration) {
+      syncMessage.configuration = syncOptions.configuration;
+    }
+
+    const ourNumber = window.textsecure.storage.user.getNumber();
+    // TODO: neccessary?
+    const sendOptions = window.ConversationController.prepareForSend(
+      ourNumber,
+      {
+        syncMessage: true,
+      }
+    ).sendOptions as SendOptionsType;
+    //TODO: check in android app!
+    sendOptions.online = false;
+
+    return this.sendIndividualProto(
+      ourNumber,
+      content,
+      timestamp,
+      true,
+      sendOptions
+    );
   }
 
   async sendSyncMessage(

@@ -8,6 +8,7 @@ import {
 import { TextSecureType } from './textsecure.d';
 import { WebAPIConnectType } from './textsecure/WebAPI';
 import * as Crypto from './Crypto';
+//import { SendOptionsType } from './textsecure/SendMessage';
 
 declare global {
   interface Window {
@@ -70,7 +71,7 @@ export type ConversationControllerType = {
     options: Object
   ) => {
     wrap: (promise: Promise<any>) => Promise<void>;
-    sendOptions: Object;
+    sendOptions: Object /*SendOptionsType*/;
   };
   get: (
     identifier: string
@@ -126,6 +127,7 @@ export class ByteBufferClass {
   limit: number;
   offset: 0;
   readVarint32: () => number;
+  writeVarint32: (value: number) => ByteBufferClass;
   skip: (length: number) => void;
 }
 
