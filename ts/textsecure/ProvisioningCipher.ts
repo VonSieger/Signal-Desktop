@@ -95,7 +95,7 @@ class ProvisioningCipherInner {
       });
   }
 
-  public getPrivateKey(): Promise<ArrayBuffer> {
+  public async getPrivateKey(): Promise<ArrayBuffer> {
     if (!this.keyPair) {
       return window.libsignal.Curve.async.generateKeyPair().then(keyPair => {
         this.keyPair = keyPair;
@@ -105,36 +105,36 @@ class ProvisioningCipherInner {
     return Promise.resolve(this.keyPair.privKey);
   }
 
-  public encrypt(
+  public async encrypt(
     provisionMessage: ProvisionMessageClass,
     publicKey: ArrayBuffer
   ): Promise<ProvisionEnvelopeClass> {
-    return this.getPrivateKey().then(privKey => {
+    return this.getPrivateKey().then(async privKey => {
       const plainText = provisionMessage.toArrayBuffer();
       const masterEphemeral = publicKey;
 
       return window.libsignal.Curve.async
         .calculateAgreement(masterEphemeral, privKey)
-        .then(sharedSecret => {
+        .then(async sharedSecret => {
           return window.libsignal.HKDF.deriveSecrets(
             sharedSecret,
             new ArrayBuffer(32),
             'TextSecure Provisioning Message'
-          ).then(derivedSecret => {
+          ).then(async derivedSecret => {
             const version = Uint8Array.from([1]);
             const iv = window.libsignal.crypto.getRandomBytes(16);
             return window.libsignal.crypto
               .encrypt(derivedSecret[0], plainText, iv)
-              .then((cyphterText: ArrayBuffer) => {
-                cyphterText = this.appendBuffer(
+              .then(async (cyphterText: ArrayBuffer) => {
+                const versionCyphterText = this.appendBuffer(
                   this.appendBuffer(version, new Uint8Array(iv)),
                   new Uint8Array(cyphterText)
                 ).buffer;
                 return window.libsignal.crypto
-                  .calculateMAC(derivedSecret[1], cyphterText)
-                  .then(mac => {
+                  .calculateMAC(derivedSecret[1], versionCyphterText)
+                  .then(async mac => {
                     const body = this.appendBuffer(
-                      new Uint8Array(cyphterText),
+                      new Uint8Array(versionCyphterText),
                       new Uint8Array(mac)
                     );
 

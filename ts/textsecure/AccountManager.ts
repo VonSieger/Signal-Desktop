@@ -122,14 +122,14 @@ export default class AccountManager extends EventTarget {
     }
   }
 
-  addDevice(deviceIdentifier: string, deviceKey: string): Promise<any> {
-    return this.server.getNewDeviceVerificationCode().then(response => {
+  async addDevice(deviceIdentifier: string, deviceKey: string): Promise<any> {
+    return this.server.getNewDeviceVerificationCode().then(async response => {
       return Promise.all([
         window.textsecure.storage.protocol.getIdentityKeyPair(),
         window.textsecure.storage.protocol.getProfileKey(),
       ]).then(values => {
-        const identityKeyPair = values[0] as KeyPairType;
-        const profileKey = values[1] as string;
+        const identityKeyPair = values[0];
+        const profileKey = values[1];
 
         const deviceKeyBytes = StringView.base64ToBytes(deviceKey);
 
@@ -147,7 +147,7 @@ export default class AccountManager extends EventTarget {
         const provisioningCipher = new ProvisioningCipher();
         return provisioningCipher
           .encrypt(provisionMessage, deviceKeyBytes)
-          .then(provisionEnvelope => {
+          .then(async provisionEnvelope => {
             return this.server.linkOtherDevice(deviceIdentifier, {
               body: provisionEnvelope.encode64(),
             });
@@ -733,9 +733,9 @@ export default class AccountManager extends EventTarget {
     this.dispatchEvent(new Event('registration'));
   }
 
-  getDevices(): Promise<Array<any>> {
-    return this.server.getDevices().then(list => {
-      list = JSON.parse(list);
+  async getDevices(): Promise<Array<any>> {
+    return this.server.getDevices().then(jsonList => {
+      const list = JSON.parse(jsonList);
 
       return (list.devices as Array<{ id: string; name: string }>)
         .filter(device => device.name != null)
@@ -748,7 +748,7 @@ export default class AccountManager extends EventTarget {
     });
   }
 
-  removeDevice(id: string): Promise<void> {
+  async removeDevice(id: string): Promise<void> {
     return this.server.removeDevice(id);
   }
 

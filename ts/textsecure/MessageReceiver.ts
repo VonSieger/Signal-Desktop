@@ -1394,24 +1394,24 @@ class MessageReceiverInner extends EventTarget {
     throw new Error('Got empty SyncMessage');
   }
 
-  handleSyncRequest(
+  async handleSyncRequest(
     envelope: EnvelopeClass,
     request: SyncMessageClass.Request
   ) {
-    var ev = null;
-    if (request.type == 1) {
+    let ev = null;
+    if (request.type === 1) {
       //contactsSyncRequest
       window.log.info('got contact sync request');
       ev = new Event('contactSyncRequest');
-    } else if (request.type == 2) {
+    } else if (request.type === 2) {
       //groupsSyncRequset
       window.log.info('got group sync request');
       ev = new Event('groupSyncRequest');
-    } else if (request.type == 3) {
+    } else if (request.type === 3) {
       //blockedListSyncRequest
       window.log.info('got blocked list sync request');
       ev = new Event('blockedListSyncRequest');
-    } else if (request.type == 4) {
+    } else if (request.type === 4) {
       //configurationSyncRequest
       window.log.info('got configuration sync request');
       ev = new Event('configurationSyncRequest');
@@ -1419,10 +1419,9 @@ class MessageReceiverInner extends EventTarget {
       return;
     }
 
-    return Promise.all([
-      this.dispatchAndWait(ev),
-      this.removeFromCache(envelope),
-    ]);
+    this.removeFromCache(envelope);
+
+    return this.dispatchAndWait(ev);
   }
 
   async handleConfiguration(

@@ -9,9 +9,9 @@ import OutgoingMessage from './OutgoingMessage';
 import Crypto from './Crypto';
 import {
   AttachmentPointerClass,
+  ContactDetailsClass,
   ContentClass,
   DataMessageClass,
-  ContactDetailsClass,
   GroupDetailsClass,
   SyncMessageClass,
 } from '../textsecure.d';
@@ -597,34 +597,34 @@ export default class MessageSender {
   }
 
   async sendSyncMessageResponse(syncOptions: {
-    contactDetailsList: ContactDetailsClass[];
+    contactDetailsList: Array<ContactDetailsClass>;
     complete: boolean;
-    groupDetailsList: GroupDetailsClass[];
+    groupDetailsList: Array<GroupDetailsClass>;
     configuration: SyncMessageClass.Configuration;
   }) {
-    let content = new window.textsecure.protobuf.Content();
-    let syncMessage = new window.textsecure.protobuf.SyncMessage();
+    const content = new window.textsecure.protobuf.Content();
+    const syncMessage = new window.textsecure.protobuf.SyncMessage();
     content.syncMessage = syncMessage;
-    let timestamp = Date.now();
+    const timestamp = Date.now();
 
-    let detailsList =
+    const detailsList =
       syncOptions.contactDetailsList || syncOptions.groupDetailsList;
     if (detailsList) {
-      if (detailsList.length == 0) {
+      if (detailsList.length === 0) {
         return;
       }
 
-      let byteBuffer = new window.dcodeIO.ByteBuffer(detailsList.length * 50);
+      const byteBuffer = new window.dcodeIO.ByteBuffer(detailsList.length * 50);
       detailsList.forEach(details => {
-        let detailsBytes = details.toArrayBuffer();
+        const detailsBytes = details.toArrayBuffer();
         byteBuffer.writeVarint32(detailsBytes.byteLength);
         byteBuffer.append(detailsBytes);
       });
       byteBuffer.limit = byteBuffer.offset;
       byteBuffer.offset = 0;
-      let attachment = byteBuffer.toArrayBuffer();
+      const attachment = byteBuffer.toArrayBuffer();
 
-      let attachmentPointer = await this.makeAttachmentPointer({
+      const attachmentPointer = await this.makeAttachmentPointer({
         data: attachment,
         size: attachment.byteLength,
         contentType: 'application/octet-stream',
@@ -645,14 +645,12 @@ export default class MessageSender {
     }
 
     const ourNumber = window.textsecure.storage.user.getNumber();
-    // TODO: neccessary?
     const sendOptions = window.ConversationController.prepareForSend(
       ourNumber,
       {
         syncMessage: true,
       }
     ).sendOptions as SendOptionsType;
-    //TODO: check in android app!
     sendOptions.online = false;
 
     return this.sendIndividualProto(

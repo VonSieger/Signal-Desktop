@@ -988,7 +988,7 @@ export function initialize({
       });
     }
 
-    function removeDevice(id: string) {
+    async function removeDevice(id: string) {
       return _ajax({
         call: 'devices',
         urlParameters: `/${id}`,
@@ -1146,7 +1146,7 @@ export function initialize({
       }).then(handleKeys);
     }
 
-    function getNewDeviceVerificationCode() {
+    async function getNewDeviceVerificationCode() {
       return _ajax({
         call: 'newDeviceVerificationCode',
         httpType: 'GET',
@@ -1154,7 +1154,10 @@ export function initialize({
       });
     }
 
-    function linkOtherDevice(destination: string, data: { body: string }) {
+    async function linkOtherDevice(
+      destination: string,
+      data: { body: string }
+    ) {
       return _ajax({
         call: 'provisioningLink',
         urlParameters: `/${destination}`,

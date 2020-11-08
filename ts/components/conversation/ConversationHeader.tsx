@@ -282,13 +282,14 @@ export class ConversationHeader extends React.Component<Props> {
   }
 
   public renderTitleInput() {
-    const { name, isGroup } = this.props;
+    const { i18n, name, isGroup } = this.props;
     return !isGroup ? (
       <input
         type="text"
         style={{ display: 'none' }}
         id="titleInput"
         defaultValue={name}
+        placeholder={i18n('namePlaceholder')}
       />
     ) : null;
   }
