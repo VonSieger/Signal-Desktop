@@ -1,7 +1,8 @@
-/*Backbone, Whisper*/
+/* global Backbone, Whisper */
 
+// eslint-disable-next-line func-names
 (function() {
-  'use-strict';
+  'use strict';
 
   window.Whisper = window.Whisper || {};
 

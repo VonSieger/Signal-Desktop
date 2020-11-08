@@ -15,7 +15,6 @@ exports.createTemplate = (options, messages) => {
     setupAsNewDevice,
     setupAsStandalone,
     manageDevices,
-    setupWithImport,
     showAbout,
     showDebugLog,
     showKeyboardShortcuts,

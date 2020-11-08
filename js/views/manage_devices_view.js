@@ -1,11 +1,11 @@
-/*global Whisper, $, getAccountManager, i18n */
+/* global Whisper, getAccountManager, i18n */
 
 /* eslint-disable more/no-then */
 
 // eslint-disable-next-line func-names
-
 (function() {
   'use strict';
+
   window.Whisper = window.Whisper || {};
 
   Whisper.ManageDevicesView = Whisper.View.extend({
@@ -28,11 +28,11 @@
           device.name.then(name => {
             const deviceModel = new Whisper.Device({
               id: device.id,
-              name: name,
-              accountManager: accountManager,
+              name,
+              accountManager,
             });
             deviceModel.on('removeDevice', this.render);
-            var deviceListRow = new Whisper.DeviceListRowView({
+            const deviceListRow = new Whisper.DeviceListRowView({
               model: deviceModel,
             });
             this.$('#linkedDevicesTable').append(deviceListRow.el);

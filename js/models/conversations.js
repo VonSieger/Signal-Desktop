@@ -2313,7 +2313,7 @@
       return this.get('name') || i18n('unknownGroup');
     },
     setName(name) {
-      if (name && name != this.getName()) {
+      if (name && name !== this.getName()) {
         this.set('name', name);
         window.Signal.Data.updateConversation(this.id, this.attributes, {
           Conversation: Whisper.Conversation,

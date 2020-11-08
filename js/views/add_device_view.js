@@ -1,10 +1,11 @@
-/*global Whisper, $, getAccountManager, i18n */
+/* global Whisper, getAccountManager, i18n, textsecure */
 
 /* eslint-disable more/no-then */
 
 // eslint-disable-next-line func-names
 (function() {
   'use strict';
+
   window.Whisper = window.Whisper || {};
 
   Whisper.AddDeviceView = Whisper.View.extend({
@@ -24,7 +25,7 @@
     },
     events: {
       'click #addDeviceButton': 'onAdd',
-      //TODO add validation for input parameters
+      // TODO add validation for input parameters
       'click .x': 'onClose',
     },
     onAdd() {

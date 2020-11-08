@@ -10,6 +10,7 @@
   textsecure,
   WebAPI,
   Whisper,
+  dcodeIO
 */
 
 // eslint-disable-next-line func-names
@@ -1980,129 +1981,131 @@
     }
   }
 
-  function onContactSyncRequest(ev) {
+  async function onContactSyncRequest() {
     /*
      * Need for an updated of UnidentifiedDeliveryEnabled?
      * As in https://github.com/signalapp/Signal-Android/blob/e603162ee767d56fa16f56701cd29010f22ed22d/src/org/thoughtcrime/securesms/jobs/PushDecryptJob.java#L617
      */
-    window.Signal.Data.getAllConversations({
+    const allConversations = await window.Signal.Data.getAllConversations({
       ConversationCollection: Whisper.ConversationCollection,
-    }).then(async function(allConversations) {
-      let contacts = [];
-      for (var i = 0; i < allConversations.length; i++) {
-        const attributes = allConversations.at(i).attributes;
-        if (attributes.type != 'private' && attributes.type != 'direct') {
-          continue;
-        }
-
-        await window.Signal.Data.getIdentityKeyById(attributes.id).then(
-          idKey => {
-            contacts.push(
-              new textsecure.protobuf.ContactDetails({
-                uuid: attributes.uuid,
-                number: attributes.e164,
-                name: attributes.name,
-                color: attributes.color,
-                verified: idKey.publicKey
-                  ? new textsecure.protobuf.Verified({
-                      state: attributes.verified,
-                      identityKey: idKey.publicKey,
-                      destination: attributes.e164,
-                      destinationUuid: attributes.uuid,
-                    })
-                  : new textsecure.protobuf.Verified({
-                      state: attributes.verified,
-                      destination: attributes.e164,
-                      destinationUuid: attributes.uuid,
-                    }),
-                profileKey: attributes.profileKey
-                  ? window.StringView.base64ToBytes(attributes.profileKey)
-                  : undefined,
-                blocked: attributes.blocked,
-                expireTimer:
-                  attributes.expireTimer && attributes.expireTimer > 0
-                    ? attributes.expireTimer
-                    : undefined,
-                archived: attributes.archived,
-              })
-            );
-          }
-        );
-      }
-      return textsecure.messaging
+    });
+    // eslint-disable-next-line more/no-then
+    return Promise.all(
+      allConversations
+        .map(conversation => conversation.attributes)
+        .filter(attributes => attributes.type === 'private')
+        .map(async attributes => [
+          attributes,
+          await window.Signal.Data.getIdentityKeyById(attributes.id),
+        ])
+        .map(async attributesKeyPairPromise => {
+          const [attributes, idKey] = await attributesKeyPairPromise;
+          return new textsecure.protobuf.ContactDetails({
+            uuid: attributes.uuid,
+            number: attributes.e164,
+            name: attributes.name,
+            color: attributes.color,
+            verified: idKey
+              ? new textsecure.protobuf.Verified({
+                  state: attributes.verified,
+                  identityKey: idKey.publicKey,
+                  destination: attributes.e164,
+                  destinationUuid: attributes.uuid,
+                })
+              : new textsecure.protobuf.Verified({
+                  state: attributes.verified,
+                  destination: attributes.e164,
+                  destinationUuid: attributes.uuid,
+                }),
+            profileKey: attributes.profileKey
+              ? window.StringView.base64ToBytes(attributes.profileKey)
+              : undefined,
+            blocked: attributes.blocked,
+            expireTimer:
+              attributes.expireTimer && attributes.expireTimer > 0
+                ? attributes.expireTimer
+                : undefined,
+            archived: attributes.archived,
+          });
+        })
+    ).then(contacts =>
+      textsecure.messaging
         .sendSyncMessageResponse({
           contactDetailsList: contacts,
           complete: true,
         })
         .catch(err =>
           window.log.error(
-            'Failed to send syncMessage.contacts: ' + err.toString()
+            'Failed to send syncMessage.contacts: ',
+            Errors.toLogFormat(err)
           )
-        );
-    });
+        )
+    );
   }
 
-  function onGroupSyncRequest(ev) {
-    window.Signal.Data.getAllConversations({
+  async function onGroupSyncRequest() {
+    const allConversations = await window.Signal.Data.getAllConversations({
       ConversationCollection: Whisper.ConversationCollection,
-    }).then(allConversations => {
-      let groups = [];
-      for (var i = 0; i < allConversations.length; i++) {
-        const attributes = allConversations.at(i).attributes;
-        if (attributes.type != 'group') continue;
-        const groupDetails = new textsecure.protobuf.GroupDetails({
-          id: dcodeIO.ByteBuffer.fromBinary(attributes.id),
-          name: attributes.name ? attributes.name : undefined,
-          members: attributes.members ? attributes.members : undefined,
-          //did not find an unactive group to test
-          active: attributes.active ? attributes.active : undefined,
-          expireTimer:
-            attributes.expireTimer && attributes.expireTimer > 0
-              ? attributes.expireTimer
-              : undefined,
-          color: attributes.color ? attributes.color : undefined,
-          blocked: attributes.blocked ? attributes.blocked : undefined,
-        });
-        groups.push(groupDetails);
-      }
-
-      return textsecure.messaging
-        .sendSyncMessageResponse({
-          groupDetailsList: groups,
-        })
-        .catch(err =>
-          window.log.error(
-            'Failed to send syncMessage.groups: ' + err.toString()
-          )
-        );
     });
+
+    const groups = allConversations
+      .filter(conversation => conversation === 'group')
+      .map(conversation => conversation.attributes)
+      .map(
+        attributes =>
+          new textsecure.protobuf.GroupDetails({
+            id: dcodeIO.ByteBuffer.fromBinary(attributes.id),
+            name: attributes.name,
+            members: attributes.members,
+            active: attributes.active,
+            expireTimer:
+              attributes.expireTimer && attributes.expireTimer > 0
+                ? attributes.expireTimer
+                : undefined,
+            color: attributes.color,
+            blocked: attributes.blocked,
+          })
+      );
+
+    return textsecure.messaging
+      .sendSyncMessageResponse({
+        groupDetailsList: groups,
+      })
+      .catch(err =>
+        window.log.error(
+          'Failed to send syncMessage.groups: ',
+          Errors.toLogFormat(err)
+        )
+      );
   }
 
-  function onBlockedListSyncRequest(ev) {}
+  function onBlockedListSyncRequest() {}
 
-  function onConfigurationSyncRequest(ev) {
-    return Promise.all([
-      storage.get('read-receipt-setting'),
-      storage.get('unidentifiedDeliveryIndicators'),
-      storage.get('typingIndicators'),
-      storage.get('linkPreviews'),
-    ]).then(values => {
-      const config = new textsecure.protobuf.SyncMessage.Configuration({
-        readReceipts: values[0],
-        unidentifiedDeliveryIndicators: values[1],
-        typingIndicators: values[2],
-        linkPreviews: values[3],
-      });
-      return textsecure.messaging
-        .sendSyncMessageResponse({
-          configuration: config,
-        })
-        .catch(err =>
-          window.log.error(
-            'Failed to send syncMessage.configuration: ' + err.toString()
-          )
-        );
+  async function onConfigurationSyncRequest() {
+    const readReceipts = await storage.get('read-receipt-setting');
+    const unidentifiedDeliveryIndicators = await storage.get(
+      'unidentifiedDeliveryIndicators'
+    );
+    const typingIndicators = await storage.get('typingIndicators');
+    const linkPreviews = await storage.get('linkPreviews');
+
+    const config = new textsecure.protobuf.SyncMessage.Configuration({
+      readReceipts,
+      unidentifiedDeliveryIndicators,
+      typingIndicators,
+      linkPreviews,
     });
+
+    return textsecure.messaging
+      .sendSyncMessageResponse({
+        configuration: config,
+      })
+      .catch(err =>
+        window.log.error(
+          'Failed to send syncMessage.configuration: ',
+          Errors.toLogFormat(err)
+        )
+      );
   }
 
   async function onStickerPack(ev) {

@@ -1,7 +1,9 @@
-/*global Whisper, $, i18n */
+/* global Whisper */
 
+// eslint-disable-next-line func-names
 (function() {
   'use strict';
+
   window.Whisper = window.Whisper || {};
 
   Whisper.DeviceListRowView = Whisper.View.extend({
@@ -26,13 +28,10 @@
     events: {
       'click .tableButton': 'onDelete',
     },
-    onDelete() {
-      const ac = this.model.get('accountManager');
-      const promise = ac.removeDevice(this.model.get('id'));
-      promise.catch(e => {});
-      promise.then(result => {
-        this.model.trigger('removeDevice');
-      });
+    async onDelete() {
+      const accountManager = this.model.get('accountManager');
+      await accountManager.removeDevice(this.model.get('id'));
+      this.model.trigger('removeDevice');
     },
   });
 })();

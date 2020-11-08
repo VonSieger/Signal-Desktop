@@ -179,14 +179,13 @@
       this.$('#qr').removeAttr('title');
 
       const queries = url.split('?')[1].split('&');
-      var params = {};
-      var i, l;
-      for (i = 0, l = queries.length; i < l; i++) {
-        var split = queries[i].split('=');
-        params[split[0]] = split[1];
-      }
-      this.$('#url .deviceIdentifier').text(params['uuid']);
-      this.$('#url .deviceKey').text(params['pub_key']);
+      const params = {};
+      queries.forEach(queryParam => {
+        const [paramKey, paramValue] = queryParam.split('=');
+        params[paramKey] = paramValue;
+      });
+      this.$('#url .deviceIdentifier').text(params.uuid);
+      this.$('#url .deviceKey').text(params.pub_key);
 
       this.$('#qr').addClass('ready');
     },
