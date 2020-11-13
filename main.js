@@ -577,8 +577,8 @@ function setupAsStandalone() {
   }
 }
 
-function manageDevices(){
-  if(mainWindow){
+function manageDevices() {
+  if (mainWindow) {
     mainWindow.webContents.send('manage-devices');
   }
 }

@@ -57,6 +57,7 @@ describe('SignalMenu', () => {
                 includeSetup,
                 setupAsNewDevice: null,
                 setupAsStandalone: null,
+                manageDevices: null,
                 showAbout: null,
                 showDebugLog: null,
                 showKeyboardShortcuts: null,

@@ -165,33 +165,27 @@
   },
   "menuManageDevices": {
     "message": "Manage Devices",
-    "description":
-      "Open Window for managing linked devices"
+    "description": "Open Window for managing linked devices"
   },
   "addDeviceSuccess": {
     "message": "Adding new device succeeded",
-    "description":
-      "Adding new device succeeded"
+    "description": "Adding new device succeeded"
   },
   "linkNewDevice": {
     "message": "Link an Other Computer",
-    "description":
-      "Heading for add_device_view"
+    "description": "Heading for add_device_view"
   },
   "linkNewDeviceButton": {
     "message": "Link Device",
-    "description":
-      "Link Device Button in add_device_view"
+    "description": "Link Device Button in add_device_view"
   },
   "deviceIdentifier": {
     "message": "Device Identifier",
-    "description":
-      "Placeholder in add_device_view for deviceIdentifier input field"
+    "description": "Placeholder in add_device_view for deviceIdentifier input field"
   },
   "deviceKey": {
     "message": "DeviceKey",
-    "description":
-      "Placeholder in add_device_view for deviceKey input field"
+    "description": "Placeholder in add_device_view for deviceKey input field"
   },
   "loading": {
     "message": "Loading...",
@@ -1153,13 +1147,11 @@
   },
   "sendReadReceipts": {
     "message": "Send Read Receipts",
-    "description":
-      "Label for setting to send read receipts"
+    "description": "Label for setting to send read receipts"
   },
   "udIndicators": {
     "message": "Send Unidentified Delivery Indicators",
-    "description":
-      "Label for setting to send unidentified delivery indicators"
+    "description": "Label for setting to send unidentified delivery indicators"
   },
   "typingIndicators": {
     "message": "Typing Indicators",
@@ -2363,6 +2355,10 @@
   "ReactionsViewer--more": {
     "message": "More",
     "description": "Use in the reaction picker as the alt text for the 'more' button"
+  },
+  "namePlaceholder": {
+    "message": "Name",
+    "description": "Placeholder for input field, when changing a contact's name"
   },
   "ReactionsViewer--all": {
     "message": "All",

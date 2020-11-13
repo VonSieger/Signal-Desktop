@@ -1,7 +1,7 @@
 // tslint:disable no-default-export
 
 import { KeyPairType } from '../libsignal.d';
-import { ProvisionEnvelopeClass } from '../textsecure.d';
+import { ProvisionEnvelopeClass, ProvisionMessageClass } from '../textsecure.d';
 
 type ProvisionDecryptResult = {
   identityKeyPair: KeyPairType;
@@ -94,6 +94,69 @@ class ProvisioningCipherInner {
         return this.keyPair.pubKey;
       });
   }
+
+  public async getPrivateKey(): Promise<ArrayBuffer> {
+    if (!this.keyPair) {
+      return window.libsignal.Curve.async.generateKeyPair().then(keyPair => {
+        this.keyPair = keyPair;
+        return this.keyPair.privKey;
+      });
+    }
+    return Promise.resolve(this.keyPair.privKey);
+  }
+
+  public async encrypt(
+    provisionMessage: ProvisionMessageClass,
+    publicKey: ArrayBuffer
+  ): Promise<ProvisionEnvelopeClass> {
+    return this.getPrivateKey().then(async privKey => {
+      const plainText = provisionMessage.toArrayBuffer();
+      const masterEphemeral = publicKey;
+
+      return window.libsignal.Curve.async
+        .calculateAgreement(masterEphemeral, privKey)
+        .then(async sharedSecret => {
+          return window.libsignal.HKDF.deriveSecrets(
+            sharedSecret,
+            new ArrayBuffer(32),
+            'TextSecure Provisioning Message'
+          ).then(async derivedSecret => {
+            const version = Uint8Array.from([1]);
+            const iv = window.libsignal.crypto.getRandomBytes(16);
+            return window.libsignal.crypto
+              .encrypt(derivedSecret[0], plainText, iv)
+              .then(async (cyphterText: ArrayBuffer) => {
+                const versionCyphterText = this.appendBuffer(
+                  this.appendBuffer(version, new Uint8Array(iv)),
+                  new Uint8Array(cyphterText)
+                ).buffer;
+                return window.libsignal.crypto
+                  .calculateMAC(derivedSecret[1], versionCyphterText)
+                  .then(async mac => {
+                    const body = this.appendBuffer(
+                      new Uint8Array(versionCyphterText),
+                      new Uint8Array(mac)
+                    );
+
+                    return this.getPublicKey().then(ownPubKey => {
+                      const provisionEnvelope: ProvisionEnvelopeClass = new window.textsecure.protobuf.ProvisionEnvelope();
+                      provisionEnvelope.publicKey = new Uint8Array(ownPubKey);
+                      provisionEnvelope.body = new Uint8Array(body);
+                      return provisionEnvelope;
+                    });
+                  });
+              });
+          });
+        });
+    });
+  }
+
+  private appendBuffer(buffer1: Uint8Array, buffer2: Uint8Array): Uint8Array {
+    const concatArray = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
+    concatArray.set(buffer1.slice(), 0);
+    concatArray.set(buffer2.slice(), buffer1.byteLength);
+    return concatArray;
+  }
 }
 
 export default class ProvisioningCipher {
@@ -102,10 +165,15 @@ export default class ProvisioningCipher {
 
     this.decrypt = inner.decrypt.bind(inner);
     this.getPublicKey = inner.getPublicKey.bind(inner);
+    this.encrypt = inner.encrypt.bind(inner);
   }
 
   decrypt: (
     provisionEnvelope: ProvisionEnvelopeClass
   ) => Promise<ProvisionDecryptResult>;
   getPublicKey: () => Promise<ArrayBuffer>;
+  encrypt: (
+    provisionMessage: ProvisionMessageClass,
+    publicKey: ArrayBuffer
+  ) => Promise<ProvisionEnvelopeClass>;
 }

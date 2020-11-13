@@ -487,8 +487,8 @@ const URL_CALLS = {
   signed: 'v2/keys/signed',
   getStickerPackUpload: 'v1/sticker/pack/form',
   whoami: 'v1/accounts/whoami',
-  newDeviceVerificationCode : 'v1/devices/provisioning/code',
-  provisioningLink : 'v1/provisioning'
+  newDeviceVerificationCode: 'v1/devices/provisioning/code',
+  provisioningLink: 'v1/provisioning',
 };
 
 type InitializeOptionsType = {
@@ -551,6 +551,7 @@ export type WebAPIType = {
   ) => Promise<ServerKeysType>;
   getMessageSocket: () => WebSocket;
   getMyKeys: () => Promise<number>;
+  getNewDeviceVerificationCode: () => Promise<any>;
   getProfile: (
     identifier: string,
     options?: {
@@ -570,6 +571,10 @@ export type WebAPIType = {
   getSenderCertificate: (withUuid?: boolean) => Promise<any>;
   getSticker: (packId: string, stickerId: string) => Promise<any>;
   getStickerPackManifest: (packId: string) => Promise<StickerPackManifestType>;
+  linkOtherDevice: (
+    destination: string,
+    data: { body: string }
+  ) => Promise<any>;
   makeProxiedRequest: (
     targetUrl: string,
     options?: ProxiedRequestOptionsType
@@ -583,6 +588,7 @@ export type WebAPIType = {
   ) => Promise<string>;
   registerKeys: (genKeys: KeysType) => Promise<void>;
   registerSupportForUnauthenticatedDelivery: () => Promise<any>;
+  removeDevice: (id: string) => Promise<void>;
   removeSignalingKey: () => Promise<void>;
   requestVerificationSMS: (number: string) => Promise<any>;
   requestVerificationVoice: (number: string) => Promise<any>;
@@ -982,7 +988,7 @@ export function initialize({
       });
     }
 
-    function removeDevice(id: string) {
+    async function removeDevice(id: string) {
       return _ajax({
         call: 'devices',
         urlParameters: `/${id}`,
@@ -1140,19 +1146,22 @@ export function initialize({
       }).then(handleKeys);
     }
 
-    function getNewDeviceVerificationCode(){
+    async function getNewDeviceVerificationCode() {
       return _ajax({
         call: 'newDeviceVerificationCode',
         httpType: 'GET',
-        responseType: 'json'
+        responseType: 'json',
       });
     }
 
-    function linkOtherDevice(destination: string, data: string){
+    async function linkOtherDevice(
+      destination: string,
+      data: { body: string }
+    ) {
       return _ajax({
         call: 'provisioningLink',
         urlParameters: `/${destination}`,
-        responseType : 'json',
+        responseType: 'json',
         httpType: 'PUT',
         jsonData: data,
       });

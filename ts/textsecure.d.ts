@@ -121,6 +121,7 @@ export type StorageProtocolType = StorageType & {
   ) => Promise<void>;
   removeSignedPreKey: (keyId: number) => Promise<void>;
   removeAllData: () => Promise<void>;
+  getProfileKey: () => Promise<string>;
 };
 
 // Protobufs
@@ -199,6 +200,7 @@ export declare class ContactDetailsClass {
     data: ArrayBuffer | ByteBufferClass,
     encoding?: string
   ) => ContactDetailsClass;
+  toArrayBuffer: () => ArrayBuffer;
 
   number?: string;
   uuid?: string;
@@ -421,6 +423,7 @@ export declare class GroupDetailsClass {
     data: ArrayBuffer | ByteBufferClass,
     encoding?: string
   ) => GroupDetailsClass;
+  toArrayBuffer: () => ArrayBuffer;
 
   id?: ProtoBinaryType;
   name?: string;
@@ -473,6 +476,7 @@ declare class ProvisionEnvelopeClass {
     encoding?: string
   ) => ProvisionEnvelopeClass;
   encode: () => ProvisionEnvelopeClass;
+  encode64: () => string;
   toArrayBuffer: () => ArrayBuffer;
 
   publicKey?: ProtoBinaryType;
