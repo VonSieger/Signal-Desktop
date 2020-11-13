@@ -6,9 +6,12 @@ exports.createTemplate = (options, messages) => {
   }
 
   const {
+    isBeta,
     includeSetup,
+    openContactUs,
+    openGithub,
     openForums,
-    openNewBugForm,
+    openJoinTheBeta,
     openReleaseNotes,
     openSupportPage,
     platform,
@@ -146,6 +149,10 @@ exports.createTemplate = (options, messages) => {
           type: 'separator',
         },
         {
+          label: messages.contactUs.message,
+          click: openContactUs,
+        },
+        {
           label: messages.goToReleaseNotes.message,
           click: openReleaseNotes,
         },
@@ -158,9 +165,17 @@ exports.createTemplate = (options, messages) => {
           click: openSupportPage,
         },
         {
-          label: messages.menuReportIssue.message,
-          click: openNewBugForm,
+          label: messages.goToGithub.message,
+          click: openGithub,
         },
+        ...(isBeta
+          ? [
+              {
+                label: messages.joinTheBeta.message,
+                click: openJoinTheBeta,
+              },
+            ]
+          : []),
         {
           type: 'separator',
         },

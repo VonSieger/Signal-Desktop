@@ -199,13 +199,15 @@
         fromContact.isMe = true;
       }
 
-      const conversation = this.getConversation();
-      let to = this.findAndFormatContact(conversation.get('id'));
-      if (conversation.isMe()) {
+      const convo = this.getConversation();
+
+      let to = convo ? this.findAndFormatContact(convo.get('id')) : {};
+
+      if (convo && convo.isMe()) {
         to.isMe = true;
       } else if (
-        sourceE164 === conversation.get('e164') ||
-        sourceUuid === conversation.get('uuid')
+        (sourceE164 && convo && sourceE164 === convo.get('e164')) ||
+        (sourceUuid && convo && sourceUuid === convo.get('uuid'))
       ) {
         to = {
           isMe: true,
@@ -213,7 +215,7 @@
       }
 
       return {
-        from: fromContact,
+        from: fromContact || {},
         to,
 
         isSelected: this.isSelected,
@@ -967,9 +969,11 @@
 
     // General
     idForLogging() {
-      return `${this.get('source')}.${this.get('sourceDevice')} ${this.get(
-        'sent_at'
-      )}`;
+      const source = this.getSource();
+      const device = this.getSourceDevice();
+      const timestamp = this.get('sent_at');
+
+      return `${source}.${device} ${timestamp}`;
     },
     defaults() {
       return {
@@ -1160,6 +1164,13 @@
       }
 
       return this.OUR_NUMBER;
+    },
+    getSourceDevice() {
+      if (this.isIncoming()) {
+        return this.get('sourceDevice');
+      }
+
+      return window.textsecure.storage.user.getDeviceId();
     },
     getSourceUuid() {
       if (this.isIncoming()) {
@@ -1722,12 +1733,19 @@
 
     // Receive logic
     async queueAttachmentDownloads() {
+      const attachmentsToQueue = this.get('attachments') || [];
       const messageId = this.id;
       let count = 0;
       let bodyPending;
 
+      window.log.info(
+        `Queueing ${
+          attachmentsToQueue.length
+        } attachment downloads for message ${this.idForLogging()}`
+      );
+
       const [longMessageAttachments, normalAttachments] = _.partition(
-        this.get('attachments') || [],
+        attachmentsToQueue,
         attachment =>
           attachment.contentType === Whisper.Message.LONG_MESSAGE_CONTENT_TYPE
       );
@@ -1737,6 +1755,13 @@
           `Received more than one long message attachment in message ${this.idForLogging()}`
         );
       }
+
+      window.log.info(
+        `Queueing ${
+          longMessageAttachments.length
+        } long message attachment downloads for message ${this.idForLogging()}`
+      );
+
       if (longMessageAttachments.length > 0) {
         count += 1;
         bodyPending = true;
@@ -1750,6 +1775,11 @@
         );
       }
 
+      window.log.info(
+        `Queueing ${
+          normalAttachments.length
+        } normal attachment downloads for message ${this.idForLogging()}`
+      );
       const attachments = await Promise.all(
         normalAttachments.map((attachment, index) => {
           count += 1;
@@ -1761,8 +1791,14 @@
         })
       );
 
+      const previewsToQueue = this.get('preview') || [];
+      window.log.info(
+        `Queueing ${
+          previewsToQueue.length
+        } preview attachment downloads for message ${this.idForLogging()}`
+      );
       const preview = await Promise.all(
-        (this.get('preview') || []).map(async (item, index) => {
+        previewsToQueue.map(async (item, index) => {
           if (!item.image) {
             return item;
           }
@@ -1779,8 +1815,14 @@
         })
       );
 
+      const contactsToQueue = this.get('contact') || [];
+      window.log.info(
+        `Queueing ${
+          contactsToQueue.length
+        } contact attachment downloads for message ${this.idForLogging()}`
+      );
       const contact = await Promise.all(
-        (this.get('contact') || []).map(async (item, index) => {
+        contactsToQueue.map(async (item, index) => {
           if (!item.avatar || !item.avatar.avatar) {
             return item;
           }
@@ -1804,7 +1846,14 @@
       );
 
       let quote = this.get('quote');
-      if (quote && quote.attachments && quote.attachments.length) {
+      const quoteAttachmentsToQueue =
+        quote && quote.attachments ? quote.attachments : [];
+      window.log.info(
+        `Queueing ${
+          quoteAttachmentsToQueue.length
+        } quote attachment downloads for message ${this.idForLogging()}`
+      );
+      if (quoteAttachmentsToQueue.length > 0) {
         quote = {
           ...quote,
           attachments: await Promise.all(
@@ -1832,21 +1881,11 @@
         };
       }
 
-      let group = this.get('group_update');
-      if (group && group.avatar) {
-        count += 1;
-        group = {
-          ...group,
-          avatar: await window.Signal.AttachmentDownloads.addJob(group.avatar, {
-            messageId,
-            type: 'group-avatar',
-            index: 0,
-          }),
-        };
-      }
-
       let sticker = this.get('sticker');
       if (sticker) {
+        window.log.info(
+          `Queueing sticker download for message ${this.idForLogging()}`
+        );
         count += 1;
         const { packId, stickerId, packKey } = sticker;
 
@@ -1891,6 +1930,10 @@
         };
       }
 
+      window.log.info(
+        `Queued ${count} total attachment downloads for message ${this.idForLogging()}`
+      );
+
       if (count > 0) {
         this.set({
           bodyPending,
@@ -1898,7 +1941,6 @@
           preview,
           contact,
           quote,
-          group_update: group,
           sticker,
         });
 
@@ -2200,7 +2242,7 @@
               ...conversation.attributes,
             };
             if (dataMessage.group) {
-              let groupUpdate = null;
+              const pendingGroupUpdate = [];
               const memberConversations = await Promise.all(
                 (
                   dataMessage.group.members || dataMessage.group.membersE164
@@ -2211,7 +2253,10 @@
                       'private'
                     );
                   }
-                  return ConversationController.getOrCreateAndWait(member);
+                  return ConversationController.getOrCreateAndWait(
+                    member,
+                    'private'
+                  );
                 })
               );
               const members = memberConversations.map(c => c.get('id'));
@@ -2227,42 +2272,122 @@
                   members: _.union(members, conversation.get('members')),
                 };
 
-                groupUpdate = {};
                 if (dataMessage.group.name !== conversation.get('name')) {
-                  groupUpdate.name = dataMessage.group.name;
+                  pendingGroupUpdate.push(['name', dataMessage.group.name]);
                 }
 
-                // Note: used and later cleared by background attachment downloader
-                groupUpdate.avatar = dataMessage.group.avatar;
+                const avatarAttachment = dataMessage.group.avatar;
+
+                let downloadedAvatar;
+                let hash;
+                if (avatarAttachment) {
+                  try {
+                    downloadedAvatar = await window.Signal.Util.downloadAttachment(
+                      avatarAttachment
+                    );
+
+                    if (downloadedAvatar) {
+                      const loadedAttachment = await Signal.Migrations.loadAttachmentData(
+                        downloadedAvatar
+                      );
+
+                      hash = await Signal.Types.Conversation.computeHash(
+                        loadedAttachment.data
+                      );
+                    }
+                  } catch (err) {
+                    window.log.info(
+                      'handleDataMessage: group avatar download failed'
+                    );
+                  }
+                }
+
+                const existingAvatar = conversation.get('avatar');
+
+                if (
+                  // Avatar added
+                  !existingAvatar ||
+                  // Avatar changed
+                  (existingAvatar && existingAvatar.hash !== hash) ||
+                  // Avatar removed
+                  avatarAttachment === null
+                ) {
+                  // Removes existing avatar from disk
+                  if (existingAvatar && existingAvatar.path) {
+                    await Signal.Migrations.deleteAttachmentData(
+                      existingAvatar.path
+                    );
+                  }
+
+                  let avatar = null;
+                  if (downloadedAvatar && avatarAttachment !== null) {
+                    const onDiskAttachment = await window.Signal.Types.Attachment.migrateDataToFileSystem(
+                      downloadedAvatar,
+                      {
+                        writeNewAttachmentData:
+                          window.Signal.Migrations.writeNewAttachmentData,
+                      }
+                    );
+                    avatar = {
+                      ...onDiskAttachment,
+                      hash,
+                    };
+                  }
+
+                  attributes.avatar = avatar;
+
+                  pendingGroupUpdate.push(['avatarUpdated', true]);
+                } else {
+                  window.log.info(
+                    'handleDataMessage: Group avatar hash matched; not replacing group avatar'
+                  );
+                }
 
                 const difference = _.difference(
                   members,
                   conversation.get('members')
                 );
                 if (difference.length > 0) {
-                  groupUpdate.joined = difference;
+                  pendingGroupUpdate.push(['joined', difference]);
                 }
                 if (conversation.get('left')) {
                   window.log.warn('re-added to a left group');
                   attributes.left = false;
                 }
               } else if (dataMessage.group.type === GROUP_TYPES.QUIT) {
-                if (ConversationController.get(source || sourceUuid).isMe()) {
-                  attributes.left = true;
-                  groupUpdate = { left: 'You' };
-                } else {
-                  const myConversation = ConversationController.get(
-                    source || sourceUuid
+                const sender = ConversationController.get(source || sourceUuid);
+                const inGroup = Boolean(
+                  sender &&
+                    (conversation.get('members') || []).includes(sender.id)
+                );
+                if (!inGroup) {
+                  const senderString = sender ? sender.idForLogging() : null;
+                  window.log.info(
+                    `Got 'left' message from someone not in group: ${senderString}. Dropping.`
                   );
-                  groupUpdate = { left: myConversation.get('id') };
+                  return;
+                }
+
+                if (sender.isMe()) {
+                  attributes.left = true;
+                  pendingGroupUpdate.push(['left', 'You']);
+                } else {
+                  pendingGroupUpdate.push(['left', sender.get('id')]);
                 }
                 attributes.members = _.without(
                   conversation.get('members'),
-                  ConversationController.get(source || sourceUuid).get('id')
+                  sender.get('id')
                 );
               }
 
-              if (groupUpdate !== null) {
+              if (pendingGroupUpdate.length) {
+                const groupUpdate = pendingGroupUpdate.reduce(
+                  (acc, [key, value]) => {
+                    acc[key] = value;
+                    return acc;
+                  },
+                  {}
+                );
                 message.set({ group_update: groupUpdate });
               }
             }
@@ -2448,6 +2573,18 @@
           window.Signal.Data.updateConversation(conversation.attributes);
 
           await message.queueAttachmentDownloads();
+
+          // Does this message have any pending, previously-received associated reactions?
+          const reactions = Whisper.Reactions.forMessage(message);
+          reactions.forEach(reaction => {
+            message.handleReaction(reaction, false);
+          });
+
+          // Does this message have any pending, previously-received associated
+          // delete for everyone messages?
+          const deletes = Whisper.Deletes.forMessage(message);
+          deletes.forEach(del => Whisper.Deletes.onDelete(del, false));
+
           await window.Signal.Data.saveMessage(message.attributes, {
             Message: Whisper.Message,
             forceSave: true,
@@ -2458,17 +2595,6 @@
           if (message.get('unread')) {
             await conversation.notify(message);
           }
-
-          // Does this message have any pending, previously-received associated reactions?
-          const reactions = Whisper.Reactions.forMessage(message);
-          reactions.forEach(reaction => {
-            message.handleReaction(reaction);
-          });
-
-          // Does this message have any pending, previously-received associated
-          // delete for everyone messages?
-          const deletes = Whisper.Deletes.forMessage(message);
-          deletes.forEach(del => Whisper.Deletes.onDelete(del));
 
           Whisper.events.trigger('incrementProgress');
           confirm();
@@ -2485,7 +2611,7 @@
       });
     },
 
-    async handleReaction(reaction) {
+    async handleReaction(reaction, shouldPersist = true) {
       if (this.get('deletedForEveryone')) {
         return;
       }
@@ -2525,9 +2651,11 @@
         `Done processing reaction for message ${messageId}. Went from ${count} to ${newCount} reactions.`
       );
 
-      await window.Signal.Data.saveMessage(this.attributes, {
-        Message: Whisper.Message,
-      });
+      if (shouldPersist) {
+        await window.Signal.Data.saveMessage(this.attributes, {
+          Message: Whisper.Message,
+        });
+      }
     },
 
     async handleDeleteForEveryone(del) {

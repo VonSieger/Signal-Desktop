@@ -48,9 +48,6 @@ declare global {
     ConversationController: ConversationControllerType;
     WebAPI: WebAPIConnectType;
     Whisper: WhisperType;
-
-    // Flags
-    REACT_ANY_EMOJI: boolean;
   }
 }
 
