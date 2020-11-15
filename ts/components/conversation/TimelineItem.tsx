@@ -8,6 +8,10 @@ import {
   PropsData as MessageProps,
 } from './Message';
 
+import {
+  CallingNotification,
+  PropsData as CallingNotificationProps,
+} from './CallingNotification';
 import { InlineNotificationWrapper } from './InlineNotificationWrapper';
 import {
   PropsActions as UnsupportedMessageActionsType,
@@ -31,8 +35,21 @@ import {
   GroupNotification,
   PropsData as GroupNotificationProps,
 } from './GroupNotification';
+import {
+  GroupV2Change,
+  PropsDataType as GroupV2ChangeProps,
+} from './GroupV2Change';
+import { SmartContactRendererType } from '../../groupChange';
 import { ResetSessionNotification } from './ResetSessionNotification';
+import {
+  ProfileChangeNotification,
+  PropsType as ProfileChangeNotificationPropsType,
+} from './ProfileChangeNotification';
 
+type CallHistoryType = {
+  type: 'callHistory';
+  data: CallingNotificationProps;
+};
 type LinkNotificationType = {
   type: 'linkNotification';
   data: null;
@@ -61,26 +78,40 @@ type GroupNotificationType = {
   type: 'groupNotification';
   data: GroupNotificationProps;
 };
+type GroupV2ChangeType = {
+  type: 'groupV2Change';
+  data: GroupV2ChangeProps;
+};
 type ResetSessionNotificationType = {
   type: 'resetSessionNotification';
   data: null;
 };
+type ProfileChangeNotificationType = {
+  type: 'profileChange';
+  data: ProfileChangeNotificationPropsType;
+};
+
 export type TimelineItemType =
+  | CallHistoryType
+  | GroupNotificationType
+  | GroupV2ChangeType
   | LinkNotificationType
   | MessageType
+  | ProfileChangeNotificationType
   | ResetSessionNotificationType
   | SafetyNumberNotificationType
   | TimerNotificationType
   | UnsupportedMessageType
-  | VerificationNotificationType
-  | GroupNotificationType;
+  | VerificationNotificationType;
 
 type PropsLocalType = {
   conversationId: string;
+  conversationAccepted: boolean;
   item?: TimelineItemType;
   id: string;
   isSelected: boolean;
   selectMessage: (messageId: string, conversationId: string) => unknown;
+  renderContact: SmartContactRendererType;
   i18n: LocalizerType;
 };
 
@@ -93,19 +124,19 @@ export type PropsType = PropsLocalType &
   Pick<AllMessageProps, 'renderEmojiPicker'>;
 
 export class TimelineItem extends React.PureComponent<PropsType> {
-  public render() {
+  public render(): JSX.Element | null {
     const {
       conversationId,
       id,
       isSelected,
       item,
       i18n,
+      renderContact,
       selectMessage,
     } = this.props;
 
     if (!item) {
-      // tslint:disable-next-line:no-console
-      console.warn(`TimelineItem: item ${id} provided was falsey`);
+      window.log.warn(`TimelineItem: item ${id} provided was falsey`);
 
       return null;
     }
@@ -120,6 +151,8 @@ export class TimelineItem extends React.PureComponent<PropsType> {
       notification = (
         <UnsupportedMessage {...this.props} {...item.data} i18n={i18n} />
       );
+    } else if (item.type === 'callHistory') {
+      notification = <CallingNotification i18n={i18n} {...item.data} />;
     } else if (item.type === 'linkNotification') {
       notification = (
         <div className="module-message-unsynced">
@@ -143,12 +176,29 @@ export class TimelineItem extends React.PureComponent<PropsType> {
       notification = (
         <GroupNotification {...this.props} {...item.data} i18n={i18n} />
       );
+    } else if (item.type === 'groupV2Change') {
+      notification = (
+        <GroupV2Change
+          renderContact={renderContact}
+          {...item.data}
+          i18n={i18n}
+        />
+      );
     } else if (item.type === 'resetSessionNotification') {
       notification = (
         <ResetSessionNotification {...this.props} {...item.data} i18n={i18n} />
       );
+    } else if (item.type === 'profileChange') {
+      notification = (
+        <ProfileChangeNotification {...this.props} {...item.data} i18n={i18n} />
+      );
     } else {
-      throw new Error('TimelineItem: Unknown type!');
+      // Weird, yes, but the idea is to get a compile error when we aren't comprehensive
+      //   with our if/else checks above, but also log out the type we don't understand if
+      //   we encounter it at runtime.
+      const unknownItem: never = item;
+      const asItem = unknownItem as TimelineItemType;
+      throw new Error(`TimelineItem: Unknown type: ${asItem.type}`);
     }
 
     return (

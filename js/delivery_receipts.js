@@ -10,8 +10,6 @@
 
 // eslint-disable-next-line func-names
 (function() {
-  'use strict';
-
   window.Whisper = window.Whisper || {};
 
   Whisper.DeliveryReceipts = new (Backbone.Collection.extend({
@@ -20,7 +18,7 @@
       if (conversation.isPrivate()) {
         recipients = [conversation.id];
       } else {
-        recipients = conversation.get('members') || [];
+        recipients = conversation.getMemberIds();
       }
       const receipts = this.filter(
         receipt =>
@@ -30,11 +28,10 @@
       this.remove(receipts);
       return receipts;
     },
-    async getTargetMessage(source, messages) {
+    async getTargetMessage(sourceId, messages) {
       if (messages.length === 0) {
         return null;
       }
-      const sourceId = ConversationController.getConversationId(source);
       const message = messages.find(
         item => !item.isIncoming() && sourceId === item.get('conversationId')
       );

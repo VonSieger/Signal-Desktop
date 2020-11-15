@@ -7,7 +7,7 @@ import { MediaItemType } from '../../LightboxGallery';
 import { missingCaseError } from '../../../util/missingCaseError';
 import { LocalizerType } from '../../../types/Util';
 
-interface Props {
+export interface Props {
   i18n: LocalizerType;
   header?: string;
   type: 'media' | 'documents';
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export class AttachmentSection extends React.Component<Props> {
-  public render() {
+  public render(): JSX.Element {
     const { header } = this.props;
 
     return (

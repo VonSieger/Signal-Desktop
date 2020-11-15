@@ -1,5 +1,5 @@
 import Measure, { BoundingRect, MeasuredComponentProps } from 'react-measure';
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { List } from 'react-virtualized';
 import { debounce, get } from 'lodash';
 
@@ -17,6 +17,7 @@ import { cleanId } from './_util';
 export interface PropsType {
   conversations?: Array<ConversationListItemPropsType>;
   archivedConversations?: Array<ConversationListItemPropsType>;
+  pinnedConversations?: Array<ConversationListItemPropsType>;
   selectedConversationId?: string;
   searchResults?: SearchResultsProps;
   showArchived?: boolean;
@@ -47,41 +48,136 @@ type RowRendererParamsType = {
   isScrolling: boolean;
   isVisible: boolean;
   key: string;
-  parent: Object;
-  style: Object;
+  parent: Record<string, unknown>;
+  style: CSSProperties;
 };
 
+export enum RowType {
+  ArchiveButton,
+  ArchivedConversation,
+  Conversation,
+  Header,
+  PinnedConversation,
+  Undefined,
+}
+
+export enum HeaderType {
+  Pinned,
+  Chats,
+}
+
+interface ArchiveButtonRow {
+  type: RowType.ArchiveButton;
+}
+
+interface ConversationRow {
+  index: number;
+  type:
+    | RowType.ArchivedConversation
+    | RowType.Conversation
+    | RowType.PinnedConversation;
+}
+
+interface HeaderRow {
+  headerType: HeaderType;
+  type: RowType.Header;
+}
+
+interface UndefinedRow {
+  type: RowType.Undefined;
+}
+
+type Row = ArchiveButtonRow | ConversationRow | HeaderRow | UndefinedRow;
+
 export class LeftPane extends React.Component<PropsType> {
-  public listRef = React.createRef<any>();
+  public listRef = React.createRef<List>();
+
   public containerRef = React.createRef<HTMLDivElement>();
+
   public setFocusToFirstNeeded = false;
+
   public setFocusToLastNeeded = false;
 
-  public renderRow = ({
-    index,
-    key,
-    style,
-  }: RowRendererParamsType): JSX.Element => {
+  public calculateRowHeight = ({ index }: { index: number }): number => {
+    const { type } = this.getRowFromIndex(index);
+    return type === RowType.Header ? 40 : 68;
+  };
+
+  public getRowFromIndex = (index: number): Row => {
     const {
       archivedConversations,
       conversations,
-      i18n,
-      openConversationInternal,
+      pinnedConversations,
       showArchived,
     } = this.props;
-    if (!conversations || !archivedConversations) {
-      throw new Error(
-        'renderRow: Tried to render without conversations or archivedConversations'
-      );
+
+    if (!conversations || !pinnedConversations || !archivedConversations) {
+      return {
+        type: RowType.Undefined,
+      };
     }
 
-    if (!showArchived && index === conversations.length) {
-      return this.renderArchivedButton({ key, style });
+    if (showArchived) {
+      return {
+        index,
+        type: RowType.ArchivedConversation,
+      };
     }
 
-    const conversation = showArchived
-      ? archivedConversations[index]
-      : conversations[index];
+    let conversationIndex = index;
+
+    if (pinnedConversations.length) {
+      if (conversations.length) {
+        if (index === 0) {
+          return {
+            headerType: HeaderType.Pinned,
+            type: RowType.Header,
+          };
+        }
+
+        if (index <= pinnedConversations.length) {
+          return {
+            index: index - 1,
+            type: RowType.PinnedConversation,
+          };
+        }
+
+        if (index === pinnedConversations.length + 1) {
+          return {
+            headerType: HeaderType.Chats,
+            type: RowType.Header,
+          };
+        }
+
+        conversationIndex -= pinnedConversations.length + 2;
+      } else if (index < pinnedConversations.length) {
+        return {
+          index,
+          type: RowType.PinnedConversation,
+        };
+      } else {
+        conversationIndex = 0;
+      }
+    }
+
+    if (conversationIndex === conversations.length) {
+      return {
+        type: RowType.ArchiveButton,
+      };
+    }
+
+    return {
+      index: conversationIndex,
+      type: RowType.Conversation,
+    };
+  };
+
+  public renderConversationRow(
+    conversation: ConversationListItemPropsType,
+    key: string,
+    style: CSSProperties
+  ): JSX.Element {
+    const { i18n, openConversationInternal } = this.props;
 
     return (
       <div
@@ -96,15 +192,90 @@ export class LeftPane extends React.Component<PropsType> {
         />
       </div>
     );
+  }
+
+  public renderHeaderRow = (
+    index: number,
+    key: string,
+    style: CSSProperties
+  ): JSX.Element => {
+    const { i18n } = this.props;
+
+    switch (index) {
+      case HeaderType.Pinned: {
+        return (
+          <div className="module-left-pane__header-row" key={key} style={style}>
+            {i18n('LeftPane--pinned')}
+          </div>
+        );
+      }
+      case HeaderType.Chats: {
+        return (
+          <div className="module-left-pane__header-row" key={key} style={style}>
+            {i18n('LeftPane--chats')}
+          </div>
+        );
+      }
+      default: {
+        window.log.warn('LeftPane: invalid HeaderRowIndex received');
+        return <></>;
+      }
+    }
   };
 
-  public renderArchivedButton = ({
+  public renderRow = ({
+    index,
     key,
     style,
-  }: {
-    key: string;
-    style: Object;
-  }): JSX.Element => {
+  }: RowRendererParamsType): JSX.Element => {
+    const {
+      archivedConversations,
+      conversations,
+      pinnedConversations,
+    } = this.props;
+
+    if (!conversations || !pinnedConversations || !archivedConversations) {
+      throw new Error(
+        'renderRow: Tried to render without conversations or pinnedConversations or archivedConversations'
+      );
+    }
+
+    const row = this.getRowFromIndex(index);
+
+    switch (row.type) {
+      case RowType.ArchiveButton: {
+        return this.renderArchivedButton(key, style);
+      }
+      case RowType.ArchivedConversation: {
+        return this.renderConversationRow(
+          archivedConversations[row.index],
+          key,
+          style
+        );
+      }
+      case RowType.Conversation: {
+        return this.renderConversationRow(conversations[row.index], key, style);
+      }
+      case RowType.Header: {
+        return this.renderHeaderRow(row.headerType, key, style);
+      }
+      case RowType.PinnedConversation: {
+        return this.renderConversationRow(
+          pinnedConversations[row.index],
+          key,
+          style
+        );
+      }
+      default:
+        window.log.warn('LeftPane: unknown RowType received');
+        return <></>;
+    }
+  };
+
+  public renderArchivedButton = (
+    key: string,
+    style: CSSProperties
+  ): JSX.Element => {
     const {
       archivedConversations,
       i18n,
@@ -123,6 +294,7 @@ export class LeftPane extends React.Component<PropsType> {
         className="module-left-pane__archived-button"
         style={style}
         onClick={showArchivedConversations}
+        type="button"
       >
         {i18n('archivedConversations')}{' '}
         <span className="module-left-pane__archived-button__archived-count">
@@ -132,7 +304,7 @@ export class LeftPane extends React.Component<PropsType> {
     );
   };
 
-  public handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  public handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     const commandKey = get(window, 'platform') === 'darwin' && event.metaKey;
     const controlKey = get(window, 'platform') !== 'darwin' && event.ctrlKey;
     const commandOrCtrl = commandKey || controlKey;
@@ -154,12 +326,10 @@ export class LeftPane extends React.Component<PropsType> {
 
       event.preventDefault();
       event.stopPropagation();
-
-      return;
     }
   };
 
-  public handleFocus = () => {
+  public handleFocus = (): void => {
     const { selectedConversationId } = this.props;
     const { current: container } = this.containerRef;
 
@@ -174,10 +344,9 @@ export class LeftPane extends React.Component<PropsType> {
           /["\\]/g,
           '\\$&'
         );
-        // tslint:disable-next-line no-unnecessary-type-assertion
-        const target = scrollingContainer.querySelector(
+        const target: HTMLElement | null = scrollingContainer.querySelector(
           `.module-conversation-list-item[data-id="${escapedId}"]`
-        ) as any;
+        );
 
         if (target && target.focus) {
           target.focus();
@@ -190,7 +359,7 @@ export class LeftPane extends React.Component<PropsType> {
     }
   };
 
-  public scrollToRow = (row: number) => {
+  public scrollToRow = (row: number): void => {
     if (!this.listRef || !this.listRef.current) {
       return;
     }
@@ -198,40 +367,47 @@ export class LeftPane extends React.Component<PropsType> {
     this.listRef.current.scrollToRow(row);
   };
 
-  public getScrollContainer = () => {
+  public recomputeRowHeights = (): void => {
     if (!this.listRef || !this.listRef.current) {
       return;
     }
 
-    const list = this.listRef.current;
-
-    if (!list.Grid || !list.Grid._scrollingContainer) {
-      return;
-    }
-
-    return list.Grid._scrollingContainer as HTMLDivElement;
+    this.listRef.current.recomputeRowHeights();
   };
 
-  public setFocusToFirst = () => {
+  public getScrollContainer = (): HTMLDivElement | null => {
+    if (!this.listRef || !this.listRef.current) {
+      return null;
+    }
+
+    const list = this.listRef.current;
+
+    // TODO: DESKTOP-689
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const grid: any = list.Grid;
+    if (!grid || !grid._scrollingContainer) {
+      return null;
+    }
+
+    return grid._scrollingContainer as HTMLDivElement;
+  };
+
+  public setFocusToFirst = (): void => {
     const scrollContainer = this.getScrollContainer();
     if (!scrollContainer) {
       return;
     }
 
-    // tslint:disable-next-line no-unnecessary-type-assertion
-    const item = scrollContainer.querySelector(
+    const item: HTMLElement | null = scrollContainer.querySelector(
       '.module-conversation-list-item'
-    ) as any;
+    );
     if (item && item.focus) {
       item.focus();
-
-      return;
     }
   };
 
-  // tslint:disable-next-line member-ordering
   public onScroll = debounce(
-    () => {
+    (): void => {
       if (this.setFocusToFirstNeeded) {
         this.setFocusToFirstNeeded = false;
         this.setFocusToFirst();
@@ -244,26 +420,22 @@ export class LeftPane extends React.Component<PropsType> {
           return;
         }
 
-        // tslint:disable-next-line no-unnecessary-type-assertion
-        const button = scrollContainer.querySelector(
+        const button: HTMLElement | null = scrollContainer.querySelector(
           '.module-left-pane__archived-button'
-        ) as any;
+        );
         if (button && button.focus) {
           button.focus();
 
           return;
         }
-        // tslint:disable-next-line no-unnecessary-type-assertion
-        const items = scrollContainer.querySelectorAll(
+        const items: NodeListOf<HTMLElement> = scrollContainer.querySelectorAll(
           '.module-conversation-list-item'
-        ) as any;
+        );
         if (items && items.length > 0) {
           const last = items[items.length - 1];
 
           if (last && last.focus) {
             last.focus();
-
-            return;
           }
         }
       }
@@ -272,17 +444,38 @@ export class LeftPane extends React.Component<PropsType> {
     { maxWait: 100 }
   );
 
-  public getLength = () => {
-    const { archivedConversations, conversations, showArchived } = this.props;
+  public getLength = (): number => {
+    const {
+      archivedConversations,
+      conversations,
+      pinnedConversations,
+      showArchived,
+    } = this.props;
 
-    if (!conversations || !archivedConversations) {
+    if (!conversations || !archivedConversations || !pinnedConversations) {
       return 0;
     }
 
-    // That extra 1 element added to the list is the 'archived conversations' button
-    return showArchived
-      ? archivedConversations.length
-      : conversations.length + (archivedConversations.length ? 1 : 0);
+    if (showArchived) {
+      return archivedConversations.length;
+    }
+
+    let { length } = conversations;
+
+    if (pinnedConversations.length) {
+      if (length) {
+        // includes two additional rows for pinned/chats headers
+        length += 2;
+      }
+      length += pinnedConversations.length;
+    }
+
+    // includes one additional row for 'archived conversations' button
+    if (archivedConversations.length) {
+      length += 1;
+    }
+
+    return length;
   };
 
   public renderList = ({
@@ -294,6 +487,7 @@ export class LeftPane extends React.Component<PropsType> {
       i18n,
       conversations,
       openConversationInternal,
+      pinnedConversations,
       renderMessageSearchResult,
       startNewConversation,
       searchResults,
@@ -314,7 +508,7 @@ export class LeftPane extends React.Component<PropsType> {
       );
     }
 
-    if (!conversations || !archivedConversations) {
+    if (!conversations || !archivedConversations || !pinnedConversations) {
       throw new Error(
         'render: must provided conversations and archivedConverstions if no search results are provided'
       );
@@ -339,7 +533,7 @@ export class LeftPane extends React.Component<PropsType> {
         onFocus={this.handleFocus}
         onKeyDown={this.handleKeyDown}
         ref={this.containerRef}
-        role="group"
+        role="presentation"
         tabIndex={-1}
       >
         <List
@@ -349,7 +543,7 @@ export class LeftPane extends React.Component<PropsType> {
           onScroll={this.onScroll}
           ref={this.listRef}
           rowCount={length}
-          rowHeight={68}
+          rowHeight={this.calculateRowHeight}
           rowRenderer={this.renderRow}
           tabIndex={-1}
           width={width || 0}
@@ -367,6 +561,8 @@ export class LeftPane extends React.Component<PropsType> {
           onClick={showInbox}
           className="module-left-pane__to-inbox-button"
           title={i18n('backToInbox')}
+          aria-label={i18n('backToInbox')}
+          type="button"
         />
         <div className="module-left-pane__archive-header-text">
           {i18n('archivedConversations')}
@@ -386,7 +582,8 @@ export class LeftPane extends React.Component<PropsType> {
       showArchived,
     } = this.props;
 
-    /* tslint:disable no-non-null-assertion */
+    // Relying on 3rd party code for contentRect.bounds
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     return (
       <div className="module-left-pane">
         <div className="module-left-pane__header">
@@ -401,7 +598,7 @@ export class LeftPane extends React.Component<PropsType> {
             {i18n('archiveHelperText')}
           </div>
         )}
-        <Measure bounds={true}>
+        <Measure bounds>
           {({ contentRect, measureRef }: MeasuredComponentProps) => (
             <div className="module-left-pane__list--measure" ref={measureRef}>
               <div className="module-left-pane__list--wrapper">
@@ -412,5 +609,38 @@ export class LeftPane extends React.Component<PropsType> {
         </Measure>
       </div>
     );
+  }
+
+  componentDidUpdate(oldProps: PropsType): void {
+    const {
+      conversations: oldConversations = [],
+      pinnedConversations: oldPinnedConversations = [],
+      archivedConversations: oldArchivedConversations = [],
+      showArchived: oldShowArchived,
+    } = oldProps;
+    const {
+      conversations: newConversations = [],
+      pinnedConversations: newPinnedConversations = [],
+      archivedConversations: newArchivedConversations = [],
+      showArchived: newShowArchived,
+    } = this.props;
+
+    const oldHasArchivedConversations = Boolean(
+      oldArchivedConversations.length
+    );
+    const newHasArchivedConversations = Boolean(
+      newArchivedConversations.length
+    );
+
+    // This could probably be optimized further, but we want to be extra-careful that our
+    //   heights are correct.
+    if (
+      oldConversations.length !== newConversations.length ||
+      oldPinnedConversations.length !== newPinnedConversations.length ||
+      oldHasArchivedConversations !== newHasArchivedConversations ||
+      oldShowArchived !== newShowArchived
+    ) {
+      this.recomputeRowHeights();
+    }
   }
 }

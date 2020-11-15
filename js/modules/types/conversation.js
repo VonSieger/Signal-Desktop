@@ -1,16 +1,11 @@
-/* global crypto, window */
+/* global window */
 
 const { isFunction, isNumber } = require('lodash');
-const { createLastMessageUpdate } = require('../../../ts/types/Conversation');
 const {
   arrayBufferToBase64,
   base64ToArrayBuffer,
+  computeHash,
 } = require('../../../ts/Crypto');
-
-async function computeHash(arraybuffer) {
-  const hash = await crypto.subtle.digest({ name: 'SHA-512' }, arraybuffer);
-  return arrayBufferToBase64(hash);
-}
 
 function buildAvatarUpdater({ field }) {
   return async (conversation, data, options = {}) => {
@@ -161,7 +156,7 @@ module.exports = {
   arrayBufferToBase64,
   base64ToArrayBuffer,
   computeHash,
-  createLastMessageUpdate,
+
   deleteExternalFiles,
   maybeUpdateAvatar,
   maybeUpdateProfileAvatar,

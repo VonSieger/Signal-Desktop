@@ -4,13 +4,11 @@
 
 // eslint-disable-next-line func-names
 (function() {
-  'use strict';
-
   window.Whisper = window.Whisper || {};
 
   function resolveTheme() {
     const theme = storage.get('theme-setting') || 'system';
-    if (window.platform === 'darwin' && theme === 'system') {
+    if (theme === 'system') {
       return window.systemTheme;
     }
     return theme;

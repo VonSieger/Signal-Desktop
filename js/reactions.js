@@ -9,8 +9,6 @@
 
 // eslint-disable-next-line func-names
 (function() {
-  'use strict';
-
   window.Whisper = window.Whisper || {};
   Whisper.Reactions = new (Backbone.Collection.extend({
     forMessage(message) {
@@ -26,14 +24,15 @@
         }
       }
 
+      const senderId = message.getContactId();
+      const sentAt = message.get('sent_at');
       const reactionsBySource = this.filter(re => {
-        const mcid = message.get('conversationId');
-        const recid = ConversationController.getConversationId(
-          re.get('targetAuthorE164') || re.get('targetAuthorUuid')
-        );
-        const mTime = message.get('sent_at');
-        const rTime = re.get('targetTimestamp');
-        return mcid === recid && mTime === rTime;
+        const targetSenderId = ConversationController.ensureContactIds({
+          e164: re.get('targetAuthorE164'),
+          uuid: re.get('targetAuthorUuid'),
+        });
+        const targetTimestamp = re.get('targetTimestamp');
+        return targetSenderId === senderId && targetTimestamp === sentAt;
       });
 
       if (reactionsBySource.length > 0) {
@@ -46,18 +45,32 @@
     },
     async onReaction(reaction) {
       try {
+        // The conversation the target message was in; we have to find it in the database
+        //   to to figure that out.
         const targetConversation = await ConversationController.getConversationForTargetMessage(
-          // Do not use ensureContactIds here since maliciously malformed
-          // reactions from clients could cause issues
-          reaction.get('targetAuthorE164') || reaction.get('targetAuthorUuid'),
+          ConversationController.ensureContactIds({
+            e164: reaction.get('targetAuthorE164'),
+            uuid: reaction.get('targetAuthorUuid'),
+          }),
           reaction.get('targetTimestamp')
         );
         if (!targetConversation) {
+          window.log.info(
+            'No target conversation for reaction',
+            reaction.get('targetAuthorE164'),
+            reaction.get('targetAuthorUuid'),
+            reaction.get('targetTimestamp')
+          );
           return;
         }
 
         // awaiting is safe since `onReaction` is never called from inside the queue
         await targetConversation.queueJob(async () => {
+          window.log.info(
+            'Handling reaction for',
+            reaction.get('targetTimestamp')
+          );
+
           const messages = await window.Signal.Data.getMessagesBySentAt(
             reaction.get('targetTimestamp'),
             {
@@ -74,10 +87,10 @@
             }
 
             const mcid = contact.get('id');
-            const recid = ConversationController.getConversationId(
-              reaction.get('targetAuthorE164') ||
-                reaction.get('targetAuthorUuid')
-            );
+            const recid = ConversationController.ensureContactIds({
+              e164: reaction.get('targetAuthorE164'),
+              uuid: reaction.get('targetAuthorUuid'),
+            });
             return mcid === recid;
           });
 

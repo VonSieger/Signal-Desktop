@@ -16,15 +16,19 @@ import {
 import { SmartTimelineItem } from './TimelineItem';
 import { SmartTypingBubble } from './TypingBubble';
 import { SmartLastSeenIndicator } from './LastSeenIndicator';
+import { SmartHeroRow } from './HeroRow';
 import { SmartTimelineLoadingRow } from './TimelineLoadingRow';
 import { SmartEmojiPicker } from './EmojiPicker';
 
 // Workaround: A react component's required properties are filtering up through connect()
 //   https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31363
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const FilteredSmartTimelineItem = SmartTimelineItem as any;
 const FilteredSmartTypingBubble = SmartTypingBubble as any;
 const FilteredSmartLastSeenIndicator = SmartLastSeenIndicator as any;
+const FilteredSmartHeroRow = SmartHeroRow as any;
 const FilteredSmartTimelineLoadingRow = SmartTimelineLoadingRow as any;
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 type ExternalProps = {
   id: string;
@@ -36,7 +40,7 @@ type ExternalProps = {
 function renderItem(
   messageId: string,
   conversationId: string,
-  actionProps: Object
+  actionProps: Record<string, unknown>
 ): JSX.Element {
   return (
     <FilteredSmartTimelineItem
@@ -59,12 +63,24 @@ function renderEmojiPicker({
       onPickEmoji={onPickEmoji}
       onClose={onClose}
       style={style}
-      disableSkinTones={true}
     />
   );
 }
 function renderLastSeenIndicator(id: string): JSX.Element {
   return <FilteredSmartLastSeenIndicator id={id} />;
+}
+function renderHeroRow(
+  id: string,
+  onHeightChange: () => unknown,
+  updateSharedGroups: () => unknown
+): JSX.Element {
+  return (
+    <FilteredSmartHeroRow
+      id={id}
+      onHeightChange={onHeightChange}
+      updateSharedGroups={updateSharedGroups}
+    />
+  );
 }
 function renderLoadingRow(id: string): JSX.Element {
   return <FilteredSmartTimelineLoadingRow id={id} />;
@@ -88,6 +104,7 @@ const mapStateToProps = (state: StateType, props: ExternalProps) => {
     i18n: getIntl(state),
     renderItem,
     renderLastSeenIndicator,
+    renderHeroRow,
     renderLoadingRow,
     renderTypingBubble,
     ...actions,
@@ -96,4 +113,5 @@ const mapStateToProps = (state: StateType, props: ExternalProps) => {
 
 const smart = connect(mapStateToProps, mapDispatchToProps);
 
-export const SmartTimeline = smart(Timeline);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const SmartTimeline = smart(Timeline as any);

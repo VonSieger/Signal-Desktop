@@ -1,3 +1,4 @@
+import React from 'react';
 import { connect } from 'react-redux';
 
 import { mapDispatchToProps } from '../actions';
@@ -10,10 +11,22 @@ import {
   getSelectedMessage,
 } from '../selectors/conversations';
 
+import { SmartContactName } from './ContactName';
+
 type ExternalProps = {
   id: string;
   conversationId: string;
 };
+
+// Workaround: A react component's required properties are filtering up through connect()
+//   https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31363
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const FilteredSmartContactName = SmartContactName as any;
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+function renderContact(conversationId: string): JSX.Element {
+  return <FilteredSmartContactName conversationId={conversationId} />;
+}
 
 const mapStateToProps = (state: StateType, props: ExternalProps) => {
   const { id, conversationId } = props;
@@ -29,6 +42,7 @@ const mapStateToProps = (state: StateType, props: ExternalProps) => {
     id,
     conversationId,
     isSelected,
+    renderContact,
     i18n: getIntl(state),
   };
 };

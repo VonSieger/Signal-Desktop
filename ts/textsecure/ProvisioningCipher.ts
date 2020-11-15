@@ -1,4 +1,5 @@
-// tslint:disable no-default-export
+/* eslint-disable more/no-then */
+/* eslint-disable max-classes-per-file */
 
 import { KeyPairType } from '../libsignal.d';
 import { ProvisionEnvelopeClass, ProvisionMessageClass } from '../textsecure.d';
@@ -73,6 +74,7 @@ class ProvisioningCipherInner {
           });
       });
   }
+
   async getPublicKey(): Promise<ArrayBuffer> {
     return Promise.resolve()
       .then(async () => {
@@ -171,6 +173,7 @@ export default class ProvisioningCipher {
   decrypt: (
     provisionEnvelope: ProvisionEnvelopeClass
   ) => Promise<ProvisionDecryptResult>;
+
   getPublicKey: () => Promise<ArrayBuffer>;
   encrypt: (
     provisionMessage: ProvisionMessageClass,

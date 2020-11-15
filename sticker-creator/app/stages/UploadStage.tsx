@@ -9,13 +9,12 @@ import { Button } from '../../elements/Button';
 import { stickersDuck } from '../../store';
 import { encryptAndUpload } from '../../util/preload';
 import { useI18n } from '../../util/i18n';
-import { Toaster } from '../../components/Toaster';
 
 const handleCancel = () => {
   history.push('/add-meta');
 };
 
-export const UploadStage = () => {
+export const UploadStage: React.ComponentType = () => {
   const i18n = useI18n();
   const actions = stickersDuck.useStickerActions();
   const cover = stickersDuck.useCover();
@@ -26,7 +25,6 @@ export const UploadStage = () => {
   const [complete, setComplete] = React.useState(0);
 
   React.useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
     (async () => {
       const onProgress = () => {
         setComplete(i => i + 1);
@@ -50,14 +48,17 @@ export const UploadStage = () => {
     })();
 
     return noop;
-  }, [title, author, cover, orderedData]);
+  }, [actions, title, author, cover, orderedData]);
 
   return (
-    <AppStage empty={true}>
+    <AppStage empty>
       <div className={styles.base}>
         <H2>{i18n('StickerCreator--UploadStage--title')}</H2>
         <Text>
-          {i18n('StickerCreator--UploadStage-uploaded', [complete, total])}
+          {i18n('StickerCreator--UploadStage-uploaded', {
+            count: complete,
+            total,
+          })}
         </Text>
         <ProgressBar
           count={complete}

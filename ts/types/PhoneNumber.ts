@@ -1,5 +1,5 @@
-import { instance, PhoneNumberFormat } from '../util/libphonenumberInstance';
 import memoizee from 'memoizee';
+import { instance, PhoneNumberFormat } from '../util/libphonenumberInstance';
 
 function _format(
   phoneNumber: string,
@@ -19,6 +19,22 @@ function _format(
     return instance.format(parsedNumber, PhoneNumberFormat.INTERNATIONAL);
   } catch (error) {
     return phoneNumber;
+  }
+}
+
+export function isValidNumber(
+  phoneNumber: string,
+  options?: {
+    regionCode?: string;
+  }
+): boolean {
+  const { regionCode } = options || { regionCode: undefined };
+  try {
+    const parsedNumber = instance.parse(phoneNumber, regionCode);
+
+    return instance.isValidNumber(parsedNumber);
+  } catch (error) {
+    return false;
   }
 }
 
@@ -57,8 +73,8 @@ export function normalize(
       return instance.format(parsedNumber, PhoneNumberFormat.E164);
     }
 
-    return;
+    return undefined;
   } catch (error) {
-    return;
+    return undefined;
   }
 }

@@ -10,7 +10,7 @@ import {
   renderName,
 } from './_contactUtil';
 
-interface Props {
+export interface Props {
   contact: ContactType;
   i18n: LocalizerType;
   isIncoming: boolean;
@@ -21,7 +21,7 @@ interface Props {
 }
 
 export class EmbeddedContact extends React.Component<Props> {
-  public render() {
+  public render(): JSX.Element {
     const {
       contact,
       i18n,
@@ -36,6 +36,7 @@ export class EmbeddedContact extends React.Component<Props> {
 
     return (
       <button
+        type="button"
         className={classNames(
           'module-embedded-contact',
           `module-embedded-contact--${direction}`,

@@ -1,6 +1,3 @@
-/**
- * @prettier
- */
 import React from 'react';
 
 import * as MIME from '../types/MIME';
@@ -19,7 +16,7 @@ export interface MediaItemType {
   message: Message;
 }
 
-interface Props {
+export interface Props {
   close: () => void;
   i18n: LocalizerType;
   media: Array<MediaItemType>;
@@ -44,11 +41,11 @@ export class LightboxGallery extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      selectedIndex: this.props.selectedIndex,
+      selectedIndex: props.selectedIndex,
     };
   }
 
-  public render() {
+  public render(): JSX.Element {
     const { close, media, onSave, i18n } = this.props;
     const { selectedIndex } = this.state;
 
@@ -60,7 +57,8 @@ export class LightboxGallery extends React.Component<Props, State> {
       selectedIndex > firstIndex ? this.handlePrevious : undefined;
     const onNext = selectedIndex < lastIndex ? this.handleNext : undefined;
 
-    const objectURL = selectedMedia.objectURL || 'images/alert-outline.svg';
+    const objectURL =
+      selectedMedia.objectURL || 'images/full-screen-flow/alert-outline.svg';
     const { attachment } = selectedMedia;
 
     const saveCallback = onSave ? this.handleSave : undefined;

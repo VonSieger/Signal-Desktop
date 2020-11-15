@@ -3,23 +3,27 @@ import classNames from 'classnames';
 
 import { Avatar } from './Avatar';
 import { Emojify } from './conversation/Emojify';
+import { InContactsIcon } from './InContactsIcon';
 
-import { ColorType, LocalizerType } from '../types/Util';
+import { LocalizerType } from '../types/Util';
+import { ColorType } from '../types/Colors';
 
 interface Props {
-  phoneNumber: string;
-  isMe?: boolean;
-  name?: string;
-  color: ColorType;
-  verified: boolean;
-  profileName?: string;
   avatarPath?: string;
+  color?: ColorType;
   i18n: LocalizerType;
+  isAdmin?: boolean;
+  isMe?: boolean;
+  isVerified?: boolean;
+  name?: string;
   onClick?: () => void;
+  phoneNumber?: string;
+  profileName?: string;
+  title: string;
 }
 
 export class ContactListItem extends React.Component<Props> {
-  public renderAvatar() {
+  public renderAvatar(): JSX.Element {
     const {
       avatarPath,
       i18n,
@@ -27,6 +31,7 @@ export class ContactListItem extends React.Component<Props> {
       name,
       phoneNumber,
       profileName,
+      title,
     } = this.props;
 
     return (
@@ -38,34 +43,30 @@ export class ContactListItem extends React.Component<Props> {
         name={name}
         phoneNumber={phoneNumber}
         profileName={profileName}
+        title={title}
         size={52}
       />
     );
   }
 
-  public render() {
+  public render(): JSX.Element {
     const {
       i18n,
+      isAdmin,
+      isMe,
+      isVerified,
       name,
       onClick,
-      isMe,
       phoneNumber,
       profileName,
-      verified,
+      title,
     } = this.props;
 
-    const title = name ? name : phoneNumber;
     const displayName = isMe ? i18n('you') : title;
+    const shouldShowIcon = Boolean(name);
 
-    const profileElement =
-      !isMe && profileName && !name ? (
-        <span className="module-contact-list-item__text__profile-name">
-          ~<Emojify text={profileName} />
-        </span>
-      ) : null;
-
-    const showNumber = isMe || name;
-    const showVerified = !isMe && verified;
+    const showNumber = Boolean(isMe || name || profileName);
+    const showVerified = !isMe && isVerified;
 
     return (
       <button
@@ -74,20 +75,34 @@ export class ContactListItem extends React.Component<Props> {
           'module-contact-list-item',
           onClick ? 'module-contact-list-item--with-click-handler' : null
         )}
+        type="button"
       >
         {this.renderAvatar()}
         <div className="module-contact-list-item__text">
-          <div className="module-contact-list-item__text__name">
-            <Emojify text={displayName} /> {profileElement}
+          <div className="module-contact-list-item__left">
+            <div className="module-contact-list-item__text__name">
+              <Emojify text={displayName} />
+              {shouldShowIcon ? (
+                <span>
+                  {' '}
+                  <InContactsIcon i18n={i18n} />
+                </span>
+              ) : null}
+            </div>
+            <div className="module-contact-list-item__text__additional-data">
+              {showVerified ? (
+                <div className="module-contact-list-item__text__verified-icon" />
+              ) : null}
+              {showVerified ? ` ${i18n('verified')}` : null}
+              {showVerified && showNumber ? ' ∙ ' : null}
+              {showNumber ? phoneNumber : null}
+            </div>
           </div>
-          <div className="module-contact-list-item__text__additional-data">
-            {showVerified ? (
-              <div className="module-contact-list-item__text__verified-icon" />
-            ) : null}
-            {showVerified ? ` ${i18n('verified')}` : null}
-            {showVerified && showNumber ? ' ∙ ' : null}
-            {showNumber ? phoneNumber : null}
-          </div>
+          {isAdmin ? (
+            <div className="module-contact-list-item__admin">
+              {i18n('GroupV2--admin')}
+            </div>
+          ) : null}
         </div>
       </button>
     );
