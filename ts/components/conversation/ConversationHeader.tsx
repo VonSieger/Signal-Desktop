@@ -14,6 +14,7 @@ import { InContactsIcon } from '../InContactsIcon';
 import { LocalizerType } from '../../types/Util';
 import { ColorType } from '../../types/Colors';
 import { getMuteOptions } from '../../util/getMuteOptions';
+import { NameInput } from './NameInput';
 
 interface TimerOption {
   name: string;
@@ -61,6 +62,7 @@ export interface PropsActionsType {
 
   onArchive: () => void;
   onMoveToInbox: () => void;
+  onNameChange: (name: string) => void;
 }
 
 export interface PropsHousekeepingType {
@@ -71,7 +73,11 @@ export type PropsType = PropsDataType &
   PropsActionsType &
   PropsHousekeepingType;
 
-export class ConversationHeader extends React.Component<PropsType> {
+type StateType = {
+  isInTitleEdit: boolean;
+};
+
+export class ConversationHeader extends React.Component<PropsType, StateType> {
   public showMenuBound: (event: React.MouseEvent<HTMLButtonElement>) => void;
 
   // Comes from a third-party dependency
@@ -83,6 +89,8 @@ export class ConversationHeader extends React.Component<PropsType> {
 
     this.menuTriggerRef = React.createRef();
     this.showMenuBound = this.showMenu.bind(this);
+
+    this.state = { isInTitleEdit: false };
   }
 
   public showMenu(event: React.MouseEvent<HTMLButtonElement>): void {
@@ -122,7 +130,7 @@ export class ConversationHeader extends React.Component<PropsType> {
 
     if (isMe) {
       return (
-        <div className="module-conversation-header__title" id="titleShow">
+        <div className="module-conversation-header__title">
           {i18n('noteToSelf')}
         </div>
       );
@@ -131,8 +139,24 @@ export class ConversationHeader extends React.Component<PropsType> {
     const shouldShowIcon = Boolean(name && type === 'direct');
     const shouldShowNumber = Boolean(phoneNumber && (name || profileName));
 
+    if (this.state.isInTitleEdit) {
+      return (
+        <NameInput
+          name={this.props.name ? this.props.name : ''}
+          onNameChange={(name: string) => {
+            this.props.onNameChange(name);
+            this.setState({ isInTitleEdit: false });
+          }}
+        />
+      );
+    }
+
     return (
-      <div className="module-conversation-header__title">
+      <div
+        className="module-conversation-header__title"
+        id="titleShow"
+        onClick={() => this.setState({ isInTitleEdit: true })}
+      >
         <Emojify text={title} />
         {shouldShowIcon ? (
           <span>
@@ -151,6 +175,8 @@ export class ConversationHeader extends React.Component<PropsType> {
       </div>
     );
   }
+
+  public titleShow() {}
 
   public renderAvatar(): JSX.Element {
     const {
@@ -412,19 +438,6 @@ export class ConversationHeader extends React.Component<PropsType> {
     );
   }
 
-  public renderTitleInput() {
-    const { i18n, name, type } = this.props;
-    return type === 'direct' ? (
-      <input
-        type="text"
-        style={{ display: 'none' }}
-        id="titleInput"
-        defaultValue={name}
-        placeholder={i18n('namePlaceholder')}
-      />
-    ) : null;
-  }
-
   public render(): JSX.Element {
     const { id } = this.props;
     const triggerId = `conversation-${id}`;
@@ -436,7 +449,6 @@ export class ConversationHeader extends React.Component<PropsType> {
           <div className="module-conversation-header__title-flex">
             {this.renderAvatar()}
             {this.renderTitle()}
-            {this.renderTitleInput()}
           </div>
         </div>
         {this.renderExpirationLength()}
