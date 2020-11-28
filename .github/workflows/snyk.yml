@@ -9,7 +9,7 @@ on:
 jobs:
   snyk:
     runs-on: ubuntu-latest
-    if: github.repository != 'signalapp/Signal-Desktop'
+    if: ${{false}}
 
     steps:
       - run: lsb_release -a
