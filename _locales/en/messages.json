@@ -241,6 +241,10 @@
     "message": "Pin Conversation",
     "description": "Shown in menu for conversation, and pins the conversation to the top of the conversation list"
   },
+  "editName": {
+    "message": "Edit Name",
+    "description": "Shown in menu for conversation, and opens name editing"
+  },
   "unpinConversation": {
     "message": "Unpin Conversation",
     "description": "Undoes Archive Conversation action, and unpins the conversation from the top of the conversation list"

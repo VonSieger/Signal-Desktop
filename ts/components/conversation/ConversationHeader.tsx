@@ -126,7 +126,10 @@ export class ConversationHeader extends React.Component<PropsType, StateType> {
       isMe,
       profileName,
       isVerified,
+      onNameChange,
     } = this.props;
+
+    const { isInTitleEdit } = this.state;
 
     if (isMe) {
       return (
@@ -139,12 +142,13 @@ export class ConversationHeader extends React.Component<PropsType, StateType> {
     const shouldShowIcon = Boolean(name && type === 'direct');
     const shouldShowNumber = Boolean(phoneNumber && (name || profileName));
 
-    if (this.state.isInTitleEdit) {
+    if (isInTitleEdit) {
       return (
         <NameInput
-          name={this.props.name ? this.props.name : ''}
-          onNameChange={(name: string) => {
-            this.props.onNameChange(name);
+          name={name || ''}
+          i18n={i18n}
+          onNameChange={(changedName: string) => {
+            onNameChange(changedName);
             this.setState({ isInTitleEdit: false });
           }}
         />
@@ -152,11 +156,7 @@ export class ConversationHeader extends React.Component<PropsType, StateType> {
     }
 
     return (
-      <div
-        className="module-conversation-header__title"
-        id="titleShow"
-        onClick={() => this.setState({ isInTitleEdit: true })}
-      >
+      <div className="module-conversation-header__title">
         <Emojify text={title} />
         {shouldShowIcon ? (
           <span>
@@ -175,8 +175,6 @@ export class ConversationHeader extends React.Component<PropsType, StateType> {
       </div>
     );
   }
-
-  public titleShow() {}
 
   public renderAvatar(): JSX.Element {
     const {
@@ -434,6 +432,9 @@ export class ConversationHeader extends React.Component<PropsType, StateType> {
           </MenuItem>
         )}
         <MenuItem onClick={onDeleteMessages}>{i18n('deleteMessages')}</MenuItem>
+        <MenuItem onClick={() => this.setState({ isInTitleEdit: true })}>
+          {i18n('editName')}
+        </MenuItem>
       </ContextMenu>
     );
   }
