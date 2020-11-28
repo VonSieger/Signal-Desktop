@@ -4154,7 +4154,7 @@ export class ConversationModel extends window.Backbone.Model<
     return;
   }
 
-  setName(name: string) {
+  setName(name: string): void {
     if (name && name !== this.getName()) {
       this.set({ name });
       window.Signal.Data.updateConversation(this.attributes);

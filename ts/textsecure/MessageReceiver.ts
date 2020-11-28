@@ -1589,24 +1589,26 @@ class MessageReceiverInner extends EventTarget {
     request: SyncMessageClass.Request
   ) {
     let ev = null;
-    if (request.type === 1) {
-      //contactsSyncRequest
-      window.log.info('got contact sync request');
-      ev = new Event('contactSyncRequest');
-    } else if (request.type === 2) {
-      //groupsSyncRequset
-      window.log.info('got group sync request');
-      ev = new Event('groupSyncRequest');
-    } else if (request.type === 3) {
-      //blockedListSyncRequest
-      window.log.info('got blocked list sync request');
-      ev = new Event('blockedListSyncRequest');
-    } else if (request.type === 4) {
-      //configurationSyncRequest
-      window.log.info('got configuration sync request');
-      ev = new Event('configurationSyncRequest');
-    } else {
-      return;
+
+    switch (request.type) {
+      case 1:
+        window.log.info('got contact sync request');
+        ev = new Event('contactSyncRequest');
+        break;
+      case 2:
+        window.log.info('got group sync request');
+        ev = new Event('groupSyncRequest');
+        break;
+      case 3:
+        window.log.info('got blocked list sync request');
+        ev = new Event('blockedListSyncRequest');
+        break;
+      case 4:
+        window.log.info('got configuration sync request');
+        ev = new Event('configurationSyncRequest');
+        break;
+      default:
+        throw new Error(`${request.type} is a unknown sync request type.`);
     }
 
     this.removeFromCache(envelope);

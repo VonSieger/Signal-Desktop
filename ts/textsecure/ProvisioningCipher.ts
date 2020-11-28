@@ -128,14 +128,17 @@ class ProvisioningCipherInner {
             return window.libsignal.crypto
               .encrypt(derivedSecret[0], plainText, iv)
               .then(async (cyphterText: ArrayBuffer) => {
-                const versionCyphterText = this.appendBuffer(
-                  this.appendBuffer(version, new Uint8Array(iv)),
+                const versionCyphterText = ProvisioningCipherInner.appendBuffer(
+                  ProvisioningCipherInner.appendBuffer(
+                    version,
+                    new Uint8Array(iv)
+                  ),
                   new Uint8Array(cyphterText)
                 ).buffer;
                 return window.libsignal.crypto
                   .calculateMAC(derivedSecret[1], versionCyphterText)
                   .then(async mac => {
-                    const body = this.appendBuffer(
+                    const body = ProvisioningCipherInner.appendBuffer(
                       new Uint8Array(versionCyphterText),
                       new Uint8Array(mac)
                     );
@@ -153,7 +156,10 @@ class ProvisioningCipherInner {
     });
   }
 
-  private appendBuffer(buffer1: Uint8Array, buffer2: Uint8Array): Uint8Array {
+  private static appendBuffer(
+    buffer1: Uint8Array,
+    buffer2: Uint8Array
+  ): Uint8Array {
     const concatArray = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
     concatArray.set(buffer1.slice(), 0);
     concatArray.set(buffer2.slice(), buffer1.byteLength);
@@ -175,6 +181,7 @@ export default class ProvisioningCipher {
   ) => Promise<ProvisionDecryptResult>;
 
   getPublicKey: () => Promise<ArrayBuffer>;
+
   encrypt: (
     provisionMessage: ProvisionMessageClass,
     publicKey: ArrayBuffer

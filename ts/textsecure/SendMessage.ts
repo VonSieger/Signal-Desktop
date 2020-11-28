@@ -695,7 +695,7 @@ export default class MessageSender {
     complete: boolean;
     groupDetailsList: Array<GroupDetailsClass>;
     configuration: SyncMessageClass.Configuration;
-  }) {
+  }): Promise<CallbackResultType> {
     const content = new window.textsecure.protobuf.Content();
     const syncMessage = new window.textsecure.protobuf.SyncMessage();
     content.syncMessage = syncMessage;
@@ -704,10 +704,6 @@ export default class MessageSender {
     const detailsList =
       syncOptions.contactDetailsList || syncOptions.groupDetailsList;
     if (detailsList) {
-      if (detailsList.length === 0) {
-        return;
-      }
-
       const byteBuffer = new window.dcodeIO.ByteBuffer(detailsList.length * 50);
       detailsList.forEach(details => {
         const detailsBytes = details.toArrayBuffer();

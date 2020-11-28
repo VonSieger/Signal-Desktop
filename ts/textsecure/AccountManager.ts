@@ -135,7 +135,7 @@ export default class AccountManager extends EventTarget {
   }
 
   async addDevice(deviceIdentifier: string, deviceKey: string): Promise<any> {
-    return this.server.getNewDeviceVerificationCode().then(async response => {
+    return this.server.getNewDeviceVerificationCode().then(response => {
       return Promise.all([
         window.textsecure.storage.protocol.getIdentityKeyPair(),
         window.textsecure.storage.protocol.getProfileKey(),
@@ -147,7 +147,7 @@ export default class AccountManager extends EventTarget {
 
         const code = response.verificationCode;
         if (!code) {
-          return;
+          throw new Error('Could not retrieve new device verification code');
         }
 
         const provisionMessage = new window.textsecure.protobuf.ProvisionMessage();
@@ -159,11 +159,11 @@ export default class AccountManager extends EventTarget {
         const provisioningCipher = new ProvisioningCipher();
         return provisioningCipher
           .encrypt(provisionMessage, deviceKeyBytes)
-          .then(async provisionEnvelope => {
-            return this.server.linkOtherDevice(deviceIdentifier, {
+          .then(provisionEnvelope =>
+            this.server.linkOtherDevice(deviceIdentifier, {
               body: provisionEnvelope.encode64(),
-            });
-          });
+            })
+          );
       });
     });
   }
