@@ -1,14 +1,15 @@
 import React from 'react';
 
 import { LocalizerType, RenderTextCallbackType } from '../types/Util';
+import { ReplacementValuesType } from '../types/I18N';
 
 export type FullJSXType = Array<JSX.Element | string> | JSX.Element | string;
 
-interface Props {
+export interface Props {
   /** The translation string id */
   id: string;
   i18n: LocalizerType;
-  components?: Array<FullJSXType>;
+  components?: Array<FullJSXType> | ReplacementValuesType<FullJSXType>;
   renderText?: RenderTextCallbackType;
 }
 
@@ -19,32 +20,64 @@ export class Intl extends React.Component<Props> {
     ),
   };
 
-  public getComponent(index: number, key: number): FullJSXType | undefined {
+  public getComponent(
+    index: number,
+    placeholderName: string,
+    key: number
+  ): FullJSXType | null {
     const { id, components } = this.props;
 
-    if (!components || !components.length || components.length <= index) {
-      // tslint:disable-next-line no-console
-      console.log(
-        `Error: Intl missing provided components for id ${id}, index ${index}`
+    if (!components) {
+      window.log.error(
+        `Error: Intl component prop not provided; Metadata: id '${id}', index ${index}, placeholder '${placeholderName}'`
       );
-
-      return;
+      return null;
     }
 
-    return <React.Fragment key={key}>{components[index]}</React.Fragment>;
+    if (Array.isArray(components)) {
+      if (!components || !components.length || components.length <= index) {
+        window.log.error(
+          `Error: Intl missing provided component for id '${id}', index ${index}`
+        );
+
+        return null;
+      }
+
+      return <React.Fragment key={key}>{components[index]}</React.Fragment>;
+    }
+
+    const value = components[placeholderName];
+    if (!value) {
+      window.log.error(
+        `Error: Intl missing provided component for id '${id}', placeholder '${placeholderName}'`
+      );
+
+      return null;
+    }
+
+    return <React.Fragment key={key}>{value}</React.Fragment>;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   public render() {
-    const { id, i18n, renderText } = this.props;
+    const { components, id, i18n, renderText } = this.props;
 
     const text = i18n(id);
-    const results: Array<any> = [];
-    const FIND_REPLACEMENTS = /\$[^$]+\$/g;
+    const results: Array<
+      string | JSX.Element | Array<string | JSX.Element> | null
+    > = [];
+    const FIND_REPLACEMENTS = /\$([^$]+)\$/g;
 
     // We have to do this, because renderText is not required in our Props object,
     //   but it is always provided via defaultProps.
     if (!renderText) {
-      return;
+      return null;
+    }
+
+    if (Array.isArray(components) && components.length > 1) {
+      throw new Error(
+        'Array syntax is not supported with more than one placeholder'
+      );
     }
 
     let componentIndex = 0;
@@ -59,21 +92,21 @@ export class Intl extends React.Component<Props> {
     while (match) {
       if (lastTextIndex < match.index) {
         const textWithNoReplacements = text.slice(lastTextIndex, match.index);
-        results.push(renderText({ text: textWithNoReplacements, key: key }));
+        results.push(renderText({ text: textWithNoReplacements, key }));
         key += 1;
       }
 
-      results.push(this.getComponent(componentIndex, key));
+      const placeholderName = match[1];
+      results.push(this.getComponent(componentIndex, placeholderName, key));
       componentIndex += 1;
       key += 1;
 
-      // @ts-ignore
       lastTextIndex = FIND_REPLACEMENTS.lastIndex;
       match = FIND_REPLACEMENTS.exec(text);
     }
 
     if (lastTextIndex < text.length) {
-      results.push(renderText({ text: text.slice(lastTextIndex), key: key }));
+      results.push(renderText({ text: text.slice(lastTextIndex), key }));
       key += 1;
     }
 

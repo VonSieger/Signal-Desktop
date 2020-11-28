@@ -4,12 +4,15 @@ import moment from 'moment';
 
 import { Avatar } from '../Avatar';
 import { ContactName } from './ContactName';
-import { Message, Props as MessageProps } from './Message';
-import { ColorType, LocalizerType } from '../../types/Util';
+import { Message, MessageStatusType, Props as MessageProps } from './Message';
+import { LocalizerType } from '../../types/Util';
+import { ColorType } from '../../types/Colors';
 
 interface Contact {
-  status: string;
-  phoneNumber: string;
+  status: MessageStatusType;
+
+  title: string;
+  phoneNumber?: string;
   name?: string;
   profileName?: string;
   avatarPath?: string;
@@ -23,7 +26,7 @@ interface Contact {
   onShowSafetyNumber: () => void;
 }
 
-interface Props {
+export interface Props {
   sentAt: number;
   receivedAt: number;
 
@@ -34,10 +37,14 @@ interface Props {
   i18n: LocalizerType;
 }
 
+const _keyForError = (error: Error): string => {
+  return `${error.name}-${error.message}`;
+};
+
 export class MessageDetail extends React.Component<Props> {
   private readonly focusRef = React.createRef<HTMLDivElement>();
 
-  public componentDidMount() {
+  public componentDidMount(): void {
     // When this component is created, it's initially not part of the DOM, and then it's
     //   added off-screen and animated in. This ensures that the focus takes.
     setTimeout(() => {
@@ -47,9 +54,16 @@ export class MessageDetail extends React.Component<Props> {
     });
   }
 
-  public renderAvatar(contact: Contact) {
+  public renderAvatar(contact: Contact): JSX.Element {
     const { i18n } = this.props;
-    const { avatarPath, color, phoneNumber, name, profileName } = contact;
+    const {
+      avatarPath,
+      color,
+      phoneNumber,
+      name,
+      profileName,
+      title,
+    } = contact;
 
     return (
       <Avatar
@@ -60,17 +74,19 @@ export class MessageDetail extends React.Component<Props> {
         name={name}
         phoneNumber={phoneNumber}
         profileName={profileName}
+        title={title}
         size={52}
       />
     );
   }
 
-  public renderDeleteButton() {
+  public renderDeleteButton(): JSX.Element {
     const { i18n, message } = this.props;
 
     return (
       <div className="module-message-detail__delete-button-container">
         <button
+          type="button"
           onClick={() => {
             message.deleteMessage(message.id);
           }}
@@ -82,19 +98,21 @@ export class MessageDetail extends React.Component<Props> {
     );
   }
 
-  public renderContact(contact: Contact) {
+  public renderContact(contact: Contact): JSX.Element {
     const { i18n } = this.props;
     const errors = contact.errors || [];
 
     const errorComponent = contact.isOutgoingKeyError ? (
       <div className="module-message-detail__contact__error-buttons">
         <button
+          type="button"
           className="module-message-detail__contact__show-safety-number"
           onClick={contact.onShowSafetyNumber}
         >
           {i18n('showSafetyNumber')}
         </button>
         <button
+          type="button"
           className="module-message-detail__contact__send-anyway"
           onClick={contact.onSendAnyway}
         >
@@ -123,10 +141,15 @@ export class MessageDetail extends React.Component<Props> {
               phoneNumber={contact.phoneNumber}
               name={contact.name}
               profileName={contact.profileName}
+              title={contact.title}
+              i18n={i18n}
             />
           </div>
-          {errors.map((error, index) => (
-            <div key={index} className="module-message-detail__contact__error">
+          {errors.map(error => (
+            <div
+              key={_keyForError(error)}
+              className="module-message-detail__contact__error"
+            >
               {error.message}
             </div>
           ))}
@@ -138,7 +161,7 @@ export class MessageDetail extends React.Component<Props> {
     );
   }
 
-  public renderContacts() {
+  public renderContacts(): JSX.Element | null {
     const { contacts } = this.props;
 
     if (!contacts || !contacts.length) {
@@ -152,18 +175,19 @@ export class MessageDetail extends React.Component<Props> {
     );
   }
 
-  public render() {
+  public render(): JSX.Element {
     const { errors, message, receivedAt, sentAt, i18n } = this.props;
 
     return (
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       <div className="module-message-detail" tabIndex={0} ref={this.focusRef}>
         <div className="module-message-detail__message-container">
-          <Message i18n={i18n} {...message} />
+          <Message {...message} i18n={i18n} />
         </div>
         <table className="module-message-detail__info">
           <tbody>
-            {(errors || []).map((error, index) => (
-              <tr key={index}>
+            {(errors || []).map(error => (
+              <tr key={_keyForError(error)}>
                 <td className="module-message-detail__label">
                   {i18n('error')}
                 </td>

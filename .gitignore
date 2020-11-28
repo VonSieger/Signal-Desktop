@@ -13,6 +13,7 @@ release/
 .nyc_output/
 *.sublime*
 /sql/
+/start.sh
 
 # generated files
 js/components.js
@@ -26,6 +27,7 @@ test/test.js
 # React / TypeScript
 ts/**/*.js
 ts/protobuf/*.d.ts
+sticker-creator/**/*.js
 
 # CSS Modules
 **/*.scss.d.ts

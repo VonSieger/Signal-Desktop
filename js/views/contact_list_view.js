@@ -3,8 +3,6 @@
 
 // eslint-disable-next-line func-names
 (function() {
-  'use strict';
-
   window.Whisper = window.Whisper || {};
 
   Whisper.ContactListView = Whisper.ListView.extend({
@@ -26,21 +24,12 @@
           this.contactView = null;
         }
 
-        const isMe = this.model.isMe();
-
         this.contactView = new Whisper.ReactWrapperView({
           className: 'contact-wrapper',
           Component: window.Signal.Components.ContactListItem,
           props: {
-            isMe,
-            color: this.model.getColor(),
-            avatarPath: this.model.getAvatarPath(),
-            phoneNumber: this.model.getNumber(),
-            name: this.model.getName(),
-            profileName: this.model.getProfileName(),
-            verified: this.model.isVerified(),
+            ...this.model.format(),
             onClick: this.showIdentity.bind(this),
-            disabled: this.loading,
           },
         });
         this.$el.append(this.contactView.el);

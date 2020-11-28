@@ -29,7 +29,15 @@ try {
   window.getEnvironment = () => config.environment;
   window.getAppInstance = () => config.appInstance;
   window.getVersion = () => config.version;
-  window.getExpiration = () => config.buildExpiration;
+  window.getExpiration = () => {
+    const remoteBuildExpiration = window.storage.get('remoteBuildExpiration');
+    if (remoteBuildExpiration) {
+      return remoteBuildExpiration < config.buildExpiration
+        ? remoteBuildExpiration
+        : config.buildExpiration;
+    }
+    return config.buildExpiration;
+  };
   window.getNodeVersion = () => config.node_version;
   window.getHostName = () => config.hostname;
   window.getServerTrustRoot = () => config.serverTrustRoot;
@@ -52,6 +60,17 @@ try {
   window.isBeforeVersion = (toCheck, baseVersion) => {
     try {
       return semver.lt(toCheck, baseVersion);
+    } catch (error) {
+      window.log.error(
+        `isBeforeVersion error: toCheck: ${toCheck}, baseVersion: ${baseVersion}`,
+        error && error.stack ? error.stack : error
+      );
+      return true;
+    }
+  };
+  window.isAfterVersion = (toCheck, baseVersion) => {
+    try {
+      return semver.gt(toCheck, baseVersion);
     } catch (error) {
       window.log.error(
         `isBeforeVersion error: toCheck: ${toCheck}, baseVersion: ${baseVersion}`,
@@ -117,6 +136,8 @@ try {
 
   window.showSettings = () => ipc.send('show-settings');
   window.showPermissionsPopup = () => ipc.send('show-permissions-popup');
+  window.showCallingPermissionsPopup = forCamera =>
+    ipc.invoke('show-calling-permissions-popup', forCamera);
 
   ipc.on('show-keyboard-shortcuts', () => {
     window.Events.showKeyboardShortcuts();
@@ -137,12 +158,105 @@ try {
 
   installGetter('notification-setting', 'getNotificationSetting');
   installSetter('notification-setting', 'setNotificationSetting');
+  installGetter('notification-draw-attention', 'getNotificationDrawAttention');
+  installSetter('notification-draw-attention', 'setNotificationDrawAttention');
   installGetter('audio-notification', 'getAudioNotification');
   installSetter('audio-notification', 'setAudioNotification');
+  installGetter(
+    'badge-count-muted-conversations',
+    'getCountMutedConversations'
+  );
+  installSetter(
+    'badge-count-muted-conversations',
+    'setCountMutedConversations'
+  );
+
+  window.getCountMutedConversations = () =>
+    new Promise((resolve, reject) => {
+      ipc.once(
+        'get-success-badge-count-muted-conversations',
+        (_event, error, value) => {
+          if (error) {
+            return reject(new Error(error));
+          }
+
+          return resolve(value);
+        }
+      );
+      ipc.send('get-badge-count-muted-conversations');
+    });
 
   installGetter('spell-check', 'getSpellCheck');
   installSetter('spell-check', 'setSpellCheck');
 
+  installGetter('always-relay-calls', 'getAlwaysRelayCalls');
+  installSetter('always-relay-calls', 'setAlwaysRelayCalls');
+
+  installGetter('call-ringtone-notification', 'getCallRingtoneNotification');
+  installSetter('call-ringtone-notification', 'setCallRingtoneNotification');
+
+  window.getCallRingtoneNotification = () =>
+    new Promise((resolve, reject) => {
+      ipc.once(
+        'get-success-call-ringtone-notification',
+        (_event, error, value) => {
+          if (error) {
+            return reject(new Error(error));
+          }
+
+          return resolve(value);
+        }
+      );
+      ipc.send('get-call-ringtone-notification');
+    });
+
+  installGetter('call-system-notification', 'getCallSystemNotification');
+  installSetter('call-system-notification', 'setCallSystemNotification');
+
+  window.getCallSystemNotification = () =>
+    new Promise((resolve, reject) => {
+      ipc.once(
+        'get-success-call-system-notification',
+        (_event, error, value) => {
+          if (error) {
+            return reject(new Error(error));
+          }
+
+          return resolve(value);
+        }
+      );
+      ipc.send('get-call-system-notification');
+    });
+
+  installGetter('incoming-call-notification', 'getIncomingCallNotification');
+  installSetter('incoming-call-notification', 'setIncomingCallNotification');
+
+  window.getIncomingCallNotification = () =>
+    new Promise((resolve, reject) => {
+      ipc.once(
+        'get-success-incoming-call-notification',
+        (_event, error, value) => {
+          if (error) {
+            return reject(new Error(error));
+          }
+
+          return resolve(value);
+        }
+      );
+      ipc.send('get-incoming-call-notification');
+    });
+
+  window.getAlwaysRelayCalls = () =>
+    new Promise((resolve, reject) => {
+      ipc.once('get-success-always-relay-calls', (_event, error, value) => {
+        if (error) {
+          return reject(new Error(error));
+        }
+
+        return resolve(value);
+      });
+      ipc.send('get-always-relay-calls');
+    });
   installGetter('read-receipt-setting', 'getReadReceiptSetting');
   installSetter('read-receipt-setting', 'setReadReceiptSetting');
   installGetter(
@@ -168,6 +282,21 @@ try {
         return resolve(value);
       });
       ipc.send('get-media-permissions');
+    });
+
+  window.getMediaCameraPermissions = () =>
+    new Promise((resolve, reject) => {
+      ipc.once(
+        'get-success-media-camera-permissions',
+        (_event, error, value) => {
+          if (error) {
+            return reject(new Error(error));
+          }
+
+          return resolve(value);
+        }
+      );
+      ipc.send('get-media-camera-permissions');
     });
 
   window.getBuiltInImages = () =>
@@ -246,6 +375,10 @@ try {
 
   window.WebAPI = window.textsecure.WebAPI.initialize({
     url: config.serverUrl,
+    storageUrl: config.storageUrl,
+    directoryUrl: config.directoryUrl,
+    directoryEnclaveId: config.directoryEnclaveId,
+    directoryTrustAnchor: config.directoryTrustAnchor,
     cdnUrlObject: {
       '0': config.cdnUrl0,
       '2': config.cdnUrl2,
@@ -262,9 +395,11 @@ try {
   }, 1000);
 
   const { autoOrientImage } = require('./js/modules/auto_orient_image');
+  const { imageToBlurHash } = require('./ts/util/imageToBlurHash');
 
   window.autoOrientImage = autoOrientImage;
   window.dataURLToBlobSync = require('blueimp-canvas-to-blob');
+  window.imageToBlurHash = imageToBlurHash;
   window.emojiData = require('emoji-datasource');
   window.filesize = require('filesize');
   window.libphonenumber = require('google-libphonenumber').PhoneNumberUtil.getInstance();
@@ -286,12 +421,14 @@ try {
     paths.forEach(path => {
       const val = _.get(obj, path);
       if (val) {
-        if (!window.isValidGuid(val)) {
+        if (!val || !window.isValidGuid(val)) {
           window.log.warn(
             `Normalizing invalid uuid: ${val} at path ${path} in context "${context}"`
           );
         }
-        _.set(obj, path, val.toLowerCase());
+        if (val && val.toLowerCase) {
+          _.set(obj, path, val.toLowerCase());
+        }
       }
     });
   };
@@ -300,6 +437,7 @@ try {
   window.ReactDOM = require('react-dom');
   window.moment = require('moment');
   window.PQueue = require('p-queue').default;
+  window.Backbone = require('backbone');
 
   const Signal = require('./js/modules/signal');
   const i18n = require('./js/modules/i18n');
@@ -327,6 +465,10 @@ try {
     getRegionCode: () => window.storage.get('regionCode'),
     logger: window.log,
   });
+
+  // these need access to window.Signal:
+  require('./ts/models/messages');
+  require('./ts/models/conversations');
 
   function wrapWithPromise(fn) {
     return (...args) => Promise.resolve(fn(...args));
@@ -426,8 +568,20 @@ try {
   });
 
   if (config.environment === 'test') {
+    // This is a hack to let us run TypeScript tests in the renderer process. See the
+    //   code in `test/index.html`.
+    const pendingDescribeCalls = [];
+    window.describe = (...args) => {
+      pendingDescribeCalls.push(args);
+    };
+
     /* eslint-disable global-require, import/no-extraneous-dependencies */
+    require('./ts/test-electron/linkPreviews/linkPreviewFetch_test');
+
+    delete window.describe;
+
     window.test = {
+      pendingDescribeCalls,
       fastGlob: require('fast-glob'),
       normalizePath: require('normalize-path'),
       fse: require('fs-extra'),

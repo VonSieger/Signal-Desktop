@@ -5,10 +5,17 @@ import { ContactName } from './ContactName';
 import { Intl } from '../Intl';
 import { LocalizerType } from '../../types/Util';
 
+export type TimerNotificationType =
+  | 'fromOther'
+  | 'fromMe'
+  | 'fromSync'
+  | 'fromMember';
+
 export type PropsData = {
-  type: 'fromOther' | 'fromMe' | 'fromSync';
-  phoneNumber: string;
+  type: TimerNotificationType;
+  phoneNumber?: string;
   profileName?: string;
+  title: string;
   name?: string;
   disabled: boolean;
   timespan: string;
@@ -18,15 +25,16 @@ type PropsHousekeeping = {
   i18n: LocalizerType;
 };
 
-type Props = PropsData & PropsHousekeeping;
+export type Props = PropsData & PropsHousekeeping;
 
 export class TimerNotification extends React.Component<Props> {
-  public renderContents() {
+  public renderContents(): JSX.Element | string | null {
     const {
       i18n,
       name,
       phoneNumber,
       profileName,
+      title,
       timespan,
       type,
       disabled,
@@ -41,15 +49,19 @@ export class TimerNotification extends React.Component<Props> {
           <Intl
             i18n={i18n}
             id={changeKey}
-            components={[
-              <ContactName
-                key="external-1"
-                phoneNumber={phoneNumber}
-                profileName={profileName}
-                name={name}
-              />,
-              timespan,
-            ]}
+            components={{
+              name: (
+                <ContactName
+                  key="external-1"
+                  phoneNumber={phoneNumber}
+                  profileName={profileName}
+                  title={title}
+                  name={name}
+                  i18n={i18n}
+                />
+              ),
+              time: timespan,
+            }}
           />
         );
       case 'fromMe':
@@ -60,14 +72,18 @@ export class TimerNotification extends React.Component<Props> {
         return disabled
           ? i18n('disappearingMessagesDisabled')
           : i18n('timerSetOnSync', [timespan]);
+      case 'fromMember':
+        return disabled
+          ? i18n('disappearingMessagesDisabledByMember')
+          : i18n('timerSetByMember', [timespan]);
       default:
-        console.warn('TimerNotification: unsupported type provided:', type);
+        window.log.warn('TimerNotification: unsupported type provided:', type);
 
         return null;
     }
   }
 
-  public render() {
+  public render(): JSX.Element {
     const { timespan, disabled } = this.props;
 
     return (

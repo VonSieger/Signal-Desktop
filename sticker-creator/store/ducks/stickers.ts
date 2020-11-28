@@ -1,4 +1,4 @@
-// tslint:disable no-dynamic-delete
+/* eslint-disable no-param-reassign */
 
 import { useMemo } from 'react';
 import {
@@ -13,19 +13,26 @@ import { clamp, find, isNumber, pull, remove, take, uniq } from 'lodash';
 import { SortEnd } from 'react-sortable-hoc';
 import { bindActionCreators } from 'redux';
 import arrayMove from 'array-move';
+// eslint-disable-next-line import/no-cycle
 import { AppState } from '../reducer';
-import { PackMetaData, WebpData } from '../../util/preload';
+import {
+  PackMetaData,
+  StickerImageData,
+  StickerData,
+} from '../../util/preload';
 import { EmojiPickDataType } from '../../../ts/components/emoji/EmojiPicker';
 import { convertShortName } from '../../../ts/components/emoji/lib';
 
 export const initializeStickers = createAction<Array<string>>(
   'stickers/initializeStickers'
 );
-export const addWebp = createAction<WebpData>('stickers/addSticker');
+export const addImageData = createAction<StickerImageData>(
+  'stickers/addSticker'
+);
 export const removeSticker = createAction<string>('stickers/removeSticker');
 export const moveSticker = createAction<SortEnd>('stickers/moveSticker');
-export const setCover = createAction<WebpData>('stickers/setCover');
-export const resetCover = createAction<WebpData>('stickers/resetCover');
+export const setCover = createAction<StickerImageData>('stickers/setCover');
+export const resetCover = createAction<StickerImageData>('stickers/resetCover');
 export const setEmoji = createAction<{ id: string; emoji: EmojiPickDataType }>(
   'stickers/setEmoji'
 );
@@ -46,20 +53,43 @@ export const minStickers = 1;
 export const maxStickers = 200;
 export const maxByteSize = 100 * 1024;
 
+interface StateStickerData {
+  readonly imageData?: StickerImageData;
+  readonly emoji?: EmojiPickDataType;
+}
+
+interface StateToastData {
+  key: string;
+  subs?: Array<number | string>;
+}
+
 export type State = {
   readonly order: Array<string>;
-  readonly cover?: WebpData;
+  readonly cover?: StickerImageData;
   readonly title: string;
   readonly author: string;
   readonly packId: string;
   readonly packKey: string;
-  readonly toasts: Array<{ key: string; subs?: Array<number | string> }>;
+  readonly toasts: Array<StateToastData>;
   readonly data: {
-    readonly [src: string]: {
-      readonly webp?: WebpData;
-      readonly emoji?: EmojiPickDataType;
-    };
+    readonly [src: string]: StateStickerData;
   };
+};
+
+export type Actions = {
+  addImageData: typeof addImageData;
+  initializeStickers: typeof initializeStickers;
+  removeSticker: typeof removeSticker;
+  moveSticker: typeof moveSticker;
+  setCover: typeof setCover;
+  setEmoji: typeof setEmoji;
+  setTitle: typeof setTitle;
+  setAuthor: typeof setAuthor;
+  setPackMeta: typeof setPackMeta;
+  addToast: typeof addToast;
+  dismissToast: typeof dismissToast;
+  reset: typeof reset;
+  resetStatus: typeof resetStatus;
 };
 
 const defaultState: State = {
@@ -76,7 +106,7 @@ const adjustCover = (state: Draft<State>) => {
   const first = state.order[0];
 
   if (first) {
-    state.cover = state.data[first].webp;
+    state.cover = state.data[first].imageData;
   } else {
     delete state.cover;
   }
@@ -97,7 +127,7 @@ export const reducer = reduceReducers<State>(
       });
     }),
 
-    handleAction(addWebp, (state, { payload }) => {
+    handleAction(addImageData, (state, { payload }) => {
       if (isNumber(payload.meta.pages)) {
         state.toasts.push({ key: 'StickerCreator--Toasts--animated' });
         pull(state.order, payload.path);
@@ -109,9 +139,9 @@ export const reducer = reduceReducers<State>(
       } else {
         const data = state.data[payload.path];
 
-        // If we are adding webp data, proceed to update the state and add/update a toast
-        if (data && !data.webp) {
-          data.webp = payload;
+        // If we are adding image data, proceed to update the state and add/update a toast
+        if (data && !data.imageData) {
+          data.imageData = payload;
 
           const key = 'StickerCreator--Toasts--imagesAdded';
 
@@ -193,34 +223,35 @@ export const reducer = reduceReducers<State>(
   defaultState
 );
 
-export const useTitle = () =>
+export const useTitle = (): string =>
   useSelector(({ stickers }: AppState) => stickers.title);
-export const useAuthor = () =>
+
+export const useAuthor = (): string =>
   useSelector(({ stickers }: AppState) => stickers.author);
 
-export const useCover = () =>
+export const useCover = (): StickerImageData | undefined =>
   useSelector(({ stickers }: AppState) => stickers.cover);
 
-export const useStickerOrder = () =>
+export const useStickerOrder = (): Array<string> =>
   useSelector(({ stickers }: AppState) => stickers.order);
 
-export const useStickerData = (src: string) =>
+export const useStickerData = (src: string): StateStickerData =>
   useSelector(({ stickers }: AppState) => stickers.data[src]);
 
-export const useStickersReady = () =>
+export const useStickersReady = (): boolean =>
   useSelector(
     ({ stickers }: AppState) =>
       stickers.order.length >= minStickers &&
       stickers.order.length <= maxStickers &&
-      Object.values(stickers.data).every(({ webp }) => !!webp)
+      Object.values(stickers.data).every(({ imageData }) => Boolean(imageData))
   );
 
-export const useEmojisReady = () =>
+export const useEmojisReady = (): boolean =>
   useSelector(({ stickers }: AppState) =>
     Object.values(stickers.data).every(({ emoji }) => !!emoji)
   );
 
-export const useAllDataValid = () => {
+export const useAllDataValid = (): boolean => {
   const stickersReady = useStickersReady();
   const emojisReady = useEmojisReady();
   const cover = useCover();
@@ -236,10 +267,12 @@ const selectUrl = createSelector(
   (id, key) => `https://signal.art/addstickers/#pack_id=${id}&pack_key=${key}`
 );
 
-export const usePackUrl = () => useSelector(selectUrl);
-export const useToasts = () =>
+export const usePackUrl = (): string => useSelector(selectUrl);
+
+export const useToasts = (): Array<StateToastData> =>
   useSelector(({ stickers }: AppState) => stickers.toasts);
-export const useAddMoreCount = () =>
+
+export const useAddMoreCount = (): number =>
   useSelector(({ stickers }: AppState) =>
     clamp(minStickers - stickers.order.length, 0, minStickers)
   );
@@ -251,28 +284,30 @@ const selectOrderedData = createSelector(
     order.map(id => ({
       ...data[id],
       emoji: convertShortName(
-        data[id].emoji.shortName,
-        data[id].emoji.skinTone
+        (data[id].emoji as EmojiPickDataType).shortName,
+        (data[id].emoji as EmojiPickDataType).skinTone
       ),
     }))
 );
 
-export const useSelectOrderedData = () => useSelector(selectOrderedData);
+export const useSelectOrderedData = (): Array<StickerData> =>
+  useSelector(selectOrderedData);
 
 const selectOrderedImagePaths = createSelector(selectOrderedData, data =>
-  data.map(({ webp }) => webp.src)
+  data.map(({ imageData }) => imageData.src)
 );
 
-export const useOrderedImagePaths = () => useSelector(selectOrderedImagePaths);
+export const useOrderedImagePaths = (): Array<string> =>
+  useSelector(selectOrderedImagePaths);
 
-export const useStickerActions = () => {
+export const useStickerActions = (): Actions => {
   const dispatch = useDispatch();
 
   return useMemo(
     () =>
       bindActionCreators(
         {
-          addWebp,
+          addImageData,
           initializeStickers,
           removeSticker,
           moveSticker,

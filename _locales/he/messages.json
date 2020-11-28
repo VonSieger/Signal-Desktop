@@ -1,7 +1,19 @@
 {
+    "softwareAcknowledgments": {
+        "message": "הוקרות של התוכנה",
+        "description": "Shown in the about box for the link to software acknowledgments"
+    },
+    "privacyPolicy": {
+        "message": "תנאים ומדיניות פרטיות",
+        "description": "Shown in the about box for the link to https://signal.org/legal"
+    },
     "copyErrorAndQuit": {
         "message": "העתק שגיאה וצא",
         "description": "Shown in the top-level error popup, allowing user to copy the error text and close the app"
+    },
+    "unknownContact": {
+        "message": "איש קשר בלתי ידוע",
+        "description": "Shown as the name of a contact if we don't have any displayable information about them"
     },
     "unknownGroup": {
         "message": "קבוצה לא ידועה",
@@ -13,7 +25,7 @@
     },
     "deleteAndRestart": {
         "message": "מחק את כל הנתונים והפעל מחדש",
-        "description": "Shown in a popup if the database cannot start up properly; allows user to dalete database and restart"
+        "description": "Shown in a popup if the database cannot start up properly; allows user to delete database and restart"
     },
     "mainMenuFile": {
         "message": "&קובץ",
@@ -89,7 +101,7 @@
     },
     "editMenuSelectAll": {
         "message": "בחר הכל",
-        "description": "Edit menu comand to select all of the text in selected text box"
+        "description": "Edit menu command to select all of the text in selected text box"
     },
     "editMenuStartSpeaking": {
         "message": "התחלת דיבור",
@@ -113,7 +125,7 @@
     },
     "windowMenuBringAllToFront": {
         "message": "הבא הכל לקידמה",
-        "description": "Window menu command to bring all windows of current applicatinon to front"
+        "description": "Window menu command to bring all windows of current application to front"
     },
     "viewMenuResetZoom": {
         "message": "גודל ממשי",
@@ -142,6 +154,10 @@
     "menuSetupAsStandalone": {
         "message": "הגדר בתור מכשיר עצמאי",
         "description": "Only available on development modes, menu option to open up the standalone device setup sequence"
+    },
+    "messageContextMenuButton": {
+        "message": "עוד פעולות",
+        "description": "Label for context button next to each message"
     },
     "contextMenuCopyLink": {
         "message": "העתק קישור",
@@ -177,9 +193,17 @@
         "message": "שיחות מאורכבות",
         "description": "Shown in place of the search box when showing archived conversation list"
     },
+    "LeftPane--pinned": {
+        "message": "מוצמד",
+        "description": "Shown as a header for pinned conversations in the left pane"
+    },
+    "LeftPane--chats": {
+        "message": "התכתבויות",
+        "description": "Shown as a header for non-pinned conversations in the left pane"
+    },
     "archiveHelperText": {
         "message": "שיחות אלו מאורכבות ויופיעו בתיבה הנכנסת רק אם מתקבלות הודעות חדשות.",
-        "description": "Shown at the top of the archived converations list in the left pane"
+        "description": "Shown at the top of the archived conversations list in the left pane"
     },
     "archiveConversation": {
         "message": "ארכב שיחה",
@@ -188,6 +212,18 @@
     "moveConversationToInbox": {
         "message": "העבר שיחה אל תיבה נכנסת",
         "description": "Undoes Archive Conversation action, and moves archived conversation back to the main conversation list"
+    },
+    "pinConversation": {
+        "message": "הצמד שיחה",
+        "description": "Shown in menu for conversation, and pins the conversation to the top of the conversation list"
+    },
+    "unpinConversation": {
+        "message": "בטל הצמדת שיחה",
+        "description": "Undoes Archive Conversation action, and unpins the conversation from the top of the conversation list"
+    },
+    "pinnedConversationsFull": {
+        "message": "אתה יכול להצמיד עד 4 התכתבויות בלבד",
+        "description": ""
     },
     "chooseDirectory": {
         "message": "בחר תיקייה",
@@ -222,7 +258,7 @@
         "description": "Message shown if the import went wrong; first paragraph"
     },
     "importErrorSecond": {
-        "message": "אם צעדים אלו לא עובדים עבורך, אנא הגש יומן תקלים (תצוגה -> יומן תקלים) כך שנוכל לעזור לך להיות מהוגר!",
+        "message": "אם צעדים אלו לא עובדים עבורך, נא להגיש יומן תקלים (תצוגה -> יומן תקלים) כדי שנוכל לעזור לך בהגירה!",
         "description": "Message shown if the import went wrong; second paragraph"
     },
     "importAgain": {
@@ -264,7 +300,7 @@
         "description": "Used as a label on a button allowing user to see more information"
     },
     "youLeftTheGroup": {
-        "message": "עזבת את הקבוצה.",
+        "message": "אינך חבר/ת קבוצה עוד של הקבוצה.",
         "description": "Displayed when a user can't send a message because they have left the group"
     },
     "scrollDown": {
@@ -337,50 +373,34 @@
         "message": "מספרי הבטיחות שלך עם חברי קבוצה אלו השתנו מאז שוידאת בפעם האחרונה. לחץ על חבר קבוצה כדי לראות את מספר הבטיחות החדש שלך איתו.",
         "description": "When there are multiple previously-verified group members with safety number changes, a banner will be shown. The list of contacts with safety number changes is shown, and this text introduces that list."
     },
-    "changedSinceVerifiedMultiple": {
-        "message": "מספרי הבטיחות שלך עם מספר חברי קבוצה השתנו מאז שווידאת אותם בפעם האחרונה. זה יכול להעיד שמישהו מנסה ליירט את התקשורת שלך או שהם פשוט התקינו מחדש את Signal.",
-        "description": "Shown on confirmation dialog when user attempts to send a message"
-    },
-    "changedSinceVerified": {
-        "message": "מספר הבטיחות שלך עם $name$ השתנה מאז שווידאת אותו בפעם האחרונה. זה יכול להעיד שמישהו מנסה ליירט את התקשורת שלך או כי $name$ פשוט התקין מחדש את Signal.",
-        "description": "Shown on confirmation dialog when user attempts to send a message",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "Bob"
-            }
-        }
-    },
     "changedRightAfterVerify": {
-        "message": "מספר הבטיחות שאתה מנסה לוודא השתנה. אנא סקור את מספר הבטיחות החדש שלך עם $name$. זכור, שינוי זה יכול להעיד שמישהו מנסה ליירט את התקשורת שלך או כי $name$ פשוט התקין מחדש את Signal.",
+        "message": "מספר הבטיחות שאתה מנסה לוודא השתנה. אנא סקור את מספר הבטיחות החדש שלך עם $name1$. זכור, שינוי זה יכול להעיד שמישהו מנסה ליירט את התקשורת שלך או כי $name2$ פשוט התקין מחדש את Signal.",
         "description": "Shown on the safety number screen when the user has selected to verify/unverify a contact's safety number, and we immediately discover a safety number change",
         "placeholders": {
-            "name": {
+            "name1": {
                 "content": "$1",
+                "example": "Bob"
+            },
+            "name2": {
+                "content": "$2",
                 "example": "Bob"
             }
         }
     },
-    "changedRecentlyMultiple": {
-        "message": "מספרי הבטיחות שלך עם מספר חברי קבוצה השתנו לאחרונה. זה יכול להעיד שמישהו מנסה ליירט את התקשורת שלך או שהם פשוט התקינו מחדש את Signal.",
+    "changedVerificationWarning": {
+        "message": "האנשים הבאים ייתכן התקינו מחדש את היישום או שינו מכשירים. וודא את מספר הביטחון שלך איתם כדי להבטיח פרטיות.",
         "description": "Shown on confirmation dialog when user attempts to send a message"
     },
-    "changedRecently": {
-        "message": "מספר הבטיחות שלך עם $name$ השתנה לאחרונה. זה יכול להעיד שמישהו מנסה ליירט את התקשורת שלך או כי $name$ פשוט התקין מחדש את Signal.",
-        "description": "Shown on confirmation dialog when user attempts to send a message",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "Bob"
-            }
-        }
-    },
     "identityKeyErrorOnSend": {
-        "message": "מספר הבטיחות שלך עם $name$ השתנה. זה יכול להעיד שמישהו מנסה ליירט את התקשורת שלך או כי $name$ פשוט התקין מחדש את Signal. ייתכן שתרצה לוודא את מספר הבטיחות שלך עם איש קשה זה.",
+        "message": "מספר הבטיחות שלך עם $name1$ השתנה. זה יכול להעיד שמישהו מנסה ליירט את התקשורת שלך או כי $name2$ פשוט התקין מחדש את Signal. ייתכן שתרצה לוודא את מספר הבטיחות שלך עם איש קשה זה.",
         "description": "Shown when user clicks on a failed recipient in the message detail view after an identity key change",
         "placeholders": {
-            "name": {
+            "name1": {
                 "content": "$1",
+                "example": "Bob"
+            },
+            "name2": {
+                "content": "$2",
                 "example": "Bob"
             }
         }
@@ -389,9 +409,13 @@
         "message": "שלח בכל זאת",
         "description": "Used on a warning dialog to make it clear that it might be risky to send the message."
     },
+    "callAnyway": {
+        "message": "חייג בכל זאת",
+        "description": "Used on a warning dialog to make it clear that it might be risky to call the conversation."
+    },
     "noLongerVerified": {
         "message": "מספר הבטיחות שלך עם $name$ השתנה ואינו מוֻדא יותר. לחץ כדי לראות.",
-        "description": "Shown in converation banner when user's safety number has changed, but they were previously verified.",
+        "description": "Shown in conversation banner when user's safety number has changed, but they were previously verified.",
         "placeholders": {
             "name": {
                 "content": "$1",
@@ -404,12 +428,24 @@
         "description": "Shown in conversation banner when more than one group member's safety number has changed, but they were previously verified."
     },
     "debugLogExplanation": {
-        "message": "יומן זה יפורסם באופן ציבורי ומקוון לתורמים עבור צפייה, אתה יכול לבחון ולערוך אותו לפני הגשה.",
+        "message": "יומן זה יפורסם באופן ציבורי ומקוון למתנדבים עבור צפייה, ניתן לבחון ולערוך אותו לפני הגשה.",
         "description": ""
     },
     "debugLogError": {
         "message": "משהו השתבש עם ההעלאה! אנא שקול להוסיף באופן ידני את יומן התקלים שלך לתקל שאתה מגיש.",
         "description": ""
+    },
+    "debugLogCopy": {
+        "message": "העתק",
+        "description": "Shown as the text for the copy button on the debug log screen"
+    },
+    "debugLogCopyAlt": {
+        "message": "העתק קישור אל לוח הגזירה",
+        "description": "Shown as the alt text for the copy button on the debug log screen"
+    },
+    "debugLogLinkCopied": {
+        "message": "קישור הועתק אל לוח הגזירה",
+        "description": "Shown in a toast to let the user know that the link to the debug log has been copied to their clipboard"
     },
     "reportIssue": {
         "message": "דווח על סוגייה",
@@ -561,7 +597,7 @@
         "message": "בעת הכללת צרופת אי־תמונה, המגבלה היא צרופה אחת להודעה.",
         "description": "An error popup when the user has attempted to add an attachment"
     },
-    "cannotMixImageAdnNonImageAttachments": {
+    "cannotMixImageAndNonImageAttachments": {
         "message": "אינך יכול לערבב צרופות של אי־תמונה ותמונה בהודעה אחת.",
         "description": "An error popup when the user has attempted to add an attachment"
     },
@@ -613,6 +649,10 @@
         "message": "הראה קיצורי מקלדת",
         "description": "Item under the help menu, pops up a screen showing the application's keyboard shortcuts"
     },
+    "contactUs": {
+        "message": "צור איתנו קשר",
+        "description": "Item under the help menu, takes you to the contact us support page"
+    },
     "goToReleaseNotes": {
         "message": "לך אל הערות שחרור",
         "description": "Item under the help menu, takes you to GitHub page for release notes"
@@ -625,9 +665,13 @@
         "message": "לך אל דף התמיכה",
         "description": "Item under the Help menu, takes you to the support page"
     },
-    "menuReportIssue": {
-        "message": "דווח על סוגייה",
-        "description": "Item under the Help menu, takes you to GitHub new issue form (title case)"
+    "goToGithub": {
+        "message": "לך אל GitHub",
+        "description": "Item under the Help menu, takes you to the GitHub repository for Signal Desktop"
+    },
+    "joinTheBeta": {
+        "message": "הצטרף אל הבטא",
+        "description": "Item under the Help menu, takes you to an article describing how to install the beta release of Signal Desktop"
     },
     "signalDesktopPreferences": {
         "message": "העדפות Signal Desktop",
@@ -665,6 +709,10 @@
         "message": "חיפוש",
         "description": "Placeholder text in the search input"
     },
+    "clearSearch": {
+        "message": "נקה חיפוש",
+        "description": "Aria label for clear search button"
+    },
     "searchIn": {
         "message": "חפש בשיחה $conversationName$",
         "description": "Shown in the search box before text is entered when searching in a specific conversation",
@@ -690,6 +738,10 @@
         "description": "Shown in the search left pane when no results were found",
         "placeholders": {
             "searchTerm": {
+                "content": "$1",
+                "example": "dog"
+            },
+            "conversationName": {
                 "content": "$2",
                 "example": "Friends"
             }
@@ -717,7 +769,11 @@
     },
     "typingAlt": {
         "message": "הנפשת הקלדה עבור שיחה זו",
-        "description": "Used as the 'title' attibute for the typing animation"
+        "description": "Used as the 'title' attribute for the typing animation"
+    },
+    "contactInAddressBook": {
+        "message": "איש זה נמצא באנשי הקשר שלך.",
+        "description": "Description of icon denoting that contact is from your address book"
     },
     "contactAvatarAlt": {
         "message": "יצגן עבור איש קשר $name$",
@@ -816,7 +872,7 @@
         }
     },
     "you": {
-        "message": "אתה",
+        "message": "את/ה",
         "description": "Shown when the user represented is the current user."
     },
     "replyingTo": {
@@ -831,11 +887,19 @@
     },
     "audioPermissionNeeded": {
         "message": "כדי לשלוח הודעות שמע, התר אל Signal Desktop לקבל גישה אל המיקרופון שלך.",
-        "description": "Shown if the user attempts to send an audio message without audio permssions turned on"
+        "description": "Shown if the user attempts to send an audio message without audio permissions turned on"
+    },
+    "audioCallingPermissionNeeded": {
+        "message": "לצורך שיחות, חובה להתיר ל־Signal Desktop לגשת למיקרופון שלך.",
+        "description": "Shown if the user attempts access the microphone for calling without audio permissions turned on"
+    },
+    "videoCallingPermissionNeeded": {
+        "message": "לצורך שיחות וידאו, חובה להתיר ל־Signal Desktop לגשת למצלמה שלך.",
+        "description": "Shown if the user attempts access the camera for video calling without video permissions turned on"
     },
     "allowAccess": {
         "message": "התר גישה",
-        "description": "Button shown in popup asking to enable microphon/video permissions to send audio messages"
+        "description": "Button shown in popup asking to enable microphone/video permissions to send audio messages"
     },
     "showSettings": {
         "message": "הראה הגדרות",
@@ -910,8 +974,12 @@
         "description": ""
     },
     "deleteWarning": {
-        "message": "האם אתה בטוח? לחיצה על 'מחק' תסיר לצמיתות הודעה זו ממכשיר זה בלבד.",
-        "description": ""
+        "message": "לחיצה על 'מחק' תסיר לצמיתות הודעה זו מהמכשירים שלך בלבד.",
+        "description": "Text shown in the confirmation dialog for deleting a message locally"
+    },
+    "deleteForEveryoneWarning": {
+        "message": "הודעה זו תימחק עבור כל אחד שנמצא בשיחה אם הוא משתמש בגרסה מאוחרת של Signal. חברי קבוצה יוכלו לראות שמחקת הודעה.",
+        "description": "Text shown in the confirmation dialog for deleting a message for everyone"
     },
     "deleteThisMessage": {
         "message": "מחק הודעה זו",
@@ -957,8 +1025,8 @@
         "message": "הצג מספר בטיחות",
         "description": ""
     },
-    "viewAllMedia": {
-        "message": "הצג את כל המדיה",
+    "viewRecentMedia": {
+        "message": "הצג מדיה אחרונה",
         "description": "This is a menu item for viewing all media (images + video) in a conversation, using the imperative case, as in a command."
     },
     "verifyHelp": {
@@ -975,17 +1043,25 @@
         "message": "לא החלפת עדין הודעות כלשהן עם איש קשר זה. מספר הבטיחות שלך איתו יהיה זמין לאחר ההודעה הראשונה.",
         "description": ""
     },
+    "goBack": {
+        "message": "חזרה",
+        "description": "Label for back button in a conversation"
+    },
     "moreInfo": {
         "message": "עוד מידע…",
         "description": "Shown on the drop-down menu for an individual message, takes you to message detail screen"
     },
     "retrySend": {
         "message": "נסה מחדש שליחה",
-        "description": "Shown on the drop-down menu for an indinvidaul message, but only if it is an outgoing message that failed to send"
+        "description": "Shown on the drop-down menu for an individual message, but only if it is an outgoing message that failed to send"
     },
     "deleteMessage": {
-        "message": "מחק הודעה",
+        "message": "מחק הודעה עבורי",
         "description": "Shown on the drop-down menu for an individual message, deletes single message"
+    },
+    "deleteMessageForEveryone": {
+        "message": "מחק הודעה עבור כולם",
+        "description": "Shown on the drop-down menu for an individual message, deletes single message for everyone"
     },
     "deleteMessages": {
         "message": "מחק הודעות",
@@ -1021,11 +1097,11 @@
     },
     "addACaption": {
         "message": "הוסף כיתוב…",
-        "description": ""
+        "description": "Used as the placeholder text in the caption editor text field"
     },
     "save": {
         "message": "שמור",
-        "description": ""
+        "description": "Used as a 'commit changes' button in the Caption Editor for outgoing image attachments"
     },
     "fileIconAlt": {
         "message": "צלמית קובץ",
@@ -1041,7 +1117,7 @@
     },
     "linkYourPhone": {
         "message": "Signal Desktop קשר את הטלפון שלך אל",
-        "description": "Shown on the front page when the application first starst, above the QR code"
+        "description": "Shown on the front page when the application first starts, above the QR code"
     },
     "signalSettings": {
         "message": "הגדרות Signal",
@@ -1083,20 +1159,80 @@
         "message": "סליחה, יש לך כבר יותר מדי מכשירים מקושרים. נסה להסיר קצת.",
         "description": ""
     },
-    "settings": {
-        "message": "הגדרות",
-        "description": "Menu item and header for global settings"
+    "installTooOld": {
+        "message": "עדכן את Signal על מכשיר זה כדי לקשר את הטלפון שלך.",
+        "description": ""
+    },
+    "installErrorHeader": {
+        "message": "משהו השתבש!",
+        "description": ""
+    },
+    "installTryAgain": {
+        "message": "נסה שוב",
+        "description": ""
     },
     "theme": {
         "message": "ערכת נושא",
         "description": "Header for theme settings"
+    },
+    "calling": {
+        "message": "התקשרות",
+        "description": "Header for calling options on the settings screen"
+    },
+    "calling__start": {
+        "message": "התחל שיחה",
+        "description": "Button label in the call lobby for starting a call"
+    },
+    "calling__join": {
+        "message": "הצטרף לשיחה",
+        "description": "Button label in the call lobby for joining a call"
+    },
+    "calling__button--video-disabled": {
+        "message": "המצלמה מושבתת",
+        "description": "Button tooltip label when the camera is disabled"
+    },
+    "calling__button--video-off": {
+        "message": "כבה מצלמה",
+        "description": "Button tooltip label for turning off the camera"
+    },
+    "calling__button--video-on": {
+        "message": "הפעל מצלמה",
+        "description": "Button tooltip label for turning on the camera"
+    },
+    "calling__button--audio-disabled": {
+        "message": "המיקרופון מושבת",
+        "description": "Button tooltip label when the microphone is disabled"
+    },
+    "calling__button--audio-off": {
+        "message": "כבה מיקרופון",
+        "description": "Button tooltip label for turning off the microphone"
+    },
+    "calling__button--audio-on": {
+        "message": "הפעל מיקרופון",
+        "description": "Button tooltip label for turning on the microphone"
+    },
+    "calling__your-video-is-off": {
+        "message": "הוידאו שלך כבוי",
+        "description": "Label in the calling lobby indicating that your camera is off"
+    },
+    "alwaysRelayCallsDescription": {
+        "message": "שדר מחדש שיחות תמיד",
+        "description": "Description of the always relay calls setting"
+    },
+    "alwaysRelayCallsDetail": {
+        "message": "שדר מחדש את כל השיחות דרך שרת Signal כדי למנוע את חשיפת כתובת ה־IP שלך אל איש הקשר שלך. אפשור יפחית איכות שיחות.",
+        "description": "Details describing the always relay calls setting"
     },
     "permissions": {
         "message": "הרשאות",
         "description": "Header for permissions section of settings"
     },
     "mediaPermissionsDescription": {
-        "message": "התר גישה אל מצלמה ומיקרופון",
+        "message": "התר גישה אל המיקרופון",
+        "description": "Description of the media permission description"
+    },
+    "mediaCameraPermissionsDescription": {
+        "message": "התר גישה אל המצלמה",
         "description": "Description of the media permission description"
     },
     "general": {
@@ -1143,6 +1279,14 @@
         "message": "מתנתק ומוחק את כל הנתונים",
         "description": "Message shown to user when app is disconnected and data deleted"
     },
+    "deleteOldIndexedDBData": {
+        "message": "יש לך נתונים מיושנים מהתקנה קודמת של Signal Desktop. אם תבחר להמשיך, הם יימחקו ותתחיל מאפס.",
+        "description": "Shown if user last ran Signal Desktop before October 2018"
+    },
+    "deleteOldData": {
+        "message": "מחק נתונים ישנים",
+        "description": "Button to make the delete happen"
+    },
     "notifications": {
         "message": "התראות",
         "description": "Header for notification settings"
@@ -1156,53 +1300,37 @@
         "description": "Label for disabling notifications"
     },
     "nameAndMessage": {
-        "message": "שם השולח והודעה",
+        "message": "שם, תוכן, ופעולות",
         "description": "Label for setting notifications to display name and message text"
     },
     "noNameOrMessage": {
-        "message": "לא שם ולא הודעה",
+        "message": "ללא שם או תוכן",
         "description": "Label for setting notifications to display no name and no message text"
     },
     "nameOnly": {
-        "message": "רק את שם השולח",
+        "message": "שם בלבד",
         "description": "Label for setting notifications to display sender name only"
     },
     "newMessage": {
         "message": "הודעה חדשה",
         "description": "Displayed in notifications for only 1 message"
     },
-    "newMessages": {
-        "message": "הודעות חדשות",
-        "description": "Displayed in notifications for multiple messages"
-    },
-    "notificationMostRecentFrom": {
-        "message": "הודעה אחרונה מאת:",
-        "description": "Displayed in notifications when setting is 'name only' and more than one message is waiting"
-    },
-    "notificationFrom": {
-        "message": "מאת:",
-        "description": "Displayed in notifications when setting is 'name only' and one message is waiting"
-    },
-    "notificationMostRecent": {
-        "message": "הודעה אחרונה:",
-        "description": "Displayed in notifications when setting is 'name and message' and more than one message is waiting"
-    },
-    "notificationReaction": {
-        "message": "$sender$ הגיב עם  $emoji$ אל ההודעה שלך",
-        "description": "",
+    "notificationSenderInGroup": {
+        "message": "$sender$ בקבוצה $group$",
+        "description": "Displayed in notifications for messages in a group",
         "placeholders": {
             "sender": {
                 "content": "$1",
                 "example": "John"
             },
-            "emoji": {
-                "content": "$2",
-                "example": "👍"
+            "group": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
             }
         }
     },
-    "notificationReactionMostRecent": {
-        "message": "ההודעה האחרונה:  $sender$ הגיב עם  $emoji$ אל ההודעה שלך",
+    "notificationReaction": {
+        "message": "$sender$ הגיב עם  $emoji$ אל ההודעה שלך",
         "description": "",
         "placeholders": {
             "sender": {
@@ -1233,27 +1361,13 @@
             }
         }
     },
-    "notificationReactionMessageMostRecent": {
-        "message": "ההודעה האחרונה:  $sender$ הגיב עם  $emoji$ אל:  $message$",
-        "description": "",
-        "placeholders": {
-            "sender": {
-                "content": "$1",
-                "example": "John"
-            },
-            "emoji": {
-                "content": "$2",
-                "example": "👍"
-            },
-            "message": {
-                "content": "$3",
-                "example": "Sounds good."
-            }
-        }
-    },
     "sendFailed": {
         "message": "שליחה נכשלה",
         "description": "Shown on outgoing message if it fails to send"
+    },
+    "partiallySent": {
+        "message": "נשלח חלקית, לחץ לפרטים",
+        "description": "Shown on outgoing message if it is partially sent"
     },
     "showMore": {
         "message": "פרטים",
@@ -1360,7 +1474,7 @@
         "description": "Brief message shown when trying to message a blocked group"
     },
     "youChangedTheTimer": {
-        "message": "הגדרת את קוצב הזמן של ההודעות הנעלמות אל $time$",
+        "message": "הגדרת את זמן ההודעות הנעלמות אל $time$.",
         "description": "Message displayed when you change the message expiration timer in a conversation.",
         "placeholders": {
             "time": {
@@ -1370,7 +1484,7 @@
         }
     },
     "timerSetOnSync": {
-        "message": "עודכן קוצב הזמן של ההודעות הנעלמות אל $time$",
+        "message": " זמן ההודעות הנעלמות עודכן אל $time$.",
         "description": "Message displayed when timer is set on initial link of desktop device.",
         "placeholders": {
             "time": {
@@ -1379,8 +1493,18 @@
             }
         }
     },
+    "timerSetByMember": {
+        "message": "חבר קבוצה הגדיר את זמן ההודעות הנעלמות אל $time$.",
+        "description": "Message displayed when timer is by an unknown group member.",
+        "placeholders": {
+            "time": {
+                "content": "$1",
+                "example": "10m"
+            }
+        }
+    },
     "theyChangedTheTimer": {
-        "message": "$name$ הגדיר את קוצב הזמן של ההודעות הנעלמות אל $time$",
+        "message": "$name$ הגדיר/ה את זמן ההודעות הנעלמות אל $time$.",
         "description": "Message displayed when someone else changes the message expiration timer in a conversation.",
         "placeholders": {
             "name": {
@@ -1497,8 +1621,12 @@
         "message": "הודעות נעלמות מושבתות",
         "description": "Displayed in the left pane when the timer is turned off"
     },
+    "disappearingMessagesDisabledByMember": {
+        "message": "חבר/ת קבוצה השבית/ה הודעות נעלמות.",
+        "description": "Displayed in the left pane when the timer is turned off"
+    },
     "disabledDisappearingMessages": {
-        "message": "$name$ השבית הודעות נעלמות",
+        "message": "$name$ השבית/ה הודעות נעלמות.",
         "description": "Displayed in the conversation list when the timer is turned off",
         "placeholders": {
             "name": {
@@ -1508,7 +1636,7 @@
         }
     },
     "youDisabledDisappearingMessages": {
-        "message": "הִשְׁבַּת הודעות נעלמות",
+        "message": "הִשְׁבַּתָּ הודעות נעלמות.",
         "description": "Displayed in the conversation list when the timer is turned off"
     },
     "timerSetTo": {
@@ -1525,9 +1653,57 @@
         "message": "נגן התראת שמע",
         "description": "Description for audio notification setting"
     },
+    "callRingtoneNotificationDescription": {
+        "message": "נגן צלילי חיוג",
+        "description": "Description for call ringtone notification setting"
+    },
+    "callSystemNotificationDescription": {
+        "message": "הראה התראות לגבי שיחות",
+        "description": "Description for call notification setting"
+    },
+    "incomingCallNotificationDescription": {
+        "message": "אפשר שיחות נכנסות",
+        "description": "Description for incoming calls setting"
+    },
+    "contactChangedProfileName": {
+        "message": "$sender$ שינ(ת)ה את שם הפרופיל שלו/שלה מן $oldProfile$ אל $newProfile$.",
+        "description": "Description for incoming calls setting",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "oldProfile": {
+                "content": "$2",
+                "example": ".x8Skillz8x."
+            },
+            "newProfile": {
+                "content": "$3",
+                "example": "Bob Smith"
+            }
+        }
+    },
+    "changedProfileName": {
+        "message": "$oldProfile$ שינ(ת)ה את שם הפרופיל שלו/שלה אל $newProfile$.",
+        "description": "Shown when a contact not in your address book changes their profile name",
+        "placeholders": {
+            "oldProfile": {
+                "content": "$2",
+                "example": ".x8Skillz8x."
+            },
+            "newProfile": {
+                "content": "$3",
+                "example": "Bob Smith"
+            }
+        }
+    },
     "safetyNumberChanged": {
         "message": "מספר בטיחות השתנה",
         "description": "A notification shown in the conversation when a contact reinstalls"
+    },
+    "safetyNumberChanges": {
+        "message": "שינויי מספר ביטחון",
+        "description": "Title for safety number changed modal"
     },
     "safetyNumberChangedGroup": {
         "message": "מספר בטיחות עם $name$ השתנה",
@@ -1543,11 +1719,15 @@
         "message": "וודא מספר בטיחות",
         "description": "Label on button included with safety number change notification in the conversation"
     },
+    "cannotGenerateSafetyNumber": {
+        "message": "משתמש זה לא יכול להיות מוודא עד שלא תחליף איתו הודעות.",
+        "description": "Shown on the safety number screen if you have never exchanged messages with that contact"
+    },
     "yourSafetyNumberWith": {
-        "message": "מספר הבטיחות שלך עם $name$:",
+        "message": "מספר הבטיחות שלך עם $name1$:",
         "description": "Heading for safety number view",
         "placeholders": {
-            "name": {
+            "name1": {
                 "content": "$1",
                 "example": "John"
             }
@@ -1568,6 +1748,14 @@
     "noteToSelf": {
         "message": "הערה לעצמי",
         "description": "Name for the conversation with your own phone number"
+    },
+    "noteToSelfHero": {
+        "message": "אתה יכול להוסיף הערות לעצמך בשיחה זו. אם לחשבון שלך יש מכשירים מקושרים כלשהם, הערות חדשות יסונכרנו.",
+        "description": "Description for the Note to Self conversation"
+    },
+    "notificationDrawAttention": {
+        "message": "משוך תשומת לב אל חלון זה כאשר התראה מגיעה",
+        "description": "Label text for the setting that controls whether new notifications draw attention to the window"
     },
     "hideMenuBar": {
         "message": "הסתר שורת תפריט",
@@ -1622,7 +1810,7 @@
         "description": ""
     },
     "leftTheGroup": {
-        "message": "$name$ עזב את הקבוצה.",
+        "message": "$name$ עזב/ה את הקבוצה.",
         "description": "Shown in the conversation history when a single person leaves the group",
         "placeholders": {
             "name": {
@@ -1642,7 +1830,7 @@
         }
     },
     "updatedTheGroup": {
-        "message": "$name$ עידכן את הקבוצה.",
+        "message": "$name$ עדכן/ה את הקבוצה.",
         "description": "Shown in the conversation history when someone updates the group",
         "placeholders": {
             "name": {
@@ -1693,13 +1881,55 @@
             }
         }
     },
+    "ConversationListItem--message-request": {
+        "message": "בקשת התכתבות",
+        "description": "Preview shown for conversation if the user has not yet accepted an incoming message request"
+    },
     "ConversationListItem--draft-prefix": {
         "message": "טיוטה:",
         "description": "Prefix shown in italic in conversation view when a draft is saved"
     },
+    "message--getNotificationText--gif": {
+        "message": "GIF",
+        "description": "Shown in notifications and in the left pane when a GIF is received."
+    },
+    "message--getNotificationText--photo": {
+        "message": "תמונה",
+        "description": "Shown in notifications and in the left pane when a photo is received."
+    },
+    "message--getNotificationText--video": {
+        "message": "סרטון",
+        "description": "Shown in notifications and in the left pane when a video is received."
+    },
+    "message--getNotificationText--voice-message": {
+        "message": "הודעה קולית",
+        "description": "Shown in notifications and in the left pane when a voice message is received."
+    },
+    "message--getNotificationText--audio-message": {
+        "message": "הודעת שמע",
+        "description": "Shown in notifications and in the left pane when an audio message is received."
+    },
+    "message--getNotificationText--file": {
+        "message": "קובץ",
+        "description": "Shown in notifications and in the left pane when a generic file is received."
+    },
     "message--getNotificationText--stickers": {
         "message": "הודעת מדבקה",
         "description": "Shown in notifications and in the left pane instead of sticker image."
+    },
+    "message--getNotificationText--text-with-emoji": {
+        "message": "$emoji$ $text$",
+        "description": "Shown in notifications and in the left pane when text has an emoji. Probably always [emoji] [text] on LTR languages and [text] [emoji] on RTL languages.",
+        "placeholders": {
+            "emoji": {
+                "content": "$1",
+                "example": "📷"
+            },
+            "text": {
+                "content": "$2",
+                "example": "Photo"
+            }
+        }
     },
     "message--getDescription--unsupported-message": {
         "message": "הודעה בלתי נתמכת",
@@ -1716,6 +1946,10 @@
     "message--getDescription--disappearing-video": {
         "message": "סרטון לצפייה חד־פעמית",
         "description": "Shown in notifications and in the left pane when a message is a view once video."
+    },
+    "message--deletedForEveryone": {
+        "message": "הודעה זו נמחקה.",
+        "description": "Shown in a message's bubble when the message has been deleted for everyone."
     },
     "stickers--toast--InstallFailed": {
         "message": "חבילת מדבקות לא יכלה להיות מותקנת",
@@ -1769,6 +2003,26 @@
         "message": "למה להשתמש במילים כשאתה יכול להשתמש במדבקות?",
         "description": "Shown as the body on a tooltip when the user upgrades to a version of Signal supporting stickers."
     },
+    "stickers--StickerPicker--Open": {
+        "message": "פתח את בוחר המדבקות",
+        "description": "Label for the open button for the sticker picker"
+    },
+    "stickers--StickerPicker--AddPack": {
+        "message": "הוסף חבילת מדבקות",
+        "description": "Label for the add pack button in the sticker picker"
+    },
+    "stickers--StickerPicker--NextPage": {
+        "message": "לעמוד הבא",
+        "description": "Label for the next page button in the sticker picker"
+    },
+    "stickers--StickerPicker--PrevPage": {
+        "message": "לעמוד הקודם",
+        "description": "Label for the previous page button in the sticker picker"
+    },
+    "stickers--StickerPicker--Recents": {
+        "message": "מדבקות אחרונות",
+        "description": "Label for the recent stickers button in the sticker picker"
+    },
     "stickers--StickerPicker--DownloadError": {
         "message": "מספר מדבקות לא יכלו לרדת.",
         "description": "Shown in the sticker picker when one or more stickers could not be downloaded."
@@ -1802,7 +2056,7 @@
         "description": "The message that appears in the sticker preview modal when there is an error."
     },
     "EmojiPicker--empty": {
-        "message": "לא נמצא אמוג'י",
+        "message": "אמוג'י לא נמצא",
         "description": "Shown in the emoji picker when a search yields 0 results."
     },
     "EmojiPicker--search-placeholder": {
@@ -1818,6 +2072,42 @@
                 "example": "2"
             }
         }
+    },
+    "EmojiPicker__button--recents": {
+        "message": "אחרונים",
+        "description": "Label for recents emoji picker button"
+    },
+    "EmojiPicker__button--emoji": {
+        "message": "אמוג'י",
+        "description": "Label for emoji emoji picker button"
+    },
+    "EmojiPicker__button--animal": {
+        "message": "חיה",
+        "description": "Label for animal emoji picker button"
+    },
+    "EmojiPicker__button--food": {
+        "message": "אוכל",
+        "description": "Label for food emoji picker button"
+    },
+    "EmojiPicker__button--activity": {
+        "message": "פעילות",
+        "description": "Label for activity emoji picker button"
+    },
+    "EmojiPicker__button--travel": {
+        "message": "טיול",
+        "description": "Label for travel emoji picker button"
+    },
+    "EmojiPicker__button--object": {
+        "message": "חפץ",
+        "description": "Label for object emoji picker button"
+    },
+    "EmojiPicker__button--symbol": {
+        "message": "סמל",
+        "description": "Label for symbol emoji picker button"
+    },
+    "EmojiPicker__button--flag": {
+        "message": "דגל",
+        "description": "Label for flag emoji picker button"
     },
     "confirmation-dialog--Cancel": {
         "message": "בטל",
@@ -1861,7 +2151,7 @@
     },
     "Message--tap-to-view--outgoing": {
         "message": "מדיה",
-        "description": "Text shown on outgoing messages with with individual timers (inaccessble)"
+        "description": "Text shown on outgoing messages with with individual timers (inaccessible)"
     },
     "Message--tap-to-view--incoming--expired-toast": {
         "message": "צפית כבר בהודעה זו.",
@@ -1944,7 +2234,7 @@
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-emoji-chooser": {
-        "message": "פתח בוחר אימוג'י",
+        "message": "פתח בוחר אמוג'י",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-sticker-chooser": {
@@ -2003,6 +2293,10 @@
         "message": "הסר את כל צרופות הטיוטה",
         "description": "Shown in the shortcuts guide"
     },
+    "Keyboard--conversation-by-index": {
+        "message": "קפוץ אל שיחה",
+        "description": "A shortcut allowing direct navigation to conversations 1 to 9 in list"
+    },
     "Keyboard--Key--ctrl": {
         "message": "Ctrl",
         "description": "Key shown in shortcut combination in shortcuts guide"
@@ -2022,6 +2316,14 @@
     "Keyboard--Key--enter": {
         "message": "Enter",
         "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--Key--tab": {
+        "message": "טַבְלָר",
+        "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--Key--one-to-nine-range": {
+        "message": "1 עד 9",
+        "description": "Expresses that 1, 2, 3, up to 9 are available shortcut keys"
     },
     "Keyboard--header": {
         "message": "קיצורי מקלדת",
@@ -2049,6 +2351,18 @@
     },
     "Keyboard--close-curent-conversation": {
         "message": "סגור שיחה נוכחית",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--calling-header": {
+        "message": "התקשרות",
+        "description": "Header of the keyboard shortcuts guide - calling section"
+    },
+    "Keyboard--toggle-audio": {
+        "message": "עורר השתקה מופעלת וכבויה",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--toggle-video": {
+        "message": "עורר וידאו מופעל וכבוי",
         "description": "Shown in the shortcuts guide"
     },
     "close-popup": {
@@ -2128,7 +2442,7 @@
         "description": "Title for the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--help": {
-        "message": "מדבקות חייבות להיות בתסדיר PNG או בתסדיר WebP עם רקע שקוף ועם 512x512 פיקסלים. שול מומלץ הוא 16 פיק'.",
+        "message": "מדבקות חייבות להיות בתסדיר PNG, APNG, או WebP עם רקע שקוף ועם 512x512 פיקסלים. שול מומלץ הוא 16 פיקסלים.",
         "description": "Help text for the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--showMargins": {
@@ -2174,7 +2488,7 @@
         "description": "Help text for the cover image picker of the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--title": {
-        "message": "האם אתה בטוח שאתה רוצה להעלות את חבילת המדבקות שלך?",
+        "message": "האם הנך בטוח/ה שברצונך להעלות את חבילת המדבקות שלך?",
         "description": "Title for the confirm dialog on the meta stage of the sticker creator"
     },
     "StickerCreator--MetaStage--ConfirmDialog--confirm": {
@@ -2257,7 +2571,23 @@
     },
     "StickerCreator--Toasts--errorProcessing": {
         "message": "שגיאה בעיבוד תמונה",
-        "description": "Text for the toast when an image cannot be processed was dropped on the sticker creator"
+        "description": "Text for the toast when an image cannot be processed was dropped on the sticker creator with a generic error"
+    },
+    "StickerCreator--Toasts--APNG--notSquare": {
+        "message": "מדבקות PNG מונפשות חייבות להיות ריבוע",
+        "description": "Text for the toast when someone tries to upload a non-square APNG"
+    },
+    "StickerCreator--Toasts--mustLoopForever": {
+        "message": "מדבקות מונפשות חייבות להיות בלולאה לנצח",
+        "description": "Text for the toast when an image in the sticker creator does not animate forever"
+    },
+    "StickerCreator--Toasts--APNG--dimensionsTooLarge": {
+        "message": "ממדים של מדבקת PNG מונפשת גדולים מדי",
+        "description": "Text for the toast when an APNG image in the sticker creator is too large"
+    },
+    "StickerCreator--Toasts--APNG--dimensionsTooSmall": {
+        "message": "ממדים של מדבקת PNG מונפשת קטנים מדי",
+        "description": "Text for the toast when an APNG image in the sticker creator is too small"
     },
     "StickerCreator--Toasts--errorUploading": {
         "message": "שגיאה בהעלאת מדבקות: $message$",
@@ -2289,12 +2619,1260 @@
         "message": "נכשל בשליחת תגובה. אנא נסה שוב.",
         "description": "Shown when a reaction fails to send"
     },
+    "ReactionsViewer--more": {
+        "message": "עוד",
+        "description": "Use in the reaction picker as the alt text for the 'more' button"
+    },
     "ReactionsViewer--all": {
         "message": "הכל",
         "description": "Shown in reaction viewer as the title for the 'all' category"
     },
-    "privacyPolicy": {
-        "message": "תנאים ומדיניות פרטיות",
-        "description": "Shown in the about box for the link to https://signal.org/legal"
+    "MessageRequests--message-direct": {
+        "message": "לאפשר אל $name$ לשלוח לך הודעות ולשתף את השם והתמונה שלך איתו/איתה? הוא/היא לא יידע/תידע שקראת את ההודעות שלו/שלה עד שתאשר.",
+        "description": "Shown as the message for a message request in a direct message",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce"
+            }
+        }
+    },
+    "MessageRequests--message-direct-blocked": {
+        "message": "לאפשר אל $name$ לשלוח אליך הודעות ולשתף את השם והתמונה שלך איתו/איתה? לא תקבל הודעות כלשהן עד שלא תבטל חסימה שלו/שלה.",
+        "description": "Shown as the message for a message request in a direct message with a blocked account",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce"
+            }
+        }
+    },
+    "MessageRequests--message-group": {
+        "message": "להצטרף אל קבוצה זו ולשתף את השם והתמונה שלך עם חבריה? חברי הקבוצה לא יידעו שקראת את הודעותיהם עד שלא תאשר.",
+        "description": "Shown as the message for a message request in a group",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--message-group-blocked": {
+        "message": "לבטל חסימת קבוצה זו ולשתף את השם והתמונה שלך עם חברי הקבוצה? לא תקבל הודעות כלשהן עד שלא תבטל חסימה.",
+        "description": "Shown as the message for a message request in a blocked group"
+    },
+    "MessageRequests--block": {
+        "message": "חסום",
+        "description": "Shown as a button to let the user block a message request"
+    },
+    "MessageRequests--unblock": {
+        "message": "בטל חסימה",
+        "description": "Shown as a button to let the user unblock a message request"
+    },
+    "MessageRequests--unblock-confirm-title": {
+        "message": "לבטל חסימה של $name$?",
+        "description": "Shown as a button to let the user unblock a message request",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--unblock-direct-confirm-body": {
+        "message": "תוכלו להתכתב ולהתקשר אחד לשני.",
+        "description": "Shown as the body in the confirmation modal for unblocking a private message request",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--unblock-group-confirm-body": {
+        "message": "חברי קבוצה יוכלו להוסיף אותך שוב אל קבוצה זו.",
+        "description": "Shown as the body in the confirmation modal for unblocking a group message request",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--block-and-delete": {
+        "message": "חסום ומחק",
+        "description": "Shown as a button to let the user block and delete a message request"
+    },
+    "MessageRequests--block-direct-confirm-title": {
+        "message": "לחסום את $name$?",
+        "description": "Shown as the title in the confirmation modal for blocking a private message request",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--block-direct-confirm-body": {
+        "message": "אנשים חסומים לא יוכלו להתקשר אליך או לשלוח לך הודעות.",
+        "description": "Shown as the body in the confirmation modal for blocking a private message request"
+    },
+    "MessageRequests--block-group-confirm-title": {
+        "message": "לחסום ולעזוב את $group$?",
+        "description": "Shown as the title in the confirmation modal for blocking a group message request",
+        "placeholders": {
+            "group": {
+                "content": "$1",
+                "example": "Friends 🌿"
+            }
+        }
+    },
+    "MessageRequests--block-group-confirm-body": {
+        "message": "לא תקבל יותר הודעות או עדכונים מקבוצה זו וחברי קבוצה לא יוכלו להוסיף אותך שוב אל קבוצה זו.",
+        "description": "Shown as the body in the confirmation modal for blocking a group message request"
+    },
+    "MessageRequests--delete": {
+        "message": "מחק",
+        "description": "Shown as a button to let the user delete any message request"
+    },
+    "MessageRequests--delete-direct-confirm-title": {
+        "message": "למחוק שיחה?",
+        "description": "Shown as the title in the confirmation modal for deleting a private message request"
+    },
+    "MessageRequests--delete-direct-confirm-body": {
+        "message": "שיחה זו תימחק מכל המכשירים שלך.",
+        "description": "Shown as the body in the confirmation modal for deleting a private message request"
+    },
+    "MessageRequests--delete-group-confirm-title": {
+        "message": "למחוק ולעזוב את $group$?",
+        "description": "Shown as the title in the confirmation modal for deleting a group message request",
+        "placeholders": {
+            "group": {
+                "content": "$1",
+                "example": "Friends 🌿"
+            }
+        }
+    },
+    "MessageRequests--delete-direct": {
+        "message": "מחק",
+        "description": "Shown as a button to let the user delete a direct message request"
+    },
+    "MessageRequests--delete-group": {
+        "message": "מחק ועזוב",
+        "description": "Shown as a button to let the user delete a group message request"
+    },
+    "MessageRequests--delete-group-confirm-body": {
+        "message": "תעזוב קבוצה זו, והיא תימחק מכל המכשירים שלך.",
+        "description": "Shown as the body in the confirmation modal for deleting a group message request"
+    },
+    "MessageRequests--accept": {
+        "message": "קבל",
+        "description": "Shown as a button to let the user accept a message request"
+    },
+    "ConversationHero--members": {
+        "message": "$count$ חברי קבוצה",
+        "description": "Specifies the number of members in a group conversation",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "22"
+            }
+        }
+    },
+    "ConversationHero--members-1": {
+        "message": "חבר אחד",
+        "description": "Specifies the number of members in a group conversation when there is one member",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "22"
+            }
+        }
+    },
+    "ConversationHero--membership-1": {
+        "message": "חבר קבוצה של $group$.",
+        "description": "Shown in the conversation hero to indicate this user is a member of a mutual group",
+        "placeholders": {
+            "group": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
+            }
+        }
+    },
+    "ConversationHero--membership-2": {
+        "message": "חבר קבוצה של $group1$ ושל $group2$.",
+        "description": "Shown in the conversation hero to indicate this user is a member of at least two mutual groups",
+        "placeholders": {
+            "group1": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
+            },
+            "group2": {
+                "content": "$2",
+                "example": "Dinner Party"
+            }
+        }
+    },
+    "ConversationHero--membership-3": {
+        "message": "חבר קבוצה של $group1$, $group2$, ושל $group3$.",
+        "description": "Shown in the conversation hero to indicate this user is a member of at least three mutual groups",
+        "placeholders": {
+            "group1": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
+            },
+            "group2": {
+                "content": "$2",
+                "example": "Dinner Party"
+            },
+            "group3": {
+                "content": "$3",
+                "example": "Friends 🌿"
+            }
+        }
+    },
+    "ConversationHero--membership-extra": {
+        "message": "חבר קבוצה של $group1$, $group2$, $group3$ ושל עוד $remainingCount$.",
+        "description": "Shown in the conversation hero to indicate this user is a member of at least three mutual groups",
+        "placeholders": {
+            "group1": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
+            },
+            "group2": {
+                "content": "$2",
+                "example": "Dinner Party"
+            },
+            "group3": {
+                "content": "$3",
+                "example": "Friends 🌿"
+            },
+            "remainingCount": {
+                "content": "$4",
+                "example": "3"
+            }
+        }
+    },
+    "ConversationHero--membership-added": {
+        "message": "$name$ הוסיף אותך אל הקבוצה.",
+        "description": "Shown Indicates that you were added to a group by a given individual.",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Jeff Smith"
+            }
+        }
+    },
+    "acceptCall": {
+        "message": "ענה",
+        "description": "Shown in tooltip for the button to accept a call (audio or video)"
+    },
+    "acceptCallWithoutVideo": {
+        "message": "ענה בלי וידאו",
+        "description": "Shown in tooltip for the button to accept a video call without video"
+    },
+    "declineCall": {
+        "message": "דחה",
+        "description": "Shown in tooltip for the button to decline a call (audio or video)"
+    },
+    "declinedIncomingAudioCall": {
+        "message": "דחית שיחת שמע",
+        "description": "Shown in conversation history when you declined an incoming audio call"
+    },
+    "declinedIncomingVideoCall": {
+        "message": "דחית שיחת וידאו",
+        "description": "Shown in conversation history when you declined an incoming video call"
+    },
+    "acceptedIncomingAudioCall": {
+        "message": "שיחת שמע נכנסת",
+        "description": "Shown in conversation history when you accepted an incoming audio call"
+    },
+    "acceptedIncomingVideoCall": {
+        "message": "שיחת וידאו נכנסת",
+        "description": "Shown in conversation history when you accepted an incoming video call"
+    },
+    "missedIncomingAudioCall": {
+        "message": "שיחת שמע שלא נענתה",
+        "description": "Shown in conversation history when you missed an incoming audio call"
+    },
+    "missedIncomingVideoCall": {
+        "message": "שיחת וידאו שלא נענתה",
+        "description": "Shown in conversation history when you missed an incoming video call"
+    },
+    "acceptedOutgoingAudioCall": {
+        "message": "שיחת שמע יוצאת",
+        "description": "Shown in conversation history when you made an outgoing audio call"
+    },
+    "acceptedOutgoingVideoCall": {
+        "message": "שיחת וידאו יוצאת",
+        "description": "Shown in conversation history when you made an outgoing video call"
+    },
+    "missedOrDeclinedOutgoingAudioCall": {
+        "message": "שיחת שמע שלא נענתה",
+        "description": "Shown in conversation history when your audio call is missed or declined"
+    },
+    "missedOrDeclinedOutgoingVideoCall": {
+        "message": "שיחת וידאו שלא נענתה",
+        "description": "Shown in conversation history when your video call is missed or declined"
+    },
+    "incomingAudioCall": {
+        "message": "שיחת שמע נכנסת…",
+        "description": "Shown in both the incoming call bar and notification for an incoming audio call"
+    },
+    "incomingVideoCall": {
+        "message": "שיחת וידאו נכנסת…",
+        "description": "Shown in both the incoming call bar and notification for an incoming video call"
+    },
+    "outgoingCallPrering": {
+        "message": "מתקשר...",
+        "description": "Shown in the call screen when placing an outgoing call that isn't ringing yet"
+    },
+    "outgoingCallRinging": {
+        "message": "מצלצל…",
+        "description": "Shown in the call screen when placing an outgoing call that is now ringing"
+    },
+    "makeOutgoingCall": {
+        "message": "התחלת שיחה",
+        "description": "Title for the call button in a conversation"
+    },
+    "makeOutgoingVideoCall": {
+        "message": "התחלת שיחת וידאו",
+        "description": "Title for the video call button in a conversation"
+    },
+    "callNeedPermission": {
+        "message": "$title$ יקבל/תקבל בקשת התכתבות ממך. תוכל להתקשר ברגע שבקשת ההתכתבות שלך תאושר.",
+        "description": "Shown when a call is rejected because the other party hasn't approved the message/call request",
+        "placeholders": {
+            "title": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "callReconnecting": {
+        "message": "מתחבר מחדש…",
+        "description": "Shown in the call screen when the call is reconnecting due to network issues"
+    },
+    "callDuration": {
+        "message": "Signal $duration$",
+        "description": "Shown in the call screen to indicate how long the call has been connected",
+        "placeholders": {
+            "duration": {
+                "content": "$1",
+                "example": "00:01"
+            }
+        }
+    },
+    "callingDeviceSelection__settings": {
+        "message": "הגדרות",
+        "description": "Title for device selection settings"
+    },
+    "calling__participants": {
+        "message": "משתתפים",
+        "description": "Title for participants list toggle"
+    },
+    "calling__pip": {
+        "message": "תמונה בתוך תמונה",
+        "description": "Title for picture-in-picture toggle"
+    },
+    "calling__hangup": {
+        "message": "נתק",
+        "description": "Title for hang up button"
+    },
+    "callingDeviceSelection__label--video": {
+        "message": "סרטון",
+        "description": "Label for video input selector"
+    },
+    "callingDeviceSelection__label--audio-input": {
+        "message": "מיקרופון",
+        "description": "Label for audio input selector"
+    },
+    "callingDeviceSelection__label--audio-output": {
+        "message": "רמקולים",
+        "description": "Label for audio output selector"
+    },
+    "callingDeviceSelection__select--no-device": {
+        "message": "אין מכשירים זמינים",
+        "description": "Message for when there are no available devices to select for input/output audio or video"
+    },
+    "callingDeviceSelection__select--default": {
+        "message": "ברירת מחדל",
+        "description": "Shown when the device is the default device"
+    },
+    "muteNotificationsTitle": {
+        "message": "השתק התראות",
+        "description": "Label for the mute notifications drop-down selector"
+    },
+    "muteHour": {
+        "message": "השתק לשעה אחת",
+        "description": "Label for muting the conversation"
+    },
+    "muteDay": {
+        "message": "השתק ליום אחד",
+        "description": "Label for muting the conversation"
+    },
+    "muteWeek": {
+        "message": "השתק לשבוע אחד",
+        "description": "Label for muting the conversation"
+    },
+    "muteYear": {
+        "message": "השתק לשנה אחת",
+        "description": "Label for muting the conversation"
+    },
+    "unmute": {
+        "message": "בטל השתקה",
+        "description": "Label for unmuting the conversation"
+    },
+    "muteExpirationLabel": {
+        "message": "מושתק עד $duration$",
+        "description": "Shown in the mute notifications submenu whenever a conversation has been muted",
+        "placeholders": {
+            "duration": {
+                "content": "$1",
+                "example": "10/23/2023, 7:10 PM"
+            }
+        }
+    },
+    "EmojiButton__label": {
+        "message": "אמוג'י",
+        "description": "Label for emoji button"
+    },
+    "ErrorModal--title": {
+        "message": "משהו השתבש!",
+        "description": "Title of pop-up dialog when user-initiated task has gone wrong"
+    },
+    "ErrorModal--description": {
+        "message": "אנא נסה שוב או צור קשר עם התמיכה.",
+        "description": "Description text in pop-up dialog when user-initiated task has gone wrong"
+    },
+    "ErrorModal--buttonText": {
+        "message": "בסדר",
+        "description": "Button to dismiss pop-up dialog when user-initiated task has gone wrong"
+    },
+    "GroupV2--admin": {
+        "message": "מנהלן",
+        "description": "Shown next to the set of administrators in a group"
+    },
+    "updating": {
+        "message": "מעדכן…",
+        "description": "Shown along with a spinner when an update operation takes longer than one second"
+    },
+    "GroupV2--create--you": {
+        "message": "יצרת את הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--create--other": {
+        "message": "$memberName$ יצר/ה את הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--create--unknown": {
+        "message": "הקבוצה נוצרה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--title--change--other": {
+        "message": "$memberName$ שינה/שינתה את שם הקבוצה אל \"$newTitle$\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "newTitle": {
+                "content": "$2",
+                "example": "Saturday Hiking"
+            }
+        }
+    },
+    "GroupV2--title--change--you": {
+        "message": "שינית את שם הקבוצה אל \"$newTitle$\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "newTitle": {
+                "content": "$1",
+                "example": "Saturday Hiking"
+            }
+        }
+    },
+    "GroupV2--title--change--unknown": {
+        "message": "חבר קבוצה שינה את שם הקבוצה אל \"$newTitle$\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "newTitle": {
+                "content": "$1",
+                "example": "Saturday Hiking"
+            }
+        }
+    },
+    "GroupV2--title--remove--other": {
+        "message": "$memberName$ הסיר/ה את שם הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--title--remove--you": {
+        "message": "הסרת את שם הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--title--remove--unknown": {
+        "message": "חבר/ת קבוצה הסיר/ה את שם הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--avatar--change--other": {
+        "message": "$memberName$ שינ(ת)ה את יצגן הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--avatar--change--you": {
+        "message": "שינית את יצגן הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--avatar--change--unknown": {
+        "message": "חבר/ת קבוצה שינ(ת)ה את יצגן הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--avatar--remove--other": {
+        "message": "$memberName$ הסיר/ה את יצגן הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--avatar--remove--you": {
+        "message": "הסרת את יצגן הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--avatar--remove--unknown": {
+        "message": "חבר/ת קבוצה הסיר/ה את יצגן הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-attributes--admins--other": {
+        "message": "$adminName$ שינה/שינתה מי יכול לערוך מידע קבוצה אל \"מנהלנים בלבד\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--access-attributes--admins--you": {
+        "message": "שינית מי יכול לערוך מידע קבוצה אל \"מנהלנים בלבד\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-attributes--admins--unknown": {
+        "message": "מנהלן שינה מי יכול לערוך מידע קבוצה אל \"מנהלנים בלבד\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-attributes--all--other": {
+        "message": "$adminName$ שינה/שינתה מי יכול לערוך מידע קבוצה אל \"כל חברי הקבוצה\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--access-attributes--all--you": {
+        "message": "שינית מי יכול לערוך מידע קבוצה אל \"כל חברי הקבוצה\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-attributes--all--unknown": {
+        "message": "מנהלן שינה מי יכול לערוך מידע קרבוצה אל \"כל חברי הקבוצה\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-members--admins--other": {
+        "message": "$adminName$ שינה/שינתה מי יכול לערוך חֲבֵרוּת קבוצה אל \"מנהלנים בלבד\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--access-members--admins--you": {
+        "message": "שינית מי יכול לערוך חֲבֵרוּת קבוצה אל \"מנהלנים בלבד\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-members--admins--unknown": {
+        "message": "מנהלן שינה מי יכול לערוך חֲבֵרוּת קבוצה אל \"מנהלנים בלבד\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-members--all--other": {
+        "message": "$adminName$ שינה/שינתה מי יכול לערוך חֲבֵרוּת קבוצה אל \"כל חברי הקבוצה\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--access-members--all--you": {
+        "message": "שינית מי יכול לערוך חֲבֵרוּת קבוצה אל \"כל חברי הקבוצה\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-members--all--unknown": {
+        "message": "מנהלן שינה מי יכול לערוך חֲבֵרוּת קבוצה אל \"כל חברי הקבוצה\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-add--invited--you": {
+        "message": "הוספת חבר קבוצה מוזמן בשם $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-add--invited--other": {
+        "message": "$memberName$ הוסיף/ה חבר קבוצה מוזמן בשם $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Alice"
+            },
+            "inviteeName": {
+                "content": "$2",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--invited--unknown": {
+        "message": "חבר קבוצה הוסיף חבר קבוצה מוזמן בשם $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-add--from-invite--other": {
+        "message": "$inviteeName$ הסכים/ה להזמנה אל הקבוצה מאת $inviterName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Alice"
+            },
+            "inviterName": {
+                "content": "$2",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--from-invite--other-no-from": {
+        "message": "$inviteeName$ הסכים/ה להזמנה אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-add--from-invite--you": {
+        "message": "הסכמת להזמנה אל הקבוצה מאת $inviterName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviterName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--from-invite--you-no-from": {
+        "message": "הסכמת להזמנה אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-add--from-invite--from-you": {
+        "message": "$inviteeName$ הסכים/ה להזמנה שלך אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--other--other": {
+        "message": "$adderName$ הוסיף/ה את $addeeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adderName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "addeeName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-add--other--you": {
+        "message": "הוספת את $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--other--unknown": {
+        "message": "חבר/ת קבוצה הוסיף/ה את $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--you--other": {
+        "message": "$memberName$ הוסיף/ה אותך אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--you--you": {
+        "message": "הצטרפת אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-add--you--unknown": {
+        "message": "התווספת אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-remove--other--other": {
+        "message": "$adminName$ הסיר/ה את $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-remove--other--self": {
+        "message": "$memberName$ עזב/ה את הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-remove--other--you": {
+        "message": "הסרת את $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-remove--other--unknown": {
+        "message": "חבר קבוצה הסיר את $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-remove--you--other": {
+        "message": "$adminName$ הסיר/ה אותך.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-remove--you--you": {
+        "message": "עזבת את הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-remove--you--unknown": {
+        "message": "הוסרת מהקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-privilege--promote--other--other": {
+        "message": "$adminName$ הפך/ה את $memberName$ למנהל/ת.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-privilege--promote--other--you": {
+        "message": "הפכת את $memberName$ למנהל/ת.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--promote--other--unknown": {
+        "message": "מנהל/ת הפך/ה את $memberName$ למנהל/ת.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--promote--you--other": {
+        "message": "$adminName$ הפך/ה אותך למנהל/ת.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--promote--you--unknown": {
+        "message": "מנהל/ת הפך/ה אותך למנהל/ת",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-privilege--demote--other--other": {
+        "message": "$adminName$ שלל/ה זכויות מינהל מן $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-privilege--demote--other--you": {
+        "message": "שללת זכויות מינהל מן $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--demote--other--unknown": {
+        "message": "מנהלן שלל זכויות מינהל מן $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-privilege--demote--you--other": {
+        "message": "$adminName$ שלל/ה את זכויות המינהל שלך.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--demote--you--unknown": {
+        "message": "מנהלן שלל את זכויות המינהל שלך.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--pending-add--one--other--other": {
+        "message": "$memberName$ הזמין/ה איש 1 אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-add--one--other--you": {
+        "message": "הזמנת את $inviteeName$ אל הקבוצה",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-add--one--other--unknown": {
+        "message": "איש אחד הוזמן אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-add--one--you--other": {
+        "message": "$memberName$ הזמין/ה אותך אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-add--one--you--unknown": {
+        "message": "הוזמנת אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--pending-add--many--other": {
+        "message": "$memberName$ הזמין/ה $count$ אנשים אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "count": {
+                "content": "$2",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-add--many--you": {
+        "message": "הזמנת $count$ אנשים אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-add--many--unknown": {
+        "message": "$count$ אנשים הוזמנו אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--decline--other": {
+        "message": "איש 1 שהוזמן על ידי $memberName$ דחה את ההזמנה אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--decline--you": {
+        "message": "$inviteeName$ דחה/דחתה את ההזמנה שלך אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--decline--from-you": {
+        "message": "סירבת אל ההזמנה אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--pending-remove--decline--unknown": {
+        "message": "איש 1 דחה את ההזמנה שלו אל הקבוצה.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--pending-remove--revoke--one--other": {
+        "message": "$memberName$ שלל/ה הזמנה אל הקבוצה עבור איש 1.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--one--you": {
+        "message": "שללת הזמנה אל הקבוצה עבור איש 1.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-own--to-you": {
+        "message": "$inviterName$ שלל/ה את ההזמנה שלו/שלה אליך.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviterName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-own--unknown": {
+        "message": "$inviterName$ שלל/ה את ההזמנה שלו/שלה אל איש 1.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviterName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--one--unknown": {
+        "message": "מנהלן שלל הזמנה אל הקבוצה עבור איש 1.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--many--other": {
+        "message": "$memberName$ שלל/ה הזמנות אל הקבוצה עבור $count$ אנשים.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "count": {
+                "content": "$2",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--many--you": {
+        "message": "שללת הזמנות אל הקבוצה עבור $count$ אנשים.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--many--unknown": {
+        "message": "מנהלן שלל הזמנות אל הקבוצה עבור $count$ אנשים.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--one--other": {
+        "message": "$adminName$ שלל/ה הזמנה אל הקבוצה עבור איש 1 שהוזמן על ידי $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--one--you": {
+        "message": "שללת הזמנה אל הקבוצה עבור איש 1 שהוזמן על ידי $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--one--unknown": {
+        "message": "מנהלן שלל הזמנה אל הקבוצה עבור איש 1 שהוזמן על ידי $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--one--other": {
+        "message": "$adminName$ שלל/ה את ההזמנה אל הקבוצה ששלחת אל $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--one--you": {
+        "message": "ביטלת את ההזמנה שלך אל $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--one--unknown": {
+        "message": "מנהלן שלל את ההזמנה אל הקבוצה ששלחת אל $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--many--other": {
+        "message": "$adminName$ שלל/ה הזמנות אל הקבוצה עבור $count$ אנשים שהזומנו על ידי $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--many--you": {
+        "message": "שללת הזמנות אל הקבוצה עבור $count$ אנשים שהוזמנו על ידי $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--many--unknown": {
+        "message": "מנהלן שלל הזמנות אל הקבוצה עבור $count$ אנשים שהוזמנו על ידי $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--many--other": {
+        "message": "$adminName$ שלל/ה את ההזמנות אל הקבוצה ששלחת אל $count$ אנשים.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "count": {
+                "content": "$2",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--many--you": {
+        "message": "ביטלת את  ההזמנה שלך אל $count$ אנשים.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--many--unknown": {
+        "message": "מנהלן שלל את ההזמנות אל הקבוצה ששלחת אל $count$ אנשים.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "close": {
+        "message": "סגור",
+        "description": "Generic close label"
+    },
+    "previous": {
+        "message": "אחורה",
+        "description": "Generic previous label"
+    },
+    "next": {
+        "message": "קדימה",
+        "description": "Generic next label"
+    },
+    "CompositionArea--expand": {
+        "message": "הרחב",
+        "description": "Aria label for expanding composition area"
+    },
+    "CompositionArea--attach-file": {
+        "message": "צרף קובץ",
+        "description": "Aria label for file attachment button in composition area"
+    },
+    "countMutedConversationsDescription": {
+        "message": "ספור שיחות מושתקות בספירת התג",
+        "description": "Description for counting muted conversations in badge setting"
     }
 }

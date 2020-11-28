@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { storiesOf } from '@storybook/react';
+import { text } from '@storybook/addon-knobs';
+import { action } from '@storybook/addon-actions';
+
 import { StickerPreviewModal } from './StickerPreviewModal';
-// @ts-ignore
 import { setup as setupI18n } from '../../../js/modules/i18n';
-// @ts-ignore
 import enMessages from '../../../_locales/en/messages.json';
 import {
   landscapeGreenUrl,
@@ -10,13 +12,9 @@ import {
   squareStickerUrl,
 } from '../../storybook/Fixtures';
 
-import { storiesOf } from '@storybook/react';
-import { text } from '@storybook/addon-knobs';
-import { action } from '@storybook/addon-actions';
-
 const i18n = setupI18n('en', enMessages);
 
-storiesOf('stickers', module).add('StickerPreviewModal', () => {
+storiesOf('Components/Stickers/StickerPreviewModal', module).add('Full', () => {
   const title = text('title', 'Foo');
   const author = text('author', 'Foo McBarrington');
   const abeSticker = {
@@ -46,7 +44,7 @@ storiesOf('stickers', module).add('StickerPreviewModal', () => {
     title,
     isBlessed: true,
     author,
-    status: 'downloaded' as 'downloaded',
+    status: 'downloaded' as const,
     stickerCount: 101,
     stickers: [
       wideSticker,

@@ -71,17 +71,19 @@ export const UpdateDialog = ({
           <h3>{i18n('cannotUpdate')}</h3>
           <span>
             <Intl
-              components={[
-                <strong key="app">Signal.app</strong>,
-                <strong key="folder">/Applications</strong>,
-              ]}
+              components={{
+                app: <strong key="app">Signal.app</strong>,
+                folder: <strong key="folder">/Applications</strong>,
+              }}
               i18n={i18n}
               id="readOnlyVolume"
             />
           </span>
         </div>
         <div className="module-left-pane-dialog__actions">
-          <button onClick={dismissDialog}>{i18n('ok')}</button>
+          <button type="button" onClick={dismissDialog}>
+            {i18n('ok')}
+          </button>
         </div>
       </div>
     );
@@ -96,13 +98,14 @@ export const UpdateDialog = ({
       <div className="module-left-pane-dialog__actions">
         {!didSnooze && (
           <button
+            type="button"
             className="module-left-pane-dialog__button--no-border"
             onClick={snoozeUpdate}
           >
             {i18n('autoUpdateLaterButtonLabel')}
           </button>
         )}
-        <button onClick={startUpdate}>
+        <button type="button" onClick={startUpdate}>
           {i18n('autoUpdateRestartButtonLabel')}
         </button>
       </div>

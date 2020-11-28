@@ -55,13 +55,32 @@ window.setHideMenuBar = makeSetter('hide-menu-bar');
 window.getSpellCheck = makeGetter('spell-check');
 window.setSpellCheck = makeSetter('spell-check');
 
+window.getAlwaysRelayCalls = makeGetter('always-relay-calls');
+window.setAlwaysRelayCalls = makeSetter('always-relay-calls');
+
 window.getNotificationSetting = makeGetter('notification-setting');
 window.setNotificationSetting = makeSetter('notification-setting');
+window.getNotificationDrawAttention = makeGetter('notification-draw-attention');
+window.setNotificationDrawAttention = makeSetter('notification-draw-attention');
 window.getAudioNotification = makeGetter('audio-notification');
 window.setAudioNotification = makeSetter('audio-notification');
+window.getCallRingtoneNotification = makeGetter('call-ringtone-notification');
+window.setCallRingtoneNotification = makeSetter('call-ringtone-notification');
+window.getCallSystemNotification = makeGetter('call-system-notification');
+window.setCallSystemNotification = makeSetter('call-system-notification');
+window.getIncomingCallNotification = makeGetter('incoming-call-notification');
+window.setIncomingCallNotification = makeSetter('incoming-call-notification');
+window.getCountMutedConversations = makeGetter(
+  'badge-count-muted-conversations'
+);
+window.setCountMutedConversations = makeSetter(
+  'badge-count-muted-conversations'
+);
 
 window.getMediaPermissions = makeGetter('media-permissions');
 window.setMediaPermissions = makeSetter('media-permissions');
+window.getMediaCameraPermissions = makeGetter('media-camera-permissions');
+window.setMediaCameraPermissions = makeSetter('media-camera-permissions');
 
 window.getReadReceiptSetting = makeGetter('read-receipt-setting');
 window.setReadReceiptSetting = makeSetter('read-receipt-setting');
@@ -112,3 +131,5 @@ function makeSetter(name) {
 }
 
 require('./js/logging');
+
+window.Backbone = require('backbone');

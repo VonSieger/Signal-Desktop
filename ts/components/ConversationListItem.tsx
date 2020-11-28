@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import classNames from 'classnames';
+import { isNumber } from 'lodash';
 
 import { Avatar } from './Avatar';
 import { MessageBody } from './conversation/MessageBody';
@@ -8,43 +9,59 @@ import { ContactName } from './conversation/ContactName';
 import { TypingAnimation } from './conversation/TypingAnimation';
 import { cleanId } from './_util';
 
-import { ColorType, LocalizerType } from '../types/Util';
+import { LocalizerType } from '../types/Util';
+import { ColorType } from '../types/Colors';
+
+export const MessageStatuses = [
+  'sending',
+  'sent',
+  'delivered',
+  'read',
+  'error',
+  'partial-sent',
+] as const;
+
+export type MessageStatusType = typeof MessageStatuses[number];
 
 export type PropsData = {
   id: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   color?: ColorType;
   profileName?: string;
+  title: string;
   name?: string;
   type: 'group' | 'direct';
   avatarPath?: string;
-  isMe: boolean;
+  isMe?: boolean;
+  muteExpiresAt?: number;
 
   lastUpdated: number;
-  unreadCount: number;
+  unreadCount?: number;
   isSelected: boolean;
 
+  acceptedMessageRequest?: boolean;
   draftPreview?: string;
   shouldShowDraft?: boolean;
 
-  typingContact?: Object;
+  typingContact?: unknown;
   lastMessage?: {
-    status: 'sending' | 'sent' | 'delivered' | 'read' | 'error';
+    status: MessageStatusType;
     text: string;
     deletedForEveryone?: boolean;
   };
+  isPinned?: boolean;
 };
 
 type PropsHousekeeping = {
   i18n: LocalizerType;
-  style?: Object;
+  style?: CSSProperties;
   onClick?: (id: string) => void;
 };
 
-type Props = PropsData & PropsHousekeeping;
+export type Props = PropsData & PropsHousekeeping;
 
 export class ConversationListItem extends React.PureComponent<Props> {
-  public renderAvatar() {
+  public renderAvatar(): JSX.Element {
     const {
       avatarPath,
       color,
@@ -54,6 +71,7 @@ export class ConversationListItem extends React.PureComponent<Props> {
       name,
       phoneNumber,
       profileName,
+      title,
     } = this.props;
 
     return (
@@ -67,6 +85,7 @@ export class ConversationListItem extends React.PureComponent<Props> {
           name={name}
           phoneNumber={phoneNumber}
           profileName={profileName}
+          title={title}
           size={52}
         />
         {this.renderUnread()}
@@ -74,10 +93,10 @@ export class ConversationListItem extends React.PureComponent<Props> {
     );
   }
 
-  public renderUnread() {
+  public renderUnread(): JSX.Element | null {
     const { unreadCount } = this.props;
 
-    if (unreadCount > 0) {
+    if (isNumber(unreadCount) && unreadCount > 0) {
       return (
         <div className="module-conversation-list-item__unread-count">
           {unreadCount}
@@ -88,7 +107,7 @@ export class ConversationListItem extends React.PureComponent<Props> {
     return null;
   }
 
-  public renderHeader() {
+  public renderHeader(): JSX.Element {
     const {
       unreadCount,
       i18n,
@@ -97,14 +116,17 @@ export class ConversationListItem extends React.PureComponent<Props> {
       name,
       phoneNumber,
       profileName,
+      title,
     } = this.props;
+
+    const withUnread = isNumber(unreadCount) && unreadCount > 0;
 
     return (
       <div className="module-conversation-list-item__header">
         <div
           className={classNames(
             'module-conversation-list-item__header__name',
-            unreadCount > 0
+            withUnread
               ? 'module-conversation-list-item__header__name--with-unread'
               : null
           )}
@@ -116,13 +138,15 @@ export class ConversationListItem extends React.PureComponent<Props> {
               phoneNumber={phoneNumber}
               name={name}
               profileName={profileName}
+              title={title}
+              i18n={i18n}
             />
           )}
         </div>
         <div
           className={classNames(
             'module-conversation-list-item__header__date',
-            unreadCount > 0
+            withUnread
               ? 'module-conversation-list-item__header__date--has-unread'
               : null
           )}
@@ -131,7 +155,7 @@ export class ConversationListItem extends React.PureComponent<Props> {
             timestamp={lastUpdated}
             extended={false}
             module="module-conversation-list-item__header__timestamp"
-            withUnread={unreadCount > 0}
+            withUnread={withUnread}
             i18n={i18n}
           />
         </div>
@@ -139,11 +163,13 @@ export class ConversationListItem extends React.PureComponent<Props> {
     );
   }
 
-  public renderMessage() {
+  public renderMessage(): JSX.Element | null {
     const {
       draftPreview,
       i18n,
+      acceptedMessageRequest,
       lastMessage,
+      muteExpiresAt,
       shouldShowDraft,
       typingContact,
       unreadCount,
@@ -152,50 +178,60 @@ export class ConversationListItem extends React.PureComponent<Props> {
       return null;
     }
 
+    const messageBody = lastMessage ? lastMessage.text : '';
+    const withUnread = isNumber(unreadCount) && unreadCount > 0;
     const showingDraft = shouldShowDraft && draftPreview;
     const deletedForEveryone = Boolean(
       lastMessage && lastMessage.deletedForEveryone
     );
 
-    // Note: instead of re-using showingDraft here we explode it because
-    //   typescript can't tell that draftPreview is truthy otherwise
-    const text =
-      shouldShowDraft && draftPreview
-        ? draftPreview
-        : lastMessage && lastMessage.text
-        ? lastMessage.text
-        : '';
-
+    /* eslint-disable no-nested-ternary */
     return (
       <div className="module-conversation-list-item__message">
         <div
           dir="auto"
           className={classNames(
             'module-conversation-list-item__message__text',
-            unreadCount > 0
+            withUnread
               ? 'module-conversation-list-item__message__text--has-unread'
               : null
           )}
         >
-          {typingContact ? (
+          {muteExpiresAt && Date.now() < muteExpiresAt && (
+            <span className="module-conversation-list-item__muted" />
+          )}
+          {!acceptedMessageRequest ? (
+            <span className="module-conversation-list-item__message-request">
+              {i18n('ConversationListItem--message-request')}
+            </span>
+          ) : typingContact ? (
             <TypingAnimation i18n={i18n} />
           ) : (
             <>
               {showingDraft ? (
-                <span className="module-conversation-list-item__message__draft-prefix">
-                  {i18n('ConversationListItem--draft-prefix')}
-                </span>
+                <>
+                  <span className="module-conversation-list-item__message__draft-prefix">
+                    {i18n('ConversationListItem--draft-prefix')}
+                  </span>
+                  <MessageBody
+                    text={(draftPreview || '').split('\n')[0]}
+                    disableJumbomoji
+                    disableLinks
+                    i18n={i18n}
+                  />
+                </>
               ) : deletedForEveryone ? (
                 <span className="module-conversation-list-item__message__deleted-for-everyone">
                   {i18n('message--deletedForEveryone')}
                 </span>
-              ) : null}
-              <MessageBody
-                text={text.split('\n')[0]}
-                disableJumbomoji={true}
-                disableLinks={true}
-                i18n={i18n}
-              />
+              ) : (
+                <MessageBody
+                  text={(messageBody || '').split('\n')[0]}
+                  disableJumbomoji
+                  disableLinks
+                  i18n={i18n}
+                />
+              )}
             </>
           )}
         </div>
@@ -210,12 +246,15 @@ export class ConversationListItem extends React.PureComponent<Props> {
       </div>
     );
   }
+  /* eslint-enable no-nested-ternary */
 
-  public render() {
+  public render(): JSX.Element {
     const { unreadCount, onClick, id, isSelected, style } = this.props;
+    const withUnread = isNumber(unreadCount) && unreadCount > 0;
 
     return (
       <button
+        type="button"
         onClick={() => {
           if (onClick) {
             onClick(id);
@@ -224,7 +263,7 @@ export class ConversationListItem extends React.PureComponent<Props> {
         style={style}
         className={classNames(
           'module-conversation-list-item',
-          unreadCount > 0 ? 'module-conversation-list-item--has-unread' : null,
+          withUnread ? 'module-conversation-list-item--has-unread' : null,
           isSelected ? 'module-conversation-list-item--is-selected' : null
         )}
         data-id={cleanId(id)}

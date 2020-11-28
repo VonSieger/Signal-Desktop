@@ -1,4 +1,5 @@
-// @ts-ignore: untyped json
+// Camelcase disabled due to emoji-datasource using snake_case
+/* eslint-disable camelcase */
 import untypedData from 'emoji-datasource';
 import emojiRegex from 'emoji-regex';
 import {
@@ -16,8 +17,6 @@ import {
 import Fuse from 'fuse.js';
 import PQueue from 'p-queue';
 import is from '@sindresorhus/is';
-
-export type ValuesOf<T extends Array<any>> = T[number];
 
 export const skinTones = ['1F3FB', '1F3FC', '1F3FD', '1F3FE', '1F3FF'];
 
@@ -82,9 +81,7 @@ const data = (untypedData as Array<EmojiData>)
       : emoji
   );
 
-// @ts-ignore
 const ROOT_PATH = get(
-  // tslint:disable-next-line no-typeof-undefined
   typeof window !== 'undefined' ? window : null,
   'ROOT_PATH',
   ''
@@ -94,10 +91,10 @@ const makeImagePath = (src: string) => {
   return `${ROOT_PATH}node_modules/emoji-datasource-apple/img/apple/64/${src}`;
 };
 
-const imageQueue = new PQueue({ concurrency: 10 });
+const imageQueue = new PQueue({ concurrency: 10, timeout: 1000 * 60 * 2 });
 const images = new Set();
 
-export const preloadImages = async () => {
+export const preloadImages = async (): Promise<void> => {
   // Preload images
   const preload = async (src: string) =>
     new Promise((resolve, reject) => {
@@ -106,21 +103,17 @@ export const preloadImages = async () => {
       img.onerror = reject;
       img.src = src;
       images.add(img);
-      // tslint:disable-next-line  no-string-based-set-timeout
       setTimeout(reject, 5000);
     });
 
-  // tslint:disable-next-line no-console
-  console.log('Preloading emoji images');
+  window.log.info('Preloading emoji images');
   const start = Date.now();
 
   data.forEach(emoji => {
-    // tslint:disable-next-line no-floating-promises promise-function-async
     imageQueue.add(() => preload(makeImagePath(emoji.image)));
 
     if (emoji.skin_variations) {
       Object.values(emoji.skin_variations).forEach(variation => {
-        // tslint:disable-next-line no-floating-promises promise-function-async
         imageQueue.add(() => preload(makeImagePath(variation.image)));
       });
     }
@@ -129,8 +122,7 @@ export const preloadImages = async () => {
   await imageQueue.onEmpty();
 
   const end = Date.now();
-  // tslint:disable-next-line no-console
-  console.log(`Done preloading emoji images in ${end - start}ms`);
+  window.log.info(`Done preloading emoji images in ${end - start}ms`);
 };
 
 const dataByShortName = keyBy(data, 'short_name');
@@ -222,7 +214,7 @@ const fuse = new Fuse(data, {
   keys: ['name', 'short_name', 'short_names'],
 });
 
-export function search(query: string, count: number = 0) {
+export function search(query: string, count = 0): Array<EmojiData> {
   const results = fuse.search(query.substr(0, 32));
 
   if (count) {
@@ -237,11 +229,11 @@ const shortNames = new Set([
   ...compact<string>(flatMap(data, 'short_names')),
 ]);
 
-export function isShortName(name: string) {
+export function isShortName(name: string): boolean {
   return shortNames.has(name);
 }
 
-export function unifiedToEmoji(unified: string) {
+export function unifiedToEmoji(unified: string): string {
   return unified
     .split('-')
     .map(c => String.fromCodePoint(parseInt(c, 16)))
@@ -251,7 +243,7 @@ export function unifiedToEmoji(unified: string) {
 export function convertShortName(
   shortName: string,
   skinTone: number | SkinToneKey = 0
-) {
+): string {
   const base = dataByShortName[shortName];
 
   if (!base) {
@@ -271,7 +263,19 @@ export function convertShortName(
 }
 
 export function emojiToImage(emoji: string): string | undefined {
+  if (!Object.prototype.hasOwnProperty.call(imageByEmoji, emoji)) {
+    return undefined;
+  }
+
   return imageByEmoji[emoji];
+}
+
+export function emojiToData(emoji: string): EmojiData | undefined {
+  if (!Object.prototype.hasOwnProperty.call(dataByEmoji, emoji)) {
+    return undefined;
+  }
+
+  return dataByEmoji[emoji];
 }
 
 function getCountOfAllMatches(str: string, regex: RegExp) {
@@ -300,15 +304,17 @@ export function getSizeClass(str: string): SizeClassType {
 
   if (emojiCount > 8) {
     return '';
-  } else if (emojiCount > 6) {
-    return 'small';
-  } else if (emojiCount > 4) {
-    return 'medium';
-  } else if (emojiCount > 2) {
-    return 'large';
-  } else {
-    return 'jumbo';
   }
+  if (emojiCount > 6) {
+    return 'small';
+  }
+  if (emojiCount > 4) {
+    return 'medium';
+  }
+  if (emojiCount > 2) {
+    return 'large';
+  }
+  return 'jumbo';
 }
 
 data.forEach(emoji => {

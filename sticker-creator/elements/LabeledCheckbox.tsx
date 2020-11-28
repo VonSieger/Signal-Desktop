@@ -17,14 +17,15 @@ const checkSvg = (
 export const LabeledCheckbox = React.memo(
   ({ children, value, onChange }: Props) => {
     const handleChange = React.useCallback(() => {
-      onChange(!value);
+      if (onChange !== undefined) {
+        onChange(!value);
+      }
     }, [onChange, value]);
 
     const className = value ? styles.checkboxChecked : styles.checkbox;
 
     return (
       <label className={styles.base}>
-        {/* tslint:disable-next-line react-a11y-input-elements */}
         <input
           type="checkbox"
           className={styles.input}

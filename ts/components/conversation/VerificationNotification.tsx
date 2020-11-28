@@ -8,9 +8,10 @@ import { LocalizerType } from '../../types/Util';
 import { missingCaseError } from '../../util/missingCaseError';
 
 interface Contact {
-  phoneNumber: string;
+  phoneNumber?: string;
   profileName?: string;
   name?: string;
+  title: string;
 }
 
 export type PropsData = {
@@ -23,10 +24,10 @@ type PropsHousekeeping = {
   i18n: LocalizerType;
 };
 
-type Props = PropsData & PropsHousekeeping;
+export type Props = PropsData & PropsHousekeeping;
 
 export class VerificationNotification extends React.Component<Props> {
-  public getStringId() {
+  public getStringId(): string {
     const { isLocal, type } = this.props;
 
     switch (type) {
@@ -43,7 +44,7 @@ export class VerificationNotification extends React.Component<Props> {
     }
   }
 
-  public renderContents() {
+  public renderContents(): JSX.Element {
     const { contact, i18n } = this.props;
     const id = this.getStringId();
 
@@ -56,7 +57,9 @@ export class VerificationNotification extends React.Component<Props> {
             name={contact.name}
             profileName={contact.profileName}
             phoneNumber={contact.phoneNumber}
+            title={contact.title}
             module="module-verification-notification__contact"
+            i18n={i18n}
           />,
         ]}
         i18n={i18n}
@@ -64,7 +67,7 @@ export class VerificationNotification extends React.Component<Props> {
     );
   }
 
-  public render() {
+  public render(): JSX.Element {
     const { type } = this.props;
     const suffix =
       type === 'markVerified' ? 'mark-verified' : 'mark-not-verified';

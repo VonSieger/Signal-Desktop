@@ -1,7 +1,7 @@
-import { Configuration, EnvironmentPlugin } from 'webpack';
-// tslint:disable-next-line no-require-imports
-import HtmlWebpackPlugin = require('html-webpack-plugin');
 import { resolve } from 'path';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Configuration, EnvironmentPlugin } from 'webpack';
+import HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const context = __dirname;
 const { NODE_ENV: mode = 'development' } = process.env;
@@ -77,7 +77,6 @@ const stickerCreatorConfig: Configuration = {
       },
     }),
   ],
-  // @ts-ignore: this typing broke at some point
   devServer: {
     port: 6380,
     historyApiFallback: {
@@ -86,5 +85,4 @@ const stickerCreatorConfig: Configuration = {
   },
 };
 
-// tslint:disable-next-line no-default-export
 export default [stickerCreatorConfig];

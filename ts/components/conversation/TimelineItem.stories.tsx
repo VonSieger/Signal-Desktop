@@ -2,13 +2,10 @@ import * as React from 'react';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+
 import { EmojiPicker } from '../emoji/EmojiPicker';
-
-// @ts-ignore
 import { setup as setupI18n } from '../../../js/modules/i18n';
-// @ts-ignore
 import enMessages from '../../../_locales/en/messages.json';
-
 import { PropsType as TimelineItemProps, TimelineItem } from './TimelineItem';
 
 const i18n = setupI18n('en', enMessages);
@@ -28,8 +25,13 @@ const renderEmojiPicker: TimelineItemProps['renderEmojiPicker'] = ({
   />
 );
 
+const renderContact = (conversationId: string) => (
+  <React.Fragment key={conversationId}>{conversationId}</React.Fragment>
+);
+
 const getDefaultProps = () => ({
   conversationId: 'conversation-id',
+  conversationAccepted: true,
   id: 'asdf',
   isSelected: false,
   selectMessage: action('selectMessage'),
@@ -38,6 +40,7 @@ const getDefaultProps = () => ({
   replyToMessage: action('replyToMessage'),
   retrySend: action('retrySend'),
   deleteMessage: action('deleteMessage'),
+  deleteMessageForEveryone: action('deleteMessageForEveryone'),
   showMessageDetail: action('showMessageDetail'),
   openConversation: action('openConversation'),
   showContactDetail: action('showContactDetail'),
@@ -54,6 +57,8 @@ const getDefaultProps = () => ({
   scrollToQuotedMessage: action('scrollToQuotedMessage'),
   downloadNewVersion: action('downloadNewVersion'),
   showIdentity: action('showIdentity'),
+
+  renderContact,
   renderEmojiPicker,
 });
 
@@ -74,18 +79,182 @@ storiesOf('Components/Conversation/TimelineItem', module)
     return <TimelineItem {...getDefaultProps()} item={item} i18n={i18n} />;
   })
   .add('Notification', () => {
-    const item = {
-      type: 'timerNotification',
-      data: {
-        type: 'fromOther',
-        phoneNumber: '(202) 555-0000',
-        timespan: '1 hour',
+    const items = [
+      {
+        type: 'timerNotification',
+        data: {
+          type: 'fromOther',
+          phoneNumber: '(202) 555-0000',
+          timespan: '1 hour',
+        },
       },
-    } as TimelineItemProps['item'];
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // declined incoming audio
+            wasDeclined: true,
+            wasIncoming: true,
+            wasVideoCall: false,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // declined incoming video
+            wasDeclined: true,
+            wasIncoming: true,
+            wasVideoCall: true,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // accepted incoming audio
+            acceptedTime: Date.now() - 300,
+            wasDeclined: false,
+            wasIncoming: true,
+            wasVideoCall: false,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // accepted incoming video
+            acceptedTime: Date.now() - 400,
+            wasDeclined: false,
+            wasIncoming: true,
+            wasVideoCall: true,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // missed (neither accepted nor declined) incoming audio
+            wasDeclined: false,
+            wasIncoming: true,
+            wasVideoCall: false,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // missed (neither accepted nor declined) incoming video
+            wasDeclined: false,
+            wasIncoming: true,
+            wasVideoCall: true,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // accepted outgoing audio
+            acceptedTime: Date.now() - 200,
+            wasDeclined: false,
+            wasIncoming: false,
+            wasVideoCall: false,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // accepted outgoing video
+            acceptedTime: Date.now() - 200,
+            wasDeclined: false,
+            wasIncoming: false,
+            wasVideoCall: true,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // declined outgoing audio
+            wasDeclined: true,
+            wasIncoming: false,
+            wasVideoCall: false,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // declined outgoing video
+            wasDeclined: true,
+            wasIncoming: false,
+            wasVideoCall: true,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // missed (neither accepted nor declined) outgoing audio
+            wasDeclined: false,
+            wasIncoming: false,
+            wasVideoCall: false,
+            endedTime: Date.now(),
+          },
+        },
+      },
+      {
+        type: 'callHistory',
+        data: {
+          callHistoryDetails: {
+            // missed (neither accepted nor declined) outgoing video
+            wasDeclined: false,
+            wasIncoming: false,
+            wasVideoCall: true,
+            endedTime: Date.now(),
+          },
+        },
+      },
+    ];
 
-    return <TimelineItem {...getDefaultProps()} item={item} i18n={i18n} />;
+    return (
+      <>
+        {items.map((item, index) => (
+          <React.Fragment key={index}>
+            <TimelineItem
+              {...getDefaultProps()}
+              item={item as TimelineItemProps['item']}
+              i18n={i18n}
+            />
+            <hr />
+          </React.Fragment>
+        ))}
+      </>
+    );
   })
   .add('Unknown Type', () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: intentional
     const item = {
       type: 'random',
@@ -97,6 +266,7 @@ storiesOf('Components/Conversation/TimelineItem', module)
     return <TimelineItem {...getDefaultProps()} item={item} i18n={i18n} />;
   })
   .add('Missing Item', () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: intentional
     const item = null as TimelineItemProps['item'];
 

@@ -1,19 +1,21 @@
-import React from 'react';
+import * as React from 'react';
 import classNames from 'classnames';
 
 import { getInitials } from '../util/getInitials';
-import { ColorType, LocalizerType } from '../types/Util';
+import { LocalizerType } from '../types/Util';
+import { ColorType } from '../types/Colors';
 
-export interface Props {
+export type Props = {
   avatarPath?: string;
   color?: ColorType;
 
   conversationType: 'group' | 'direct';
   noteToSelf?: boolean;
+  title: string;
   name?: string;
   phoneNumber?: string;
   profileName?: string;
-  size: 28 | 32 | 52 | 80;
+  size: 28 | 32 | 52 | 80 | 112;
 
   onClick?: () => unknown;
 
@@ -21,7 +23,7 @@ export interface Props {
   innerRef?: React.Ref<HTMLDivElement>;
 
   i18n: LocalizerType;
-}
+} & Pick<React.HTMLProps<HTMLDivElement>, 'className'>;
 
 interface State {
   imageBroken: boolean;
@@ -54,25 +56,22 @@ export class Avatar extends React.Component<Props, State> {
     return state;
   }
 
-  public handleImageError() {
-    // tslint:disable-next-line no-console
-    console.log('Avatar: Image failed to load; failing over to placeholder');
+  public handleImageError(): void {
+    window.log.info(
+      'Avatar: Image failed to load; failing over to placeholder'
+    );
     this.setState({
       imageBroken: true,
     });
   }
 
-  public renderImage() {
-    const { avatarPath, i18n, name, phoneNumber, profileName } = this.props;
+  public renderImage(): JSX.Element | null {
+    const { avatarPath, i18n, title } = this.props;
     const { imageBroken } = this.state;
 
     if (!avatarPath || imageBroken) {
       return null;
     }
-
-    const title = `${name || phoneNumber}${
-      !name && profileName ? ` ~${profileName}` : ''
-    }`;
 
     return (
       <img
@@ -83,7 +82,7 @@ export class Avatar extends React.Component<Props, State> {
     );
   }
 
-  public renderNoImage() {
+  public renderNoImage(): JSX.Element {
     const {
       conversationType,
       name,
@@ -131,7 +130,7 @@ export class Avatar extends React.Component<Props, State> {
     );
   }
 
-  public render() {
+  public render(): JSX.Element {
     const {
       avatarPath,
       color,
@@ -139,12 +138,13 @@ export class Avatar extends React.Component<Props, State> {
       noteToSelf,
       onClick,
       size,
+      className,
     } = this.props;
     const { imageBroken } = this.state;
 
     const hasImage = !noteToSelf && avatarPath && !imageBroken;
 
-    if (![28, 32, 52, 80].includes(size)) {
+    if (![28, 32, 52, 80, 112].includes(size)) {
       throw new Error(`Size ${size} is not supported!`);
     }
 
@@ -152,7 +152,11 @@ export class Avatar extends React.Component<Props, State> {
 
     if (onClick) {
       contents = (
-        <button className="module-avatar-button" onClick={onClick}>
+        <button
+          type="button"
+          className="module-avatar-button"
+          onClick={onClick}
+        >
           {hasImage ? this.renderImage() : this.renderNoImage()}
         </button>
       );
@@ -166,7 +170,8 @@ export class Avatar extends React.Component<Props, State> {
           'module-avatar',
           `module-avatar--${size}`,
           hasImage ? 'module-avatar--with-image' : 'module-avatar--no-image',
-          !hasImage ? `module-avatar--${color}` : null
+          !hasImage ? `module-avatar--${color}` : null,
+          className
         )}
         ref={innerRef}
       >

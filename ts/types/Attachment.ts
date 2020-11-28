@@ -18,6 +18,7 @@ const MIN_HEIGHT = 50;
 // Used for display
 
 export interface AttachmentType {
+  blurHash?: string;
   caption?: string;
   contentType: MIME.MIMEType;
   fileName: string;
@@ -63,7 +64,7 @@ export function getExtensionForDisplay({
   }
 
   if (!contentType) {
-    return;
+    return undefined;
   }
 
   const slash = contentType.indexOf('/');
@@ -71,10 +72,12 @@ export function getExtensionForDisplay({
     return contentType.slice(slash + 1);
   }
 
-  return;
+  return undefined;
 }
 
-export function isAudio(attachments?: Array<AttachmentType>) {
+export function isAudio(
+  attachments?: Array<AttachmentType>
+): boolean | undefined {
   return (
     attachments &&
     attachments[0] &&
@@ -83,7 +86,9 @@ export function isAudio(attachments?: Array<AttachmentType>) {
   );
 }
 
-export function canDisplayImage(attachments?: Array<AttachmentType>) {
+export function canDisplayImage(
+  attachments?: Array<AttachmentType>
+): boolean | 0 | undefined {
   const { height, width } =
     attachments && attachments[0] ? attachments[0] : { height: 0, width: 0 };
 
@@ -97,7 +102,7 @@ export function canDisplayImage(attachments?: Array<AttachmentType>) {
   );
 }
 
-export function getThumbnailUrl(attachment: AttachmentType) {
+export function getThumbnailUrl(attachment: AttachmentType): string {
   if (attachment.thumbnail) {
     return attachment.thumbnail.url;
   }
@@ -105,7 +110,7 @@ export function getThumbnailUrl(attachment: AttachmentType) {
   return getUrl(attachment);
 }
 
-export function getUrl(attachment: AttachmentType) {
+export function getUrl(attachment: AttachmentType): string {
   if (attachment.screenshot) {
     return attachment.screenshot.url;
   }
@@ -113,7 +118,9 @@ export function getUrl(attachment: AttachmentType) {
   return attachment.url;
 }
 
-export function isImage(attachments?: Array<AttachmentType>) {
+export function isImage(
+  attachments?: Array<AttachmentType>
+): boolean | undefined {
   return (
     attachments &&
     attachments[0] &&
@@ -122,26 +129,34 @@ export function isImage(attachments?: Array<AttachmentType>) {
   );
 }
 
-export function isImageAttachment(attachment: AttachmentType) {
+export function isImageAttachment(
+  attachment: AttachmentType
+): boolean | undefined {
   return (
     attachment &&
     attachment.contentType &&
     isImageTypeSupported(attachment.contentType)
   );
 }
-export function hasImage(attachments?: Array<AttachmentType>) {
+export function hasImage(
+  attachments?: Array<AttachmentType>
+): string | boolean | undefined {
   return (
     attachments &&
     attachments[0] &&
-    (attachments[0].url || attachments[0].pending)
+    (attachments[0].url || attachments[0].pending || attachments[0].blurHash)
   );
 }
 
-export function isVideo(attachments?: Array<AttachmentType>) {
+export function isVideo(
+  attachments?: Array<AttachmentType>
+): boolean | undefined {
   return attachments && isVideoAttachment(attachments[0]);
 }
 
-export function isVideoAttachment(attachment?: AttachmentType) {
+export function isVideoAttachment(
+  attachment?: AttachmentType
+): boolean | undefined {
   return (
     attachment &&
     attachment.contentType &&
@@ -149,7 +164,9 @@ export function isVideoAttachment(attachment?: AttachmentType) {
   );
 }
 
-export function hasVideoScreenshot(attachments?: Array<AttachmentType>) {
+export function hasVideoScreenshot(
+  attachments?: Array<AttachmentType>
+): string | null | undefined {
   const firstAttachment = attachments ? attachments[0] : null;
 
   return (
@@ -307,7 +324,7 @@ export const isFile = (attachment: Attachment): boolean => {
 export const isVoiceMessage = (attachment: Attachment): boolean => {
   const flag = SignalService.AttachmentPointer.Flags.VOICE_MESSAGE;
   const hasFlag =
-    // tslint:disable-next-line no-bitwise
+    // eslint-disable-next-line no-bitwise
     !is.undefined(attachment.flags) && (attachment.flags & flag) === flag;
   if (hasFlag) {
     return true;
@@ -389,7 +406,7 @@ export const getFileExtension = (
   attachment: Attachment
 ): string | undefined => {
   if (!attachment.contentType) {
-    return;
+    return undefined;
   }
 
   switch (attachment.contentType) {

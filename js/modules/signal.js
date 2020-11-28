@@ -3,14 +3,20 @@
 const { bindActionCreators } = require('redux');
 const Backbone = require('../../ts/backbone');
 const Crypto = require('../../ts/Crypto');
+const {
+  start: conversationControllerStart,
+} = require('../../ts/ConversationController');
 const Data = require('../../ts/sql/Client').default;
 const Emojis = require('./emojis');
 const EmojiLib = require('../../ts/components/emoji/lib');
+const Groups = require('../../ts/groups');
+const GroupChange = require('../../ts/groupChange');
 const IndexedDB = require('./indexeddb');
 const Notifications = require('../../ts/notifications');
 const OS = require('../../ts/OS');
 const Stickers = require('./stickers');
 const Settings = require('./settings');
+const RemoteConfig = require('../../ts/RemoteConfig');
 const Util = require('../../ts/util');
 const Metadata = require('./metadata/SecretSessionCipher');
 const RefreshSenderCertificate = require('./refresh_sender_certificate');
@@ -22,6 +28,7 @@ const {
   AttachmentList,
 } = require('../../ts/components/conversation/AttachmentList');
 const { CaptionEditor } = require('../../ts/components/CaptionEditor');
+const { ConfirmationModal } = require('../../ts/components/ConfirmationModal');
 const {
   ContactDetail,
 } = require('../../ts/components/conversation/ContactDetail');
@@ -30,6 +37,7 @@ const {
   ConversationHeader,
 } = require('../../ts/components/conversation/ConversationHeader');
 const { Emojify } = require('../../ts/components/conversation/Emojify');
+const { ErrorModal } = require('../../ts/components/ErrorModal');
 const { Lightbox } = require('../../ts/components/Lightbox');
 const { LightboxGallery } = require('../../ts/components/LightboxGallery');
 const {
@@ -39,16 +47,27 @@ const {
   MessageDetail,
 } = require('../../ts/components/conversation/MessageDetail');
 const { Quote } = require('../../ts/components/conversation/Quote');
+const { ProgressModal } = require('../../ts/components/ProgressModal');
+const {
+  SafetyNumberChangeDialog,
+} = require('../../ts/components/SafetyNumberChangeDialog');
 const {
   StagedLinkPreview,
 } = require('../../ts/components/conversation/StagedLinkPreview');
+const {
+  getCallingNotificationText,
+} = require('../../ts/components/conversation/CallingNotification');
 
 // State
 const { createTimeline } = require('../../ts/state/roots/createTimeline');
 const {
   createCompositionArea,
 } = require('../../ts/state/roots/createCompositionArea');
+const { createCallManager } = require('../../ts/state/roots/createCallManager');
 const { createLeftPane } = require('../../ts/state/roots/createLeftPane');
+const {
+  createSafetyNumberViewer,
+} = require('../../ts/state/roots/createSafetyNumberViewer');
 const {
   createStickerManager,
 } = require('../../ts/state/roots/createStickerManager');
@@ -60,6 +79,7 @@ const {
 } = require('../../ts/state/roots/createShortcutGuideModal');
 
 const { createStore } = require('../../ts/state/createStore');
+const callingDuck = require('../../ts/state/ducks/calling');
 const conversationsDuck = require('../../ts/state/ducks/conversations');
 const emojisDuck = require('../../ts/state/ducks/emojis');
 const expirationDuck = require('../../ts/state/ducks/expiration');
@@ -94,11 +114,23 @@ const MessageDataMigrator = require('./messages_data_migrator');
 
 // Processes / Services
 const {
+  initializeGroupCredentialFetcher,
+} = require('../../ts/services/groupCredentialFetcher');
+const {
   initializeNetworkObserver,
 } = require('../../ts/services/networkObserver');
 const {
   initializeUpdateListener,
 } = require('../../ts/services/updateListener');
+const { notify } = require('../../ts/services/notify');
+const { calling } = require('../../ts/services/calling');
+const { onTimeout, removeTimeout } = require('../../ts/services/timers');
+const {
+  enableStorageService,
+  eraseAllStorageServiceState,
+  runStorageServiceSyncJob,
+  storageServiceUploadJob,
+} = require('../../ts/services/storage');
 
 function initializeMigrations({
   userDataPath,
@@ -260,15 +292,20 @@ exports.setup = (options = {}) => {
   const Components = {
     AttachmentList,
     CaptionEditor,
+    ConfirmationModal,
     ContactDetail,
     ContactListItem,
     ConversationHeader,
     Emojify,
+    ErrorModal,
+    getCallingNotificationText,
     Lightbox,
     LightboxGallery,
     MediaGallery,
     MessageDetail,
     Quote,
+    ProgressModal,
+    SafetyNumberChangeDialog,
     StagedLinkPreview,
     Types: {
       Message: MediaGalleryMessage,
@@ -276,8 +313,10 @@ exports.setup = (options = {}) => {
   };
 
   const Roots = {
+    createCallManager,
     createCompositionArea,
     createLeftPane,
+    createSafetyNumberViewer,
     createShortcutGuideModal,
     createStickerManager,
     createStickerPreviewModal,
@@ -285,6 +324,7 @@ exports.setup = (options = {}) => {
   };
 
   const Ducks = {
+    calling: callingDuck,
     conversations: conversationsDuck,
     emojis: emojisDuck,
     expiration: expirationDuck,
@@ -302,8 +342,17 @@ exports.setup = (options = {}) => {
   };
 
   const Services = {
+    calling,
+    enableStorageService,
+    eraseAllStorageServiceState,
+    initializeGroupCredentialFetcher,
     initializeNetworkObserver,
     initializeUpdateListener,
+    onTimeout,
+    notify,
+    removeTimeout,
+    runStorageServiceSyncJob,
+    storageServiceUploadJob,
   };
 
   const State = {
@@ -340,9 +389,12 @@ exports.setup = (options = {}) => {
     Backbone,
     Components,
     Crypto,
+    conversationControllerStart,
     Data,
     Emojis,
     EmojiLib,
+    Groups,
+    GroupChange,
     IndexedDB,
     LinkPreviews,
     Metadata,
@@ -350,6 +402,7 @@ exports.setup = (options = {}) => {
     Notifications,
     OS,
     RefreshSenderCertificate,
+    RemoteConfig,
     Settings,
     Services,
     State,

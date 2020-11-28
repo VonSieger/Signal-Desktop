@@ -1,9 +1,7 @@
 import memoizee from 'memoizee';
 import { fromPairs, isNumber } from 'lodash';
 import { createSelector } from 'reselect';
-import { format } from '../../types/PhoneNumber';
 
-import { LocalizerType } from '../../types/Util';
 import { StateType } from '../reducer';
 import {
   ConversationLookupType,
@@ -51,7 +49,7 @@ export const getSelectedMessage = createSelector(
   getConversations,
   (state: ConversationsStateType): SelectedMessageType | undefined => {
     if (!state.selectedMessage) {
-      return;
+      return undefined;
     }
 
     return {
@@ -81,29 +79,11 @@ export const getMessagesByConversation = createSelector(
   }
 );
 
-function getConversationTitle(
-  conversation: ConversationType,
-  options: { i18n: LocalizerType; ourRegionCode: string }
-): string {
-  if (conversation.name) {
-    return conversation.name;
-  }
-
-  if (conversation.type === 'group') {
-    const { i18n } = options;
-
-    return i18n('unknownGroup');
-  }
-
-  return format(conversation.phoneNumber, options);
-}
-
 const collator = new Intl.Collator();
 
-export const _getConversationComparator = (
-  i18n: LocalizerType,
-  ourRegionCode: string
-) => {
+// Note: we will probably want to put i18n and regionCode back when we are formatting
+//   phone numbers and contacts from scratch here again.
+export const _getConversationComparator = () => {
   return (left: ConversationType, right: ConversationType): number => {
     const leftTimestamp = left.timestamp;
     const rightTimestamp = right.timestamp;
@@ -132,16 +112,7 @@ export const _getConversationComparator = (
       return 1;
     }
 
-    const leftTitle = getConversationTitle(left, {
-      i18n,
-      ourRegionCode,
-    });
-    const rightTitle = getConversationTitle(right, {
-      i18n,
-      ourRegionCode,
-    });
-
-    return collator.compare(leftTitle, rightTitle);
+    return collator.compare(left.title, right.title);
   };
 };
 export const getConversationComparator = createSelector(
@@ -157,36 +128,44 @@ export const _getLeftPaneLists = (
 ): {
   conversations: Array<ConversationType>;
   archivedConversations: Array<ConversationType>;
+  pinnedConversations: Array<ConversationType>;
 } => {
   const conversations: Array<ConversationType> = [];
   const archivedConversations: Array<ConversationType> = [];
+  const pinnedConversations: Array<ConversationType> = [];
 
   const values = Object.values(lookup);
   const max = values.length;
   for (let i = 0; i < max; i += 1) {
     let conversation = values[i];
-    if (!conversation.activeAt) {
-      continue;
-    }
+    if (conversation.activeAt) {
+      if (selectedConversation === conversation.id) {
+        conversation = {
+          ...conversation,
+          isSelected: true,
+        };
+      }
 
-    if (selectedConversation === conversation.id) {
-      conversation = {
-        ...conversation,
-        isSelected: true,
-      };
-    }
-
-    if (conversation.isArchived) {
-      archivedConversations.push(conversation);
-    } else {
-      conversations.push(conversation);
+      if (conversation.isArchived) {
+        archivedConversations.push(conversation);
+      } else if (conversation.isPinned) {
+        pinnedConversations.push(conversation);
+      } else {
+        conversations.push(conversation);
+      }
     }
   }
 
   conversations.sort(comparator);
   archivedConversations.sort(comparator);
 
-  return { conversations, archivedConversations };
+  const pinnedConversationIds = window.ConversationController.getPinnedConversationIds();
+  pinnedConversations.sort(
+    (a, b) =>
+      pinnedConversationIds.indexOf(a.id) - pinnedConversationIds.indexOf(b.id)
+  );
+
+  return { conversations, archivedConversations, pinnedConversations };
 };
 
 export const getLeftPaneLists = createSelector(
@@ -249,7 +228,7 @@ export const getConversationSelector = createSelector(
     return (id: string) => {
       const conversation = lookup[id];
       if (!conversation) {
-        return;
+        return undefined;
       }
 
       return selector(conversation);
@@ -265,17 +244,12 @@ export const getConversationSelector = createSelector(
 //     - message details
 export function _messageSelector(
   message: MessageType,
-  // @ts-ignore
-  ourNumber: string,
-  // @ts-ignore
-  regionCode: string,
+  _ourNumber: string,
+  _regionCode: string,
   interactionMode: 'mouse' | 'keyboard',
-  // @ts-ignore
-  conversation?: ConversationType,
-  // @ts-ignore
-  author?: ConversationType,
-  // @ts-ignore
-  quoted?: ConversationType,
+  _conversation?: ConversationType,
+  _author?: ConversationType,
+  _quoted?: ConversationType,
   selectedMessageId?: string,
   selectedMessageCounter?: number
 ): TimelineItemType {
@@ -348,7 +322,7 @@ export const getMessageSelector = createSelector(
     return (id: string) => {
       const message = messageLookup[id];
       if (!message) {
-        return;
+        return undefined;
       }
 
       const { conversationId, source, type, quote } = message;
@@ -470,7 +444,7 @@ export const getConversationMessagesSelector = createSelector(
     return (id: string): TimelinePropsType | undefined => {
       const conversation = messagesByConversation[id];
       if (!conversation) {
-        return;
+        return undefined;
       }
 
       return conversationMessagesSelector(conversation);

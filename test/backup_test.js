@@ -1,4 +1,4 @@
-/* global Signal, Whisper, assert, textsecure, _, libsignal */
+/* global Signal, Whisper, textsecure, _, libsignal */
 
 /* eslint-disable no-console */
 
@@ -363,21 +363,24 @@ describe('Backup', () => {
               return attachment;
             }
 
-            return Object.assign({}, attachment, {
+            return {
+              ...attachment,
               thumbnail: await mapper(attachment.thumbnail, context),
-            });
+            };
           };
 
           const quotedAttachments =
             (message.quote && message.quote.attachments) || [];
 
-          return Object.assign({}, message, {
-            quote: Object.assign({}, message.quote, {
+          return {
+            ...message,
+            quote: {
+              ...message.quote,
               attachments: await Promise.all(
                 quotedAttachments.map(wrappedMapper)
               ),
-            }),
-          });
+            },
+          };
         };
       }
 
@@ -391,17 +394,20 @@ describe('Backup', () => {
           return wrappedLoadAttachment(thumbnail);
         });
 
-        return Object.assign({}, await loadThumbnails(message), {
+        return {
+          ...(await loadThumbnails(message)),
           contact: await Promise.all(
             (message.contact || []).map(async contact => {
               return contact && contact.avatar && contact.avatar.avatar
-                ? Object.assign({}, contact, {
-                    avatar: Object.assign({}, contact.avatar, {
+                ? {
+                    ...contact,
+                    avatar: {
+                      ...contact.avatar,
                       avatar: await wrappedLoadAttachment(
                         contact.avatar.avatar
                       ),
-                    }),
-                  })
+                    },
+                  }
                 : contact;
             })
           ),
@@ -429,7 +435,7 @@ describe('Backup', () => {
               return item;
             })
           ),
-        });
+        };
       }
 
       let backupDir;
@@ -545,6 +551,8 @@ describe('Backup', () => {
           timestamp: 1524185933350,
           type: 'private',
           unreadCount: 0,
+          messageCount: 0,
+          sentMessageCount: 0,
           verified: 0,
           sealedSender: 0,
           version: 2,

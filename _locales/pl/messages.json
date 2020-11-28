@@ -1,7 +1,19 @@
 {
+    "softwareAcknowledgments": {
+        "message": "Podziękowania",
+        "description": "Shown in the about box for the link to software acknowledgments"
+    },
+    "privacyPolicy": {
+        "message": "Regulamin i Polityka prywatności",
+        "description": "Shown in the about box for the link to https://signal.org/legal"
+    },
     "copyErrorAndQuit": {
         "message": "Skopiuj błąd i zakończ",
         "description": "Shown in the top-level error popup, allowing user to copy the error text and close the app"
+    },
+    "unknownContact": {
+        "message": "Nieznany kontakt",
+        "description": "Shown as the name of a contact if we don't have any displayable information about them"
     },
     "unknownGroup": {
         "message": "Nieznana grupa",
@@ -13,7 +25,7 @@
     },
     "deleteAndRestart": {
         "message": "Usuń wszystkie dane i uruchom ponownie",
-        "description": "Shown in a popup if the database cannot start up properly; allows user to dalete database and restart"
+        "description": "Shown in a popup if the database cannot start up properly; allows user to delete database and restart"
     },
     "mainMenuFile": {
         "message": "&Plik",
@@ -24,7 +36,7 @@
         "description": "The label that is used for the Create/upload sticker pack option in the File menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
     },
     "mainMenuEdit": {
-        "message": "&Edytuj",
+        "message": "&Edycja",
         "description": "The label that is used for the Edit menu in the program main menu. The '&' indicates that the following letter will be used as the keyboard 'shortcut letter' for accessing the menu with the Alt-<letter> combination."
     },
     "mainMenuView": {
@@ -64,7 +76,7 @@
         "description": "Edit menu command to remove recently-typed text"
     },
     "editMenuRedo": {
-        "message": "Przywróć",
+        "message": "Powtórz",
         "description": "Edit menu command to restore previously undone typed text"
     },
     "editMenuCut": {
@@ -89,7 +101,7 @@
     },
     "editMenuSelectAll": {
         "message": "Zaznacz wszystko",
-        "description": "Edit menu comand to select all of the text in selected text box"
+        "description": "Edit menu command to select all of the text in selected text box"
     },
     "editMenuStartSpeaking": {
         "message": "Zacznij mówić",
@@ -113,7 +125,7 @@
     },
     "windowMenuBringAllToFront": {
         "message": "Przenieś wszystko na wierzch",
-        "description": "Window menu command to bring all windows of current applicatinon to front"
+        "description": "Window menu command to bring all windows of current application to front"
     },
     "viewMenuResetZoom": {
         "message": "Domyślny rozmiar",
@@ -142,6 +154,10 @@
     "menuSetupAsStandalone": {
         "message": "Skonfiguruj jako samodzielne urządzenie",
         "description": "Only available on development modes, menu option to open up the standalone device setup sequence"
+    },
+    "messageContextMenuButton": {
+        "message": "Więcej poleceń",
+        "description": "Label for context button next to each message"
     },
     "contextMenuCopyLink": {
         "message": "Kopiuj link",
@@ -174,20 +190,40 @@
         }
     },
     "archivedConversations": {
-        "message": "Zarchiwizowane rozmowy",
+        "message": "Archiwum konwersacji",
         "description": "Shown in place of the search box when showing archived conversation list"
     },
+    "LeftPane--pinned": {
+        "message": "Przypięte",
+        "description": "Shown as a header for pinned conversations in the left pane"
+    },
+    "LeftPane--chats": {
+        "message": "Rozmowy",
+        "description": "Shown as a header for non-pinned conversations in the left pane"
+    },
     "archiveHelperText": {
-        "message": "Te rozmowy są zarchiwizowane i pojawią się w Odebranych tylko po otrzymaniu nowych wiadomości.",
-        "description": "Shown at the top of the archived converations list in the left pane"
+        "message": "Te konwersacje są zarchiwizowane i pojawią się w Odebranych tylko po otrzymaniu nowych wiadomości.",
+        "description": "Shown at the top of the archived conversations list in the left pane"
     },
     "archiveConversation": {
         "message": "Archiwum konwersacji",
         "description": "Shown in menu for conversation, and moves conversation out of main conversation list"
     },
     "moveConversationToInbox": {
-        "message": "Przenieś konwersacje do skrzynki odbiorczej",
+        "message": "Przywróć z archiwum",
         "description": "Undoes Archive Conversation action, and moves archived conversation back to the main conversation list"
+    },
+    "pinConversation": {
+        "message": "Przypnij konwersację",
+        "description": "Shown in menu for conversation, and pins the conversation to the top of the conversation list"
+    },
+    "unpinConversation": {
+        "message": "Odepnij konwersację",
+        "description": "Undoes Archive Conversation action, and unpins the conversation from the top of the conversation list"
+    },
+    "pinnedConversationsFull": {
+        "message": "Możesz przypiąć maksymalnie 4 rozmowy",
+        "description": ""
     },
     "chooseDirectory": {
         "message": "Wybierz folder",
@@ -202,7 +238,7 @@
         "description": "Header shown on the first screen in the data import process"
     },
     "loadDataDescription": {
-        "message": "Właśnie przeszedłeś proces eksportu, twoje kontakty i wiadomości czekają cierpliwie na twoim komputerze. Wybierz folder zawierający zapisane dane Signal.",
+        "message": "Właśnie zakończyłeś(aś) proces eksportu. Twoje kontakty i wiadomości czekają cierpliwie na Twoim komputerze. Wybierz folder zawierający zapisane dane Signal.",
         "description": "Introduction to the process of importing messages and contacts from disk"
     },
     "importChooserTitle": {
@@ -218,11 +254,11 @@
         "description": "Header of screen shown as data is import"
     },
     "importErrorFirst": {
-        "message": "Upewnij się, że wybrałeś właściwy folder zawierający dane Signal. Jego nazwa powinna zaczynać się na \"Signal Export\". Możesz też zapisać nową kopię danych z aplikacji Chrome.",
+        "message": "Upewnij się, że wybrałeś(aś) właściwy folder zawierający dane Signal. Jego nazwa powinna zaczynać się na \"Signal Export\". Możesz też zapisać nową kopię danych z aplikacji Chrome.",
         "description": "Message shown if the import went wrong; first paragraph"
     },
     "importErrorSecond": {
-        "message": "Jeżeli te kroki nie będą dla Ciebie skuteczne, prześlij dziennik debugowania (Widok -> Dziennik debugowania), abyśmy mogli Ci pomóc w migracji!",
+        "message": "Jeżeli te kroki nie zadziałają, prześlij dziennik debugowania (Widok -> Dziennik debugowania), abyśmy mogli Ci pomóc w migracji!",
         "description": "Message shown if the import went wrong; second paragraph"
     },
     "importAgain": {
@@ -246,11 +282,11 @@
         "description": "Message shown as the export location if we didn't capture the target directory"
     },
     "upgradingDatabase": {
-        "message": "Uaktualnianie bazy danych. To może zająć chwilę...",
+        "message": "Uaktualnianie bazy danych. To może chwilę potrwać...",
         "description": "Message shown on the loading screen when we're changing database structure on first run of a new version"
     },
     "loadingMessages": {
-        "message": "Ładowanie. Załadowanych wiadomości: $count$ ",
+        "message": "Wczytywanie wiadomości: $count$…",
         "description": "Message shown on the loading screen when we're catching up on the backlog of messages",
         "placeholders": {
             "count": {
@@ -264,7 +300,7 @@
         "description": "Used as a label on a button allowing user to see more information"
     },
     "youLeftTheGroup": {
-        "message": "Opuściłeś(aś) tę grupę.",
+        "message": "Nie jesteś już członkiem tej grupy.",
         "description": "Displayed when a user can't send a message because they have left the group"
     },
     "scrollDown": {
@@ -334,64 +370,52 @@
         }
     },
     "membersNeedingVerification": {
-        "message": "Twoje numery bezpieczeństwa dla tych członków grupy uległy zmianie od ostatniej ich weryfikacji. Naciśnij na członka grupy, aby zobaczyć Twój nowy numer bezpieczeństwa dla niego.",
+        "message": "Twoje numery bezpieczeństwa dla tych członków grupy uległy zmianie od czasu ostatniej weryfikacji. Naciśnij na członka grupy, aby zobaczyć Twój nowy numer bezpieczeństwa dla niego.",
         "description": "When there are multiple previously-verified group members with safety number changes, a banner will be shown. The list of contacts with safety number changes is shown, and this text introduces that list."
     },
-    "changedSinceVerifiedMultiple": {
-        "message": "Twoje numery bezpieczeństwa dla tych członków grupy uległy zmianie od ostatniej ich weryfikacji. Może to oznaczać, że ktoś próbuje przechwycić Twoją komunikację albo że członkowie grupy po prostu przeinstalowali aplikację Signal.",
-        "description": "Shown on confirmation dialog when user attempts to send a message"
-    },
-    "changedSinceVerified": {
-        "message": "Twój numer bezpieczeństwa dla $name$ uległ zmianie od ostatniej jego weryfikacji. Może to oznaczać, że ktoś próbuje przechwycić Twoją komunikację albo że $name$ po prostu przeinstalował aplikację Signal. ",
-        "description": "Shown on confirmation dialog when user attempts to send a message",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "Bob"
-            }
-        }
-    },
     "changedRightAfterVerify": {
-        "message": "Weryfikowany przez ciebie numer bezpieczeństwa uległ zmianie. Potwierdź go z $name$. Pamiętaj, że ta zmiana może oznaczać, że ktoś próbuje przechwycić Twoją komunikację albo że $name$ po prostu przeinstalował Signal. ",
+        "message": "Weryfikowany przez Ciebie numer bezpieczeństwa uległ zmianie. Potwierdź go z $name1$. Pamiętaj, że ta zmiana może oznaczać, że ktoś próbuje przechwycić Twoją komunikację albo że $name2$ po prostu przeinstalował(a) Signal. ",
         "description": "Shown on the safety number screen when the user has selected to verify/unverify a contact's safety number, and we immediately discover a safety number change",
         "placeholders": {
-            "name": {
+            "name1": {
                 "content": "$1",
+                "example": "Bob"
+            },
+            "name2": {
+                "content": "$2",
                 "example": "Bob"
             }
         }
     },
-    "changedRecentlyMultiple": {
-        "message": "Twoje numery bezpieczeństwa dla wielu członków grupy uległy ostatnio zmianie. Może to oznaczać, że ktoś próbuje przechwycić Twoją komunikację albo że członkowie grupy po prostu przeinstalowali aplikację Signal.",
+    "changedVerificationWarning": {
+        "message": "Następujące osoby mogły ponownie zainstalować aplikację lub zmienić urządzenie. Zweryfikuj wasze numery bezpieczeństwa, aby zapewnić prywatność.",
         "description": "Shown on confirmation dialog when user attempts to send a message"
     },
-    "changedRecently": {
-        "message": "Numer bezpieczeństwa dla $name$ uległ zmianie. Może to oznaczać, że ktoś próbuje przechwycić Twoją komunikację albo że $name$po prostu przeinstalował Signal. ",
-        "description": "Shown on confirmation dialog when user attempts to send a message",
-        "placeholders": {
-            "name": {
-                "content": "$1",
-                "example": "Bob"
-            }
-        }
-    },
     "identityKeyErrorOnSend": {
-        "message": "Numer bezpieczeństwa dla $name$ uległ zmianie. Może to oznaczać, że ktoś próbuje przechwycić Twoją komunikację albo że po $name$ prostu przeinstalował Signal. Możesz chcieć zweryfikować z nim swój numer bezpieczeństwa.",
+        "message": "Numer bezpieczeństwa dla $name1$ uległ zmianie. Może to oznaczać, że ktoś próbuje przechwycić Twoją komunikację albo że $name2$ po prostu przeinstalował(a) Signal. Możesz chcieć zweryfikować numer bezpieczeństwa z tym kontaktem.",
         "description": "Shown when user clicks on a failed recipient in the message detail view after an identity key change",
         "placeholders": {
-            "name": {
+            "name1": {
                 "content": "$1",
+                "example": "Bob"
+            },
+            "name2": {
+                "content": "$2",
                 "example": "Bob"
             }
         }
     },
     "sendAnyway": {
-        "message": "Wyślij mimo wszystko",
+        "message": "Wyślij mimo to",
         "description": "Used on a warning dialog to make it clear that it might be risky to send the message."
     },
+    "callAnyway": {
+        "message": "Zadzwoń mimo to",
+        "description": "Used on a warning dialog to make it clear that it might be risky to call the conversation."
+    },
     "noLongerVerified": {
-        "message": "Twój numer bezpieczeństwa z $name$ zmienił się. Naciśnij, aby zobaczyć.",
-        "description": "Shown in converation banner when user's safety number has changed, but they were previously verified.",
+        "message": "Twój numer bezpieczeństwa dla $name$ zmienił się. Naciśnij, aby zobaczyć.",
+        "description": "Shown in conversation banner when user's safety number has changed, but they were previously verified.",
         "placeholders": {
             "name": {
                 "content": "$1",
@@ -404,12 +428,24 @@
         "description": "Shown in conversation banner when more than one group member's safety number has changed, but they were previously verified."
     },
     "debugLogExplanation": {
-        "message": "Ten dziennik zostanie przekazany twórcom aplikacji i upubliczniony do wglądu. Możesz go przejrzeć i zmodyfikować przed wysłaniem.",
+        "message": "Ten log zostanie upubliczniony online, aby umożliwić twórcom aplikacji jego sprawdzenie. Możesz go przejrzeć i edytować przed przesłaniem.",
         "description": ""
     },
     "debugLogError": {
         "message": "Coś poszło nie tak podczas przesyłania! Rozważ ręczne dodanie swojego logu do zgłoszonego błędu.",
         "description": ""
+    },
+    "debugLogCopy": {
+        "message": "Kopiuj",
+        "description": "Shown as the text for the copy button on the debug log screen"
+    },
+    "debugLogCopyAlt": {
+        "message": "Kopiuj link do schowka",
+        "description": "Shown as the alt text for the copy button on the debug log screen"
+    },
+    "debugLogLinkCopied": {
+        "message": "Link skopiowany do schowka",
+        "description": "Shown in a toast to let the user know that the link to the debug log has been copied to their clipboard"
     },
     "reportIssue": {
         "message": "Zgłoś problem",
@@ -446,7 +482,7 @@
         }
     },
     "isNotVerified": {
-        "message": "Nie zweryfikowałeś swojego numeru bezpieczeństwa z $name$.",
+        "message": "Nie zweryfikowałeś(aś) swojego numeru bezpieczeństwa z $name$.",
         "description": "Summary state shown at top of the safety number screen if user has not verified contact.",
         "placeholders": {
             "name": {
@@ -472,11 +508,11 @@
         "description": ""
     },
     "media": {
-        "message": "Media",
+        "message": "Multimedia",
         "description": "Header of the default pane in the media gallery, showing images and videos"
     },
     "mediaEmptyState": {
-        "message": "Nie masz żadnych mediów w tej rozmowie",
+        "message": "Nie masz żadnych multimediów w tej konwersacji",
         "description": "Message shown to user in the media gallery when there are no messages with media attachments (images or video)"
     },
     "documents": {
@@ -484,11 +520,11 @@
         "description": "Header of the secondary pane in the media gallery, showing every non-media attachment"
     },
     "documentsEmptyState": {
-        "message": "Nie masz żadnych dokumentów w tej rozmowie",
+        "message": "Nie masz żadnych dokumentów w tej konwersacji",
         "description": "Message shown to user in the media gallery when there are no messages with document attachments (anything other than images or video)"
     },
     "today": {
-        "message": "Dziś",
+        "message": "Dzisiaj",
         "description": "Section header in the media gallery"
     },
     "yesterday": {
@@ -500,7 +536,7 @@
         "description": "Section header in the media gallery"
     },
     "thisMonth": {
-        "message": "Ten miesiąc",
+        "message": "W tym miesiącu",
         "description": "Section header in the media gallery"
     },
     "unsupportedAttachment": {
@@ -558,10 +594,10 @@
         }
     },
     "oneNonImageAtATimeToast": {
-        "message": "W przypadku dołączenia załącznika innego niż obraz, limit wynosi jeden załącznik na wiadomość.",
+        "message": "Gdy załącznik nie jest obrazem, możesz wysłać tylko jeden na raz.",
         "description": "An error popup when the user has attempted to add an attachment"
     },
-    "cannotMixImageAdnNonImageAttachments": {
+    "cannotMixImageAndNonImageAttachments": {
         "message": "Nie można łączyć obrazów z innymi załącznikami w jednej wiadomości.",
         "description": "An error popup when the user has attempted to add an attachment"
     },
@@ -582,7 +618,7 @@
         "description": "Displayed when the desktop client cannot connect to the server."
     },
     "connecting": {
-        "message": "Trwa łączenie",
+        "message": "Łączenie",
         "description": "Displayed when the desktop client is currently connecting to the server."
     },
     "connect": {
@@ -613,6 +649,10 @@
         "message": "Pokaż skróty klawiszowe",
         "description": "Item under the help menu, pops up a screen showing the application's keyboard shortcuts"
     },
+    "contactUs": {
+        "message": "Skontaktuj się z nami",
+        "description": "Item under the help menu, takes you to the contact us support page"
+    },
     "goToReleaseNotes": {
         "message": "Przejdź do informacji o wersji",
         "description": "Item under the help menu, takes you to GitHub page for release notes"
@@ -622,12 +662,16 @@
         "description": "Item under the Help menu, takes you to the forums"
     },
     "goToSupportPage": {
-        "message": "Przejdź do strony wsparcia",
+        "message": "Przejdź do strony pomocy",
         "description": "Item under the Help menu, takes you to the support page"
     },
-    "menuReportIssue": {
-        "message": "Zgłoś problem",
-        "description": "Item under the Help menu, takes you to GitHub new issue form (title case)"
+    "goToGithub": {
+        "message": "Repozytorium na GitHub",
+        "description": "Item under the Help menu, takes you to the GitHub repository for Signal Desktop"
+    },
+    "joinTheBeta": {
+        "message": "Dołącz do programu beta",
+        "description": "Item under the Help menu, takes you to an article describing how to install the beta release of Signal Desktop"
     },
     "signalDesktopPreferences": {
         "message": "Preferencje",
@@ -665,6 +709,10 @@
         "message": "Szukaj",
         "description": "Placeholder text in the search input"
     },
+    "clearSearch": {
+        "message": "Wyczyść wyszukiwanie",
+        "description": "Aria label for clear search button"
+    },
     "searchIn": {
         "message": "Szukaj w $conversationName$",
         "description": "Shown in the search box before text is entered when searching in a specific conversation",
@@ -676,7 +724,7 @@
         }
     },
     "noSearchResults": {
-        "message": "Nie znaleziono „$searchTerm$”",
+        "message": "Nie znaleziono \"$searchTerm$\"",
         "description": "Shown in the search left pane when no results were found",
         "placeholders": {
             "searchTerm": {
@@ -690,13 +738,17 @@
         "description": "Shown in the search left pane when no results were found",
         "placeholders": {
             "searchTerm": {
+                "content": "$1",
+                "example": "dog"
+            },
+            "conversationName": {
                 "content": "$2",
                 "example": "Friends"
             }
         }
     },
     "conversationsHeader": {
-        "message": "Rozmowy",
+        "message": "Konwersacje",
         "description": "Shown to separate the types of search results"
     },
     "contactsHeader": {
@@ -716,8 +768,12 @@
         "description": ""
     },
     "typingAlt": {
-        "message": "Animacja wskaźnika pisania w tej rozmowie",
-        "description": "Used as the 'title' attibute for the typing animation"
+        "message": "Animacja wskaźnika pisania w tej konwersacji",
+        "description": "Used as the 'title' attribute for the typing animation"
+    },
+    "contactInAddressBook": {
+        "message": "Ta osoba jest w Twoich kontaktach.",
+        "description": "Description of icon denoting that contact is from your address book"
     },
     "contactAvatarAlt": {
         "message": "Zdjęcie profilowe $name$",
@@ -746,7 +802,7 @@
         "description": "Shown on contact detail screen as a label for aa phone or email"
     },
     "email": {
-        "message": "Email",
+        "message": "e-mail",
         "description": "Generic label shown if contact email has custom type but no label"
     },
     "phone": {
@@ -831,11 +887,19 @@
     },
     "audioPermissionNeeded": {
         "message": "Aby wysyłać wiadomości audio, zezwól aplikacji Signal Desktop na dostęp do mikrofonu.",
-        "description": "Shown if the user attempts to send an audio message without audio permssions turned on"
+        "description": "Shown if the user attempts to send an audio message without audio permissions turned on"
+    },
+    "audioCallingPermissionNeeded": {
+        "message": "Aby wykonywać połączenia, zezwól aplikacji Signal Desktop na dostęp do mikrofonu.",
+        "description": "Shown if the user attempts access the microphone for calling without audio permissions turned on"
+    },
+    "videoCallingPermissionNeeded": {
+        "message": "Aby wykonywać połączenia wideo, zezwól aplikacji Signal Desktop na dostęp do kamery.",
+        "description": "Shown if the user attempts access the camera for video calling without video permissions turned on"
     },
     "allowAccess": {
         "message": "Zezwól",
-        "description": "Button shown in popup asking to enable microphon/video permissions to send audio messages"
+        "description": "Button shown in popup asking to enable microphone/video permissions to send audio messages"
     },
     "showSettings": {
         "message": "Pokaż ustawienia",
@@ -894,7 +958,7 @@
         "description": ""
     },
     "failedToSend": {
-        "message": "Nie można było wysłać wiadomości do niektórych adresatów. Sprawdź połączenie z internetem.",
+        "message": "Nie udało się wysłać wiadomości do niektórych odbiorców. Sprawdź połączenie z siecią.",
         "description": ""
     },
     "error": {
@@ -910,8 +974,12 @@
         "description": ""
     },
     "deleteWarning": {
-        "message": "Na pewno? Naciśnięcie „usuń” spowoduje bezpowrotne usunięcie wiadomości z tego urządzenia.",
-        "description": ""
+        "message": "Na pewno? Kliknięcie \"usuń\" spowoduje bezpowrotne usunięcie wiadomości z Twoich urządzeń.",
+        "description": "Text shown in the confirmation dialog for deleting a message locally"
+    },
+    "deleteForEveryoneWarning": {
+        "message": "Ta wiadomość zostanie usunięta u wszystkich uczestników tej konwersacji, jeśli używają najnowszej wersji Signal. Będą oni mogli zobaczyć, że skasowałeś(aś) wiadomość.",
+        "description": "Text shown in the confirmation dialog for deleting a message for everyone"
     },
     "deleteThisMessage": {
         "message": "Usuń wiadomość",
@@ -950,19 +1018,19 @@
         "description": ""
     },
     "resetSession": {
-        "message": "Zestaw ponownie sesję",
+        "message": "Zresetuj sesję",
         "description": "This is a menu item for resetting the session, using the imperative case, as in a command."
     },
     "showSafetyNumber": {
         "message": "Zobacz numer bezpieczeństwa",
         "description": ""
     },
-    "viewAllMedia": {
-        "message": "Wyświetl wszystkie multimedia",
+    "viewRecentMedia": {
+        "message": "Pokaż ostatnie multimedia",
         "description": "This is a menu item for viewing all media (images + video) in a conversation, using the imperative case, as in a command."
     },
     "verifyHelp": {
-        "message": "Jeżeli chcesz sprawdzić bezpieczeństwo Twojego szyfrowanego połączenia z $name$, porównaj powyższe cyfry z cyframi na jego/jej urządzeniu.",
+        "message": "Jeżeli chcesz sprawdzić bezpieczeństwo Twojego szyfrowanego połączenia z $name$, porównaj powyższe cyfry z cyframi na  urządzeniu Twojego kontaktu.",
         "description": "",
         "placeholders": {
             "name": {
@@ -972,8 +1040,12 @@
         }
     },
     "theirIdentityUnknown": {
-        "message": "Nie wymieniono jeszcze żadnych wiadomości. Numer bezpieczeństwa dla tej osoby będzie dostępny po wymianie pierwszej wiadomości.",
+        "message": "Nie wymieniono jeszcze żadnych wiadomości. Numer bezpieczeństwa dla tego kontaktu będzie dostępny po wymianie pierwszej wiadomości.",
         "description": ""
+    },
+    "goBack": {
+        "message": "Wróć",
+        "description": "Label for back button in a conversation"
     },
     "moreInfo": {
         "message": "Więcej informacji…",
@@ -981,22 +1053,26 @@
     },
     "retrySend": {
         "message": "Wyślij ponownie",
-        "description": "Shown on the drop-down menu for an indinvidaul message, but only if it is an outgoing message that failed to send"
+        "description": "Shown on the drop-down menu for an individual message, but only if it is an outgoing message that failed to send"
     },
     "deleteMessage": {
-        "message": "Usuń wiadomość",
+        "message": "Usuń u mnie",
         "description": "Shown on the drop-down menu for an individual message, deletes single message"
+    },
+    "deleteMessageForEveryone": {
+        "message": "Usuń u wszystkich",
+        "description": "Shown on the drop-down menu for an individual message, deletes single message for everyone"
     },
     "deleteMessages": {
         "message": "Usuń wiadomości",
         "description": "Menu item for deleting messages, title case."
     },
     "deleteConversationConfirmation": {
-        "message": "Usunąć bezpowrotnie tę konwersację?",
+        "message": "Usunąć tę konwersację bezpowrotnie?",
         "description": "Confirmation dialog text that asks the user if they really wish to delete the conversation. Answer buttons use the strings 'ok' and 'cancel'. The deletion is permanent, i.e. it cannot be undone."
     },
     "sessionEnded": {
-        "message": "Zestaw ponownie bezpieczną sesję",
+        "message": "Zresetowano bezpieczną sesję",
         "description": "This is a past tense, informational message. In other words, your secure session has been reset."
     },
     "quoteThumbnailAlt": {
@@ -1012,20 +1088,20 @@
         "description": "Used in alt tag of video attachment preview"
     },
     "lightboxImageAlt": {
-        "message": "Obraz wysłany w rozmowie",
+        "message": "Obraz wysłany w konwersacji",
         "description": "Used in the alt tag for the image shown in a full-screen lightbox view"
     },
     "imageCaptionIconAlt": {
-        "message": "Ikona informująca o tekście, który zawiera grafika",
+        "message": "Ikona informująca, że to zdjęcie ma podpis",
         "description": "Used for the icon layered on top of an image in message bubbles"
     },
     "addACaption": {
         "message": "Dodaj podpis...",
-        "description": ""
+        "description": "Used as the placeholder text in the caption editor text field"
     },
     "save": {
         "message": "Zapisz",
-        "description": ""
+        "description": "Used as a 'commit changes' button in the Caption Editor for outgoing image attachments"
     },
     "fileIconAlt": {
         "message": "Ikona pliku",
@@ -1036,12 +1112,12 @@
         "description": "Welcome title on the install page"
     },
     "installTagline": {
-        "message": "Prywatność jest możliwa i łatwa dzięki Signal.",
+        "message": "Dzięki Signal zachowanie prywatności jest możliwe i proste.",
         "description": "Tagline displayed under 'installWelcome' string on the install page"
     },
     "linkYourPhone": {
         "message": "Połącz swój telefon z Signal Desktop",
-        "description": "Shown on the front page when the application first starst, above the QR code"
+        "description": "Shown on the front page when the application first starts, above the QR code"
     },
     "signalSettings": {
         "message": "Ustawienia Signal",
@@ -1052,7 +1128,7 @@
         "description": "Used in the guidance to help people find the 'link new device' area of their Signal mobile app"
     },
     "plusButton": {
-        "message": "Przycisk „+”",
+        "message": "Przycisk \"+\"",
         "description": "The button used in Signal Android to add a new linked device"
     },
     "linkNewDevice": {
@@ -1072,7 +1148,7 @@
         "description": "The text on the button to finish the linking process, after choosing the device name"
     },
     "initialSync": {
-        "message": "Trwa synchronizacja grup i kontaktów",
+        "message": "Synchronizacja grup i kontaktów",
         "description": "Shown during initial link while contacts and groups are being pulled from mobile device"
     },
     "installConnectionFailed": {
@@ -1080,23 +1156,83 @@
         "description": "Displayed when we can't connect to the server."
     },
     "installTooManyDevices": {
-        "message": "Niestety, masz za dużo połączonych urządzeń. Spróbuj usunąć kilka.",
+        "message": "Niestety, masz za dużo połączonych urządzeń. Spróbuj kilka usunąć.",
         "description": ""
     },
-    "settings": {
-        "message": "Ustawienia",
-        "description": "Menu item and header for global settings"
+    "installTooOld": {
+        "message": "Uaktualnij Signal na tym urządzeniu, aby połączyć z telefonem.",
+        "description": ""
+    },
+    "installErrorHeader": {
+        "message": "Coś poszło nie tak!",
+        "description": ""
+    },
+    "installTryAgain": {
+        "message": "Spróbuj ponownie",
+        "description": ""
     },
     "theme": {
         "message": "Motyw",
         "description": "Header for theme settings"
+    },
+    "calling": {
+        "message": "Połączenia",
+        "description": "Header for calling options on the settings screen"
+    },
+    "calling__start": {
+        "message": "Rozpocznij połączenie",
+        "description": "Button label in the call lobby for starting a call"
+    },
+    "calling__join": {
+        "message": "Dołącz do rozmowy",
+        "description": "Button label in the call lobby for joining a call"
+    },
+    "calling__button--video-disabled": {
+        "message": "Kamera wyłączona",
+        "description": "Button tooltip label when the camera is disabled"
+    },
+    "calling__button--video-off": {
+        "message": "Wyłącz kamerę",
+        "description": "Button tooltip label for turning off the camera"
+    },
+    "calling__button--video-on": {
+        "message": "Włącz kamerę",
+        "description": "Button tooltip label for turning on the camera"
+    },
+    "calling__button--audio-disabled": {
+        "message": "Mikrofon wyłączony",
+        "description": "Button tooltip label when the microphone is disabled"
+    },
+    "calling__button--audio-off": {
+        "message": "Wyłącz mikrofon",
+        "description": "Button tooltip label for turning off the microphone"
+    },
+    "calling__button--audio-on": {
+        "message": "Włącz mikrofon",
+        "description": "Button tooltip label for turning on the microphone"
+    },
+    "calling__your-video-is-off": {
+        "message": "Twoje wideo jest wyłączone",
+        "description": "Label in the calling lobby indicating that your camera is off"
+    },
+    "alwaysRelayCallsDescription": {
+        "message": "Zawsze przekazuj połączenia",
+        "description": "Description of the always relay calls setting"
+    },
+    "alwaysRelayCallsDetail": {
+        "message": "Przekazuj połączenia za pomocą serwerów Signal, aby uniknąć ujawnienia adresu IP Twoim kontaktom. Pogorszy to jakość połączenia.",
+        "description": "Details describing the always relay calls setting"
     },
     "permissions": {
         "message": "Uprawnienia",
         "description": "Header for permissions section of settings"
     },
     "mediaPermissionsDescription": {
-        "message": "Zezwól na dostęp do kamery i mikrofonu",
+        "message": "Zezwól na dostęp do mikrofonu",
+        "description": "Description of the media permission description"
+    },
+    "mediaCameraPermissionsDescription": {
+        "message": "Zezwól na dostęp do kamery",
         "description": "Description of the media permission description"
     },
     "general": {
@@ -1120,7 +1256,7 @@
         "description": "Header in the settings dialog for the section dealing with data deletion"
     },
     "clearDataExplanation": {
-        "message": "Spowoduje to wyczyszczenie wszystkich danych w aplikacji, usunięcie wszystkich wiadomości i zapisanych informacji o koncie.",
+        "message": "To działanie spowoduje wyczyszczenie wszystkich danych w aplikacji, usunięcie wszystkich wiadomości i zapisanych informacji o koncie.",
         "description": "Text describing what the clear data button will do."
     },
     "clearDataButton": {
@@ -1143,6 +1279,14 @@
         "message": "Odłączanie i usuwanie wszystkich danych",
         "description": "Message shown to user when app is disconnected and data deleted"
     },
+    "deleteOldIndexedDBData": {
+        "message": "Masz przestarzałe dane ze starej instalacji Signal Desktop. Kontynuacja spowoduje ich usunięcie i zaczniesz od zera.",
+        "description": "Shown if user last ran Signal Desktop before October 2018"
+    },
+    "deleteOldData": {
+        "message": "Usuń stare dane",
+        "description": "Button to make the delete happen"
+    },
     "notifications": {
         "message": "Powiadomienia",
         "description": "Header for notification settings"
@@ -1156,53 +1300,37 @@
         "description": "Label for disabling notifications"
     },
     "nameAndMessage": {
-        "message": "Z nadawcą i wiadomością",
+        "message": "Imię, zawartość i akcje",
         "description": "Label for setting notifications to display name and message text"
     },
     "noNameOrMessage": {
-        "message": "Bez nadawcy i wiadomości",
+        "message": "Brak imienia czy zawartości",
         "description": "Label for setting notifications to display no name and no message text"
     },
     "nameOnly": {
-        "message": "Tylko z nadawcą",
+        "message": "Tylko imię",
         "description": "Label for setting notifications to display sender name only"
     },
     "newMessage": {
         "message": "Nowa wiadomość",
         "description": "Displayed in notifications for only 1 message"
     },
-    "newMessages": {
-        "message": "Nowe wiadomości",
-        "description": "Displayed in notifications for multiple messages"
-    },
-    "notificationMostRecentFrom": {
-        "message": "Najnowsze od:",
-        "description": "Displayed in notifications when setting is 'name only' and more than one message is waiting"
-    },
-    "notificationFrom": {
-        "message": "Od:",
-        "description": "Displayed in notifications when setting is 'name only' and one message is waiting"
-    },
-    "notificationMostRecent": {
-        "message": "Najnowsza:",
-        "description": "Displayed in notifications when setting is 'name and message' and more than one message is waiting"
-    },
-    "notificationReaction": {
-        "message": "$sender$ zareagował(a) w ten sposób $emoji$ na Twoją wiadomość",
-        "description": "",
+    "notificationSenderInGroup": {
+        "message": "$sender$ w $group$",
+        "description": "Displayed in notifications for messages in a group",
         "placeholders": {
             "sender": {
                 "content": "$1",
                 "example": "John"
             },
-            "emoji": {
-                "content": "$2",
-                "example": "👍"
+            "group": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
             }
         }
     },
-    "notificationReactionMostRecent": {
-        "message": "Ostatnio: $sender$ zareagował(a) w ten sposób $emoji$ na Twoją wiadomość",
+    "notificationReaction": {
+        "message": "$sender$ zareagował(a) w ten sposób $emoji$ na Twoją wiadomość",
         "description": "",
         "placeholders": {
             "sender": {
@@ -1233,27 +1361,13 @@
             }
         }
     },
-    "notificationReactionMessageMostRecent": {
-        "message": "Ostatnio: $sender$ zareagował(a) w ten sposób $emoji$ na  $message$",
-        "description": "",
-        "placeholders": {
-            "sender": {
-                "content": "$1",
-                "example": "John"
-            },
-            "emoji": {
-                "content": "$2",
-                "example": "👍"
-            },
-            "message": {
-                "content": "$3",
-                "example": "Sounds good."
-            }
-        }
-    },
     "sendFailed": {
         "message": "Wysyłanie nie powiodło się",
         "description": "Shown on outgoing message if it fails to send"
+    },
+    "partiallySent": {
+        "message": "Częściowo wysłano, naciśnij, aby zobaczyć szczegóły",
+        "description": "Shown on outgoing message if it is partially sent"
     },
     "showMore": {
         "message": "Szczegóły",
@@ -1288,7 +1402,7 @@
         "description": "Label for contact and group sync settings"
     },
     "syncExplanation": {
-        "message": "Zaimportuj wszystkie grupy i kontakty ze swojego urządzenia mobilnego",
+        "message": "Importuj wszystkie grupy i kontakty ze swojego urządzenia mobilnego.",
         "description": "Explanatory text for sync settings"
     },
     "lastSynced": {
@@ -1360,7 +1474,7 @@
         "description": "Brief message shown when trying to message a blocked group"
     },
     "youChangedTheTimer": {
-        "message": "Ustawiłeś(aś) znikające wiadomości na $time$",
+        "message": "Ustawiłeś(aś) czas znikania wiadomości na $time$.",
         "description": "Message displayed when you change the message expiration timer in a conversation.",
         "placeholders": {
             "time": {
@@ -1370,7 +1484,7 @@
         }
     },
     "timerSetOnSync": {
-        "message": "Zmieniono czas znikających wiadomości na $time$",
+        "message": "Zmieniono czas znikania wiadomości na $time$.",
         "description": "Message displayed when timer is set on initial link of desktop device.",
         "placeholders": {
             "time": {
@@ -1379,8 +1493,18 @@
             }
         }
     },
+    "timerSetByMember": {
+        "message": "Członek grupy ustawił czas znikania wiadomości na $time$.",
+        "description": "Message displayed when timer is by an unknown group member.",
+        "placeholders": {
+            "time": {
+                "content": "$1",
+                "example": "10m"
+            }
+        }
+    },
     "theyChangedTheTimer": {
-        "message": "$name$ ustawił(a) znikające wiadomości na $time$",
+        "message": "$name$ ustawił(a) czas znikania wiadomości na $time$.",
         "description": "Message displayed when someone else changes the message expiration timer in a conversation.",
         "placeholders": {
             "name": {
@@ -1497,8 +1621,12 @@
         "message": "Znikające wiadomości wyłączone",
         "description": "Displayed in the left pane when the timer is turned off"
     },
+    "disappearingMessagesDisabledByMember": {
+        "message": "Członek grupy wyłączył znikające wiadomości.",
+        "description": "Displayed in the left pane when the timer is turned off"
+    },
     "disabledDisappearingMessages": {
-        "message": "$name$ wyłączył(a) znikające wiadomości",
+        "message": "$name$ wyłączył(a) znikające wiadomości.",
         "description": "Displayed in the conversation list when the timer is turned off",
         "placeholders": {
             "name": {
@@ -1508,11 +1636,11 @@
         }
     },
     "youDisabledDisappearingMessages": {
-        "message": "Wyłączyłeś(aś) znikające wiadomości",
+        "message": "Wyłączyłeś(aś) znikające wiadomości.",
         "description": "Displayed in the conversation list when the timer is turned off"
     },
     "timerSetTo": {
-        "message": "Czas ustawiony na $time$.",
+        "message": "Czas ustawiony na $time$",
         "description": "Displayed in the conversation list when the timer is updated by some automatic action, or in the left pane",
         "placeholders": {
             "time": {
@@ -1525,12 +1653,60 @@
         "message": "Odtwórz powiadomienie dźwiękowe",
         "description": "Description for audio notification setting"
     },
+    "callRingtoneNotificationDescription": {
+        "message": "Odtwarzaj dźwięki połączeń",
+        "description": "Description for call ringtone notification setting"
+    },
+    "callSystemNotificationDescription": {
+        "message": "Pokaż powiadomienia dla połączeń",
+        "description": "Description for call notification setting"
+    },
+    "incomingCallNotificationDescription": {
+        "message": "Włącz połączenia przychodzące",
+        "description": "Description for incoming calls setting"
+    },
+    "contactChangedProfileName": {
+        "message": "$sender$ zmienił(a) nazwę profilu z $oldProfile$ na $newProfile$.",
+        "description": "Description for incoming calls setting",
+        "placeholders": {
+            "sender": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "oldProfile": {
+                "content": "$2",
+                "example": ".x8Skillz8x."
+            },
+            "newProfile": {
+                "content": "$3",
+                "example": "Bob Smith"
+            }
+        }
+    },
+    "changedProfileName": {
+        "message": "$oldProfile$ zmienił(a) nazwę profilu na $newProfile$.",
+        "description": "Shown when a contact not in your address book changes their profile name",
+        "placeholders": {
+            "oldProfile": {
+                "content": "$2",
+                "example": ".x8Skillz8x."
+            },
+            "newProfile": {
+                "content": "$3",
+                "example": "Bob Smith"
+            }
+        }
+    },
     "safetyNumberChanged": {
-        "message": "Numer bezpieczeństwa się zmienił",
+        "message": "Numer bezpieczeństwa uległ zmianie",
         "description": "A notification shown in the conversation when a contact reinstalls"
     },
+    "safetyNumberChanges": {
+        "message": "Zmiany numeru bezpieczeństwa",
+        "description": "Title for safety number changed modal"
+    },
     "safetyNumberChangedGroup": {
-        "message": "Numer bezpieczeństwa z $name$ został zmieniony",
+        "message": "Numer bezpieczeństwa dla $name$ zmienił się",
         "description": "A notification shown in a group conversation when a contact reinstalls, showing the contact name",
         "placeholders": {
             "name": {
@@ -1543,11 +1719,15 @@
         "message": "Zweryfikuj numer bezpieczeństwa",
         "description": "Label on button included with safety number change notification in the conversation"
     },
+    "cannotGenerateSafetyNumber": {
+        "message": "Ten użytkownik nie może zostać zweryfikowany dopóki nie napiszecie do siebie.",
+        "description": "Shown on the safety number screen if you have never exchanged messages with that contact"
+    },
     "yourSafetyNumberWith": {
-        "message": "Twój numer bezpieczeństwa z $name$:",
+        "message": "Twój numer bezpieczeństwa z $name1$:",
         "description": "Heading for safety number view",
         "placeholders": {
-            "name": {
+            "name1": {
                 "content": "$1",
                 "example": "John"
             }
@@ -1569,12 +1749,20 @@
         "message": "Moje notatki",
         "description": "Name for the conversation with your own phone number"
     },
+    "noteToSelfHero": {
+        "message": "W tej konwersacji możesz dodawać swoje notatki. Jeśli z Twoim kontem są połączone jakieś urządzenia, nowe notatki zostaną zsynchronizowane.",
+        "description": "Description for the Note to Self conversation"
+    },
+    "notificationDrawAttention": {
+        "message": "Przyciągnij uwagę do tego okna, gdy pojawi się powiadomienie",
+        "description": "Label text for the setting that controls whether new notifications draw attention to the window"
+    },
     "hideMenuBar": {
         "message": "Ukryj pasek menu",
         "description": "Label text for menu bar visibility setting"
     },
     "startConversation": {
-        "message": "Rozpocznij nową rozmowę…",
+        "message": "Rozpocznij nową konwersację…",
         "description": "Label underneath number a user enters that is not an existing contact"
     },
     "notSupportedSMS": {
@@ -1606,11 +1794,11 @@
         "description": ""
     },
     "autoUpdateNewVersionMessage": {
-        "message": "Dostępna nowa wersja Signal",
+        "message": "Dostępna nowa wersja Signal.",
         "description": ""
     },
     "autoUpdateNewVersionInstructions": {
-        "message": "Naciśnij „Uruchom ponownie”, aby zakończyć aktualizację.",
+        "message": "Naciśnij \"Uruchom ponownie\", aby zakończyć aktualizację.",
         "description": ""
     },
     "autoUpdateRestartButtonLabel": {
@@ -1622,7 +1810,7 @@
         "description": ""
     },
     "leftTheGroup": {
-        "message": "$name$ opuścił(a) tę grupę.",
+        "message": "$name$ opuścił(a) grupę.",
         "description": "Shown in the conversation history when a single person leaves the group",
         "placeholders": {
             "name": {
@@ -1632,7 +1820,7 @@
         }
     },
     "multipleLeftTheGroup": {
-        "message": "$name$ opuścili(ły) tę grupę.",
+        "message": "$name$ opuścili(ły) grupę.",
         "description": "Shown in the conversation history when multiple people leave the group",
         "placeholders": {
             "name": {
@@ -1642,7 +1830,7 @@
         }
     },
     "updatedTheGroup": {
-        "message": "$name$ zaktualizował(a) tę grupę.",
+        "message": "$name$ zaktualizował(a) grupę.",
         "description": "Shown in the conversation history when someone updates the group",
         "placeholders": {
             "name": {
@@ -1656,7 +1844,7 @@
         "description": "Shown in the conversation history when you update a group"
     },
     "updatedGroupAvatar": {
-        "message": "Awatar tej grupy został zaktualizowany.",
+        "message": "Awatar grupy został zaktualizowany.",
         "description": "Shown in the conversation history when someone updates the group"
     },
     "titleIsNow": {
@@ -1670,11 +1858,11 @@
         }
     },
     "youJoinedTheGroup": {
-        "message": "Dołączyłeś(aś) do tej grupy.",
+        "message": "Dołączyłeś(aś) do grupy.",
         "description": "Shown in the conversation history when you are added to a group."
     },
     "joinedTheGroup": {
-        "message": "$name$ dołączył(a) do tej grupy.",
+        "message": "$name$ dołączył(a) do grupy.",
         "description": "Shown in the conversation history when a single person joins the group",
         "placeholders": {
             "name": {
@@ -1693,13 +1881,55 @@
             }
         }
     },
+    "ConversationListItem--message-request": {
+        "message": "Prośba o kontakt",
+        "description": "Preview shown for conversation if the user has not yet accepted an incoming message request"
+    },
     "ConversationListItem--draft-prefix": {
         "message": "Szkic:",
         "description": "Prefix shown in italic in conversation view when a draft is saved"
     },
+    "message--getNotificationText--gif": {
+        "message": "GIF",
+        "description": "Shown in notifications and in the left pane when a GIF is received."
+    },
+    "message--getNotificationText--photo": {
+        "message": "Zdjęcie",
+        "description": "Shown in notifications and in the left pane when a photo is received."
+    },
+    "message--getNotificationText--video": {
+        "message": "Wideo",
+        "description": "Shown in notifications and in the left pane when a video is received."
+    },
+    "message--getNotificationText--voice-message": {
+        "message": "Wiadomość głosowa",
+        "description": "Shown in notifications and in the left pane when a voice message is received."
+    },
+    "message--getNotificationText--audio-message": {
+        "message": "Wiadomość audio",
+        "description": "Shown in notifications and in the left pane when an audio message is received."
+    },
+    "message--getNotificationText--file": {
+        "message": "Plik",
+        "description": "Shown in notifications and in the left pane when a generic file is received."
+    },
     "message--getNotificationText--stickers": {
         "message": "Naklejka",
         "description": "Shown in notifications and in the left pane instead of sticker image."
+    },
+    "message--getNotificationText--text-with-emoji": {
+        "message": "$emoji$ $text$",
+        "description": "Shown in notifications and in the left pane when text has an emoji. Probably always [emoji] [text] on LTR languages and [text] [emoji] on RTL languages.",
+        "placeholders": {
+            "emoji": {
+                "content": "$1",
+                "example": "📷"
+            },
+            "text": {
+                "content": "$2",
+                "example": "Photo"
+            }
+        }
     },
     "message--getDescription--unsupported-message": {
         "message": "Nieobsługiwana wiadomość",
@@ -1716,6 +1946,10 @@
     "message--getDescription--disappearing-video": {
         "message": "Wideo jednorazowe",
         "description": "Shown in notifications and in the left pane when a message is a view once video."
+    },
+    "message--deletedForEveryone": {
+        "message": "Ta wiadomość została usunięta.",
+        "description": "Shown in a message's bubble when the message has been deleted for everyone."
     },
     "stickers--toast--InstallFailed": {
         "message": "Nie można zainstalować pakietu naklejek",
@@ -1738,7 +1972,7 @@
         "description": "Shown in the sticker pack manager when there are no blessed sticker packs available."
     },
     "stickers--StickerManager--ReceivedPacks": {
-        "message": "Naklejki, które odebrano",
+        "message": "Odebrane naklejki",
         "description": "Shown in the sticker pack manager above sticker packs which you have received in messages."
     },
     "stickers--StickerManager--ReceivedPacks--Empty": {
@@ -1768,6 +2002,26 @@
     "stickers--StickerManager--Introduction--Body": {
         "message": "Po co używać słów, gdy można używać naklejek?",
         "description": "Shown as the body on a tooltip when the user upgrades to a version of Signal supporting stickers."
+    },
+    "stickers--StickerPicker--Open": {
+        "message": "Otwórz okno naklejek",
+        "description": "Label for the open button for the sticker picker"
+    },
+    "stickers--StickerPicker--AddPack": {
+        "message": "Dodaj pakiet naklejek",
+        "description": "Label for the add pack button in the sticker picker"
+    },
+    "stickers--StickerPicker--NextPage": {
+        "message": "Następna strona",
+        "description": "Label for the next page button in the sticker picker"
+    },
+    "stickers--StickerPicker--PrevPage": {
+        "message": "Poprzednia strona",
+        "description": "Label for the previous page button in the sticker picker"
+    },
+    "stickers--StickerPicker--Recents": {
+        "message": "Ostatnie naklejki",
+        "description": "Label for the recent stickers button in the sticker picker"
     },
     "stickers--StickerPicker--DownloadError": {
         "message": "Niektóre naklejki mogły nie zostać pobrane.",
@@ -1802,11 +2056,11 @@
         "description": "The message that appears in the sticker preview modal when there is an error."
     },
     "EmojiPicker--empty": {
-        "message": "Nie znaleziono emoji",
+        "message": "Nie znaleziono emotikon",
         "description": "Shown in the emoji picker when a search yields 0 results."
     },
     "EmojiPicker--search-placeholder": {
-        "message": "Szukaj emoji",
+        "message": "Szukaj emotikon",
         "description": "Shown as a placeholder inside the emoji picker search field."
     },
     "EmojiPicker--skin-tone": {
@@ -1818,6 +2072,42 @@
                 "example": "2"
             }
         }
+    },
+    "EmojiPicker__button--recents": {
+        "message": "Ostatnie",
+        "description": "Label for recents emoji picker button"
+    },
+    "EmojiPicker__button--emoji": {
+        "message": "Emotikony",
+        "description": "Label for emoji emoji picker button"
+    },
+    "EmojiPicker__button--animal": {
+        "message": "Zwierzęta",
+        "description": "Label for animal emoji picker button"
+    },
+    "EmojiPicker__button--food": {
+        "message": "Żywność",
+        "description": "Label for food emoji picker button"
+    },
+    "EmojiPicker__button--activity": {
+        "message": "Aktywności",
+        "description": "Label for activity emoji picker button"
+    },
+    "EmojiPicker__button--travel": {
+        "message": "Podróż",
+        "description": "Label for travel emoji picker button"
+    },
+    "EmojiPicker__button--object": {
+        "message": "Obiekty",
+        "description": "Label for object emoji picker button"
+    },
+    "EmojiPicker__button--symbol": {
+        "message": "Symbole",
+        "description": "Label for symbol emoji picker button"
+    },
+    "EmojiPicker__button--flag": {
+        "message": "Flagi",
+        "description": "Label for flag emoji picker button"
     },
     "confirmation-dialog--Cancel": {
         "message": "Anuluj",
@@ -1861,7 +2151,7 @@
     },
     "Message--tap-to-view--outgoing": {
         "message": "Multimedia",
-        "description": "Text shown on outgoing messages with with individual timers (inaccessble)"
+        "description": "Text shown on outgoing messages with with individual timers (inaccessible)"
     },
     "Message--tap-to-view--incoming--expired-toast": {
         "message": "Już widziałeś(aś) tę wiadomość.",
@@ -1940,7 +2230,7 @@
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-all-media-view": {
-        "message": "Otwórz podgląd multimediów",
+        "message": "Otwórz galerię multimediów",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--open-emoji-chooser": {
@@ -1996,12 +2286,16 @@
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--remove-draft-link-preview": {
-        "message": "Usuń szkic podglądu odnośnika",
+        "message": "Usuń szkic podglądu linku",
         "description": "Shown in the shortcuts guide"
     },
     "Keyboard--remove-draft-attachments": {
         "message": "Usuń wszystkie szkice załączników",
         "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--conversation-by-index": {
+        "message": "Przejdź do konwersacji",
+        "description": "A shortcut allowing direct navigation to conversations 1 to 9 in list"
     },
     "Keyboard--Key--ctrl": {
         "message": "Ctrl",
@@ -2022,6 +2316,14 @@
     "Keyboard--Key--enter": {
         "message": "Enter",
         "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--Key--tab": {
+        "message": "Tab",
+        "description": "Key shown in shortcut combination in shortcuts guide"
+    },
+    "Keyboard--Key--one-to-nine-range": {
+        "message": "1 do 9",
+        "description": "Expresses that 1, 2, 3, up to 9 are available shortcut keys"
     },
     "Keyboard--header": {
         "message": "Skróty klawiszowe",
@@ -2051,6 +2353,18 @@
         "message": "Zamknij obecną konwersację",
         "description": "Shown in the shortcuts guide"
     },
+    "Keyboard--calling-header": {
+        "message": "Połączenia",
+        "description": "Header of the keyboard shortcuts guide - calling section"
+    },
+    "Keyboard--toggle-audio": {
+        "message": "Włącz/wyłącz wyciszenie",
+        "description": "Shown in the shortcuts guide"
+    },
+    "Keyboard--toggle-video": {
+        "message": "Włącz/wyłącz wideo",
+        "description": "Shown in the shortcuts guide"
+    },
     "close-popup": {
         "message": "Zamknij wyskakujące okienko",
         "description": "Used as alt text for any button closing a popup"
@@ -2064,15 +2378,15 @@
         "description": "Used in draft attachment list to remove an individual attachment"
     },
     "backToInbox": {
-        "message": "Przywróć do skrzynki odbiorczej",
+        "message": "Przywróć z archiwum",
         "description": "Used as alt-text of button on archived conversations screen"
     },
     "conversationArchived": {
-        "message": "Zarchiwizowano rozmowę",
+        "message": "Zarchiwizowano konwersację",
         "description": "A toast that shows up when user archives a conversation"
     },
     "conversationReturnedToInbox": {
-        "message": "Przywrócono konwersację do skrzynki odbiorczej",
+        "message": "Przywrócono z archiwum",
         "description": "A toast that shows up when the user unarchives a conversation"
     },
     "StickerCreator--title": {
@@ -2128,7 +2442,7 @@
         "description": "Title for the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--help": {
-        "message": "Naklejki muszą być w formacie PNG lub WebP z przezroczystym tłem i mieć rozmiar 512x512 pikseli. Zalecany margines to 16 pikseli.",
+        "message": "Naklejki muszą być w formacie PNG, APNG lub WebP, z przezroczystym tłem i mieć rozmiar 512x512 pikseli. Zalecany margines to 16 pikseli.",
         "description": "Help text for the drop stage of the sticker creator"
     },
     "StickerCreator--DropStage--showMargins": {
@@ -2204,7 +2518,7 @@
         }
     },
     "StickerCreator--ShareStage--title": {
-        "message": "Gratulacje! Stworzyłeś pakiet naklejek.",
+        "message": "Gratulacje! Stworzyłeś(aś) pakiet naklejek.",
         "description": "Title for the share stage of the sticker creator"
     },
     "StickerCreator--ShareStage--help": {
@@ -2212,7 +2526,7 @@
         "description": "Help text for the share stage of the sticker creator"
     },
     "StickerCreator--ShareStage--callToAction": {
-        "message": "Użyj hasztagu $hashtag$, aby pomóc ludziom znaleźć linki do własnych pakietów naklejek, które chciałbyś udostępnić publicznie.",
+        "message": "Użyj hasztagu $hashtag$, aby pomóc ludziom znaleźć linki do własnych pakietów naklejek, które chcesz udostępnić publicznie.",
         "description": "Call to action text for the share stage of the sticker creator",
         "placeholders": {
             "hashtag": {
@@ -2234,11 +2548,11 @@
         "description": "Text for the create another sticker pack button on the share stage of the sticker creator"
     },
     "StickerCreator--ShareStage--socialMessage": {
-        "message": "Sprawdź ten nowy pakiet naklejek, który stworzyłem/am dla Signal. #makeprivacystick",
+        "message": "Rzuć okiem na ten nowy pakiet naklejek, który stworzyłem(am) dla Signal. #makeprivacystick",
         "description": "Text which is shared to social media platforms for sticker packs"
     },
     "StickerCreator--Toasts--imagesAdded": {
-        "message": "Dodane/ych obrazy/ów$count$",
+        "message": "Dodane(ych) obrazy(ów)$count$",
         "description": "Text for the toast when images are added to the sticker creator",
         "placeholders": {
             "count": {
@@ -2257,7 +2571,23 @@
     },
     "StickerCreator--Toasts--errorProcessing": {
         "message": "Błąd przetwarzania obrazu",
-        "description": "Text for the toast when an image cannot be processed was dropped on the sticker creator"
+        "description": "Text for the toast when an image cannot be processed was dropped on the sticker creator with a generic error"
+    },
+    "StickerCreator--Toasts--APNG--notSquare": {
+        "message": "Animowane naklejki PNG muszą być kwadratowe",
+        "description": "Text for the toast when someone tries to upload a non-square APNG"
+    },
+    "StickerCreator--Toasts--mustLoopForever": {
+        "message": "Animowane naklejki muszą mieć zapętloną animację",
+        "description": "Text for the toast when an image in the sticker creator does not animate forever"
+    },
+    "StickerCreator--Toasts--APNG--dimensionsTooLarge": {
+        "message": "Animowana naklejka PNG jest za duża",
+        "description": "Text for the toast when an APNG image in the sticker creator is too large"
+    },
+    "StickerCreator--Toasts--APNG--dimensionsTooSmall": {
+        "message": "Animowana naklejka PNG jest za mała",
+        "description": "Text for the toast when an APNG image in the sticker creator is too small"
     },
     "StickerCreator--Toasts--errorUploading": {
         "message": "Błąd przesyłania naklejek: $message$",
@@ -2289,12 +2619,1260 @@
         "message": "Nie udało się zareagować. Spróbuj ponownie.",
         "description": "Shown when a reaction fails to send"
     },
+    "ReactionsViewer--more": {
+        "message": "Więcej",
+        "description": "Use in the reaction picker as the alt text for the 'more' button"
+    },
     "ReactionsViewer--all": {
         "message": "Wszystkie",
         "description": "Shown in reaction viewer as the title for the 'all' category"
     },
-    "privacyPolicy": {
-        "message": "Regulamin i zasady prywatności",
-        "description": "Shown in the about box for the link to https://signal.org/legal"
+    "MessageRequests--message-direct": {
+        "message": "Pozwolić $name$ wysyłać do Ciebie wiadomości i udostępnić Twoje imię i zdjęcie temu kontaktowi? Nie będzie on wiedzieć, że przeczytałeś(aś) tę wiadomość, dopóki nie zaakceptujesz.",
+        "description": "Shown as the message for a message request in a direct message",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce"
+            }
+        }
+    },
+    "MessageRequests--message-direct-blocked": {
+        "message": "Pozwolić $name$ wysyłać do Ciebie wiadomości i udostępnić Twoje imię i zdjęcie temu kontaktowi? Nie otrzymasz żadnych wiadomości, dopóki nie odblokujesz.",
+        "description": "Shown as the message for a message request in a direct message with a blocked account",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce"
+            }
+        }
+    },
+    "MessageRequests--message-group": {
+        "message": "Czy chcesz dołączyć do tej grupy i udostępnić swoje imię i zdjęcie jej członkom? Członkowie grupy nie będą wiedzieć, że przeczytałeś(aś) ich wiadomość, dopóki nie zaakceptujesz.",
+        "description": "Shown as the message for a message request in a group",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--message-group-blocked": {
+        "message": "Czy chcesz odblokować tę grupę i udostępnić swoje imię i zdjęcie jej członkom? Nie otrzymasz żadnych wiadomości, dopóki nie odblokujesz.",
+        "description": "Shown as the message for a message request in a blocked group"
+    },
+    "MessageRequests--block": {
+        "message": "Zablokuj",
+        "description": "Shown as a button to let the user block a message request"
+    },
+    "MessageRequests--unblock": {
+        "message": "Odblokuj",
+        "description": "Shown as a button to let the user unblock a message request"
+    },
+    "MessageRequests--unblock-confirm-title": {
+        "message": "Odblokować $name$?",
+        "description": "Shown as a button to let the user unblock a message request",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--unblock-direct-confirm-body": {
+        "message": "Będziecie w stanie wysyłać wiadomości i wykonywać połączenia do siebie nawzajem.",
+        "description": "Shown as the body in the confirmation modal for unblocking a private message request",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--unblock-group-confirm-body": {
+        "message": "Członkowie grupy będą mogli ponownie dodać Cię do grupy.",
+        "description": "Shown as the body in the confirmation modal for unblocking a group message request",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--block-and-delete": {
+        "message": "Zablokuj i usuń",
+        "description": "Shown as a button to let the user block and delete a message request"
+    },
+    "MessageRequests--block-direct-confirm-title": {
+        "message": "Zablokować $name$?",
+        "description": "Shown as the title in the confirmation modal for blocking a private message request",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Cayce Pollard"
+            }
+        }
+    },
+    "MessageRequests--block-direct-confirm-body": {
+        "message": "Zablokowane osoby nie będą mogły do Ciebie dzwonić ani wysyłać Ci wiadomości.",
+        "description": "Shown as the body in the confirmation modal for blocking a private message request"
+    },
+    "MessageRequests--block-group-confirm-title": {
+        "message": "Zablokować i opuścić $group$?",
+        "description": "Shown as the title in the confirmation modal for blocking a group message request",
+        "placeholders": {
+            "group": {
+                "content": "$1",
+                "example": "Friends 🌿"
+            }
+        }
+    },
+    "MessageRequests--block-group-confirm-body": {
+        "message": "Nie będziesz już otrzymywać wiadomości ani aktualizacji z tej grupy, a jej członkowie nie będą mogli ponownie Cię do niej dodać.",
+        "description": "Shown as the body in the confirmation modal for blocking a group message request"
+    },
+    "MessageRequests--delete": {
+        "message": "Usuń",
+        "description": "Shown as a button to let the user delete any message request"
+    },
+    "MessageRequests--delete-direct-confirm-title": {
+        "message": "Usunąć konwersację?",
+        "description": "Shown as the title in the confirmation modal for deleting a private message request"
+    },
+    "MessageRequests--delete-direct-confirm-body": {
+        "message": "Ta konwersacja zostanie usunięta ze wszystkich Twoich urządzeń.",
+        "description": "Shown as the body in the confirmation modal for deleting a private message request"
+    },
+    "MessageRequests--delete-group-confirm-title": {
+        "message": "Usunąć i opuścić $group$? ",
+        "description": "Shown as the title in the confirmation modal for deleting a group message request",
+        "placeholders": {
+            "group": {
+                "content": "$1",
+                "example": "Friends 🌿"
+            }
+        }
+    },
+    "MessageRequests--delete-direct": {
+        "message": "Usuń",
+        "description": "Shown as a button to let the user delete a direct message request"
+    },
+    "MessageRequests--delete-group": {
+        "message": "Usuń i opuść",
+        "description": "Shown as a button to let the user delete a group message request"
+    },
+    "MessageRequests--delete-group-confirm-body": {
+        "message": "Opuścisz tę grupę i zostanie ona usunięta ze wszystkich Twoich urządzeń.",
+        "description": "Shown as the body in the confirmation modal for deleting a group message request"
+    },
+    "MessageRequests--accept": {
+        "message": "Akceptuj",
+        "description": "Shown as a button to let the user accept a message request"
+    },
+    "ConversationHero--members": {
+        "message": "$count$ członków",
+        "description": "Specifies the number of members in a group conversation",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "22"
+            }
+        }
+    },
+    "ConversationHero--members-1": {
+        "message": "1 członek",
+        "description": "Specifies the number of members in a group conversation when there is one member",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "22"
+            }
+        }
+    },
+    "ConversationHero--membership-1": {
+        "message": "Członek $group$.",
+        "description": "Shown in the conversation hero to indicate this user is a member of a mutual group",
+        "placeholders": {
+            "group": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
+            }
+        }
+    },
+    "ConversationHero--membership-2": {
+        "message": "Członek $group1$ i $group2$.",
+        "description": "Shown in the conversation hero to indicate this user is a member of at least two mutual groups",
+        "placeholders": {
+            "group1": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
+            },
+            "group2": {
+                "content": "$2",
+                "example": "Dinner Party"
+            }
+        }
+    },
+    "ConversationHero--membership-3": {
+        "message": "Członek $group1$, $group2$ i $group3$.",
+        "description": "Shown in the conversation hero to indicate this user is a member of at least three mutual groups",
+        "placeholders": {
+            "group1": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
+            },
+            "group2": {
+                "content": "$2",
+                "example": "Dinner Party"
+            },
+            "group3": {
+                "content": "$3",
+                "example": "Friends 🌿"
+            }
+        }
+    },
+    "ConversationHero--membership-extra": {
+        "message": "Członek $group1$, $group2$, $group3$ i $remainingCount$ innych.",
+        "description": "Shown in the conversation hero to indicate this user is a member of at least three mutual groups",
+        "placeholders": {
+            "group1": {
+                "content": "$1",
+                "example": "NYC Rock Climbers"
+            },
+            "group2": {
+                "content": "$2",
+                "example": "Dinner Party"
+            },
+            "group3": {
+                "content": "$3",
+                "example": "Friends 🌿"
+            },
+            "remainingCount": {
+                "content": "$4",
+                "example": "3"
+            }
+        }
+    },
+    "ConversationHero--membership-added": {
+        "message": "$name$ dodał(a) Cię do grupy.",
+        "description": "Shown Indicates that you were added to a group by a given individual.",
+        "placeholders": {
+            "name": {
+                "content": "$1",
+                "example": "Jeff Smith"
+            }
+        }
+    },
+    "acceptCall": {
+        "message": "Odbierz",
+        "description": "Shown in tooltip for the button to accept a call (audio or video)"
+    },
+    "acceptCallWithoutVideo": {
+        "message": "Odbierz bez wideo",
+        "description": "Shown in tooltip for the button to accept a video call without video"
+    },
+    "declineCall": {
+        "message": "Odrzuć",
+        "description": "Shown in tooltip for the button to decline a call (audio or video)"
+    },
+    "declinedIncomingAudioCall": {
+        "message": "Odrzuciłeś(aś) połączenie audio",
+        "description": "Shown in conversation history when you declined an incoming audio call"
+    },
+    "declinedIncomingVideoCall": {
+        "message": "Odrzuciłeś(aś) połączenie wideo",
+        "description": "Shown in conversation history when you declined an incoming video call"
+    },
+    "acceptedIncomingAudioCall": {
+        "message": "Przychodzące połączenie audio",
+        "description": "Shown in conversation history when you accepted an incoming audio call"
+    },
+    "acceptedIncomingVideoCall": {
+        "message": "Przychodzące połączenie wideo",
+        "description": "Shown in conversation history when you accepted an incoming video call"
+    },
+    "missedIncomingAudioCall": {
+        "message": "Nieodebrane połączenie audio",
+        "description": "Shown in conversation history when you missed an incoming audio call"
+    },
+    "missedIncomingVideoCall": {
+        "message": "Nieodebrane połączenie wideo",
+        "description": "Shown in conversation history when you missed an incoming video call"
+    },
+    "acceptedOutgoingAudioCall": {
+        "message": "Wychodzące połączenie audio",
+        "description": "Shown in conversation history when you made an outgoing audio call"
+    },
+    "acceptedOutgoingVideoCall": {
+        "message": "Wychodzące połączenie wideo",
+        "description": "Shown in conversation history when you made an outgoing video call"
+    },
+    "missedOrDeclinedOutgoingAudioCall": {
+        "message": "Nieodebrane połączenie audio",
+        "description": "Shown in conversation history when your audio call is missed or declined"
+    },
+    "missedOrDeclinedOutgoingVideoCall": {
+        "message": "Nieodebrane połączenie wideo",
+        "description": "Shown in conversation history when your video call is missed or declined"
+    },
+    "incomingAudioCall": {
+        "message": "Przychodzące połączenie audio...",
+        "description": "Shown in both the incoming call bar and notification for an incoming audio call"
+    },
+    "incomingVideoCall": {
+        "message": "Przychodzące połączenie wideo...",
+        "description": "Shown in both the incoming call bar and notification for an incoming video call"
+    },
+    "outgoingCallPrering": {
+        "message": "Łączenie…",
+        "description": "Shown in the call screen when placing an outgoing call that isn't ringing yet"
+    },
+    "outgoingCallRinging": {
+        "message": "Dzwonienie...",
+        "description": "Shown in the call screen when placing an outgoing call that is now ringing"
+    },
+    "makeOutgoingCall": {
+        "message": "Rozpocznij połączenie",
+        "description": "Title for the call button in a conversation"
+    },
+    "makeOutgoingVideoCall": {
+        "message": "Rozpocznij połączenie wideo",
+        "description": "Title for the video call button in a conversation"
+    },
+    "callNeedPermission": {
+        "message": "$title$ Otrzyma Twoją prośbę o kontakt. Będziesz móc dzwonić, gdy Twoja prośba o kontakt zostanie zaakceptowana.",
+        "description": "Shown when a call is rejected because the other party hasn't approved the message/call request",
+        "placeholders": {
+            "title": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "callReconnecting": {
+        "message": "Ponowne łączenie...",
+        "description": "Shown in the call screen when the call is reconnecting due to network issues"
+    },
+    "callDuration": {
+        "message": "Signal $duration$",
+        "description": "Shown in the call screen to indicate how long the call has been connected",
+        "placeholders": {
+            "duration": {
+                "content": "$1",
+                "example": "00:01"
+            }
+        }
+    },
+    "callingDeviceSelection__settings": {
+        "message": "Ustawienia",
+        "description": "Title for device selection settings"
+    },
+    "calling__participants": {
+        "message": "Uczestnicy",
+        "description": "Title for participants list toggle"
+    },
+    "calling__pip": {
+        "message": "Tryb Picture-in-picture",
+        "description": "Title for picture-in-picture toggle"
+    },
+    "calling__hangup": {
+        "message": "Zakończ",
+        "description": "Title for hang up button"
+    },
+    "callingDeviceSelection__label--video": {
+        "message": "Wideo",
+        "description": "Label for video input selector"
+    },
+    "callingDeviceSelection__label--audio-input": {
+        "message": "Mikrofon",
+        "description": "Label for audio input selector"
+    },
+    "callingDeviceSelection__label--audio-output": {
+        "message": "Głośniki",
+        "description": "Label for audio output selector"
+    },
+    "callingDeviceSelection__select--no-device": {
+        "message": "Brak dostępnych urządzeń",
+        "description": "Message for when there are no available devices to select for input/output audio or video"
+    },
+    "callingDeviceSelection__select--default": {
+        "message": "Domyślny",
+        "description": "Shown when the device is the default device"
+    },
+    "muteNotificationsTitle": {
+        "message": "Wycisz powiadomienia",
+        "description": "Label for the mute notifications drop-down selector"
+    },
+    "muteHour": {
+        "message": "Wycisz na godzinę",
+        "description": "Label for muting the conversation"
+    },
+    "muteDay": {
+        "message": "Wycisz na jeden dzień",
+        "description": "Label for muting the conversation"
+    },
+    "muteWeek": {
+        "message": "Wycisz na tydzień",
+        "description": "Label for muting the conversation"
+    },
+    "muteYear": {
+        "message": "Wycisz na rok",
+        "description": "Label for muting the conversation"
+    },
+    "unmute": {
+        "message": "Cofnij wyciszenie",
+        "description": "Label for unmuting the conversation"
+    },
+    "muteExpirationLabel": {
+        "message": "Wyciszone do $duration$",
+        "description": "Shown in the mute notifications submenu whenever a conversation has been muted",
+        "placeholders": {
+            "duration": {
+                "content": "$1",
+                "example": "10/23/2023, 7:10 PM"
+            }
+        }
+    },
+    "EmojiButton__label": {
+        "message": "Emotikony",
+        "description": "Label for emoji button"
+    },
+    "ErrorModal--title": {
+        "message": "Coś poszło nie tak!",
+        "description": "Title of pop-up dialog when user-initiated task has gone wrong"
+    },
+    "ErrorModal--description": {
+        "message": "Spróbuj ponownie lub skontaktuj się z pomocą techniczną.",
+        "description": "Description text in pop-up dialog when user-initiated task has gone wrong"
+    },
+    "ErrorModal--buttonText": {
+        "message": "OK",
+        "description": "Button to dismiss pop-up dialog when user-initiated task has gone wrong"
+    },
+    "GroupV2--admin": {
+        "message": "Administrator",
+        "description": "Shown next to the set of administrators in a group"
+    },
+    "updating": {
+        "message": "Aktualizuję...",
+        "description": "Shown along with a spinner when an update operation takes longer than one second"
+    },
+    "GroupV2--create--you": {
+        "message": "Utworzyłeś(aś) grupę.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--create--other": {
+        "message": "$memberName$ utworzył(a) grupę.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--create--unknown": {
+        "message": "Grupa została utworzona.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--title--change--other": {
+        "message": "$memberName$ zmienił(a) nazwę grupy na \"$newTitle$\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "newTitle": {
+                "content": "$2",
+                "example": "Saturday Hiking"
+            }
+        }
+    },
+    "GroupV2--title--change--you": {
+        "message": "Zmieniłeś(aś) nazwę grupy na “$newTitle$“.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "newTitle": {
+                "content": "$1",
+                "example": "Saturday Hiking"
+            }
+        }
+    },
+    "GroupV2--title--change--unknown": {
+        "message": "Członek grupy zmienił nazwę grupy na \"$newTitle$\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "newTitle": {
+                "content": "$1",
+                "example": "Saturday Hiking"
+            }
+        }
+    },
+    "GroupV2--title--remove--other": {
+        "message": "$memberName$ usunął(ęła) nazwę grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--title--remove--you": {
+        "message": "Usunąłeś(ęłaś) nazwę grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--title--remove--unknown": {
+        "message": "Członek grupy usunął nazwę grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--avatar--change--other": {
+        "message": "$memberName$ zmienił(a) awatara grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--avatar--change--you": {
+        "message": "Zmieniłeś(aś) awatara grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--avatar--change--unknown": {
+        "message": "Członek grupy zmienił awatara grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--avatar--remove--other": {
+        "message": "$memberName$ usunął(ęła) awatara grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--avatar--remove--you": {
+        "message": "Usunąłeś(ęłaś) awatara grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--avatar--remove--unknown": {
+        "message": "Członek grupy usunął awatara grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-attributes--admins--other": {
+        "message": "$adminName$ zmienił(a), kto może edytować informacje o grupie na \"Tylko Administratorzy\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--access-attributes--admins--you": {
+        "message": "Zmieniłeś(aś), kto może edytować informacje o grupie na \"Tylko administratorzy\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-attributes--admins--unknown": {
+        "message": "Administrator zmienił, kto może edytować informacje o grupie na \"Tylko administratorzy\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-attributes--all--other": {
+        "message": "$adminName$ zmienił(a), kto może edytować informacje o grupie na \"Wszyscy członkowie\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--access-attributes--all--you": {
+        "message": "Zmieniłeś(aś), kto może edytować informacje o grupie na \"Wszyscy członkowie\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-attributes--all--unknown": {
+        "message": "Administrator zmienił, kto może edytować informacje o grupie na \"Wszyscy członkowie\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-members--admins--other": {
+        "message": "$adminName$ zmienił(a), kto może edytować członkostwo w grupie na \"Tylko Administratorzy\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--access-members--admins--you": {
+        "message": "Zmieniłeś(aś), kto może edytować członkostwo w grupie na \"Tylko administratorzy\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-members--admins--unknown": {
+        "message": "Administrator zmienił, kto może edytować członkostwo w grupie na \"Tylko administratorzy\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-members--all--other": {
+        "message": "$adminName$ zmienił(a), kto może edytować członkostwo w grupie na \"Wszyscy członkowie\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--access-members--all--you": {
+        "message": "Zmieniłeś(aś), kto może edytować członkostwo w grupie na \"Wszyscy członkowie\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--access-members--all--unknown": {
+        "message": "Administrator zmienił, kto może edytować członkostwo w grupie na \"Wszyscy członkowie\".",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-add--invited--you": {
+        "message": "Dodałeś(aś) zaproszonego członka $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-add--invited--other": {
+        "message": "$memberName$ dodał(a) zaproszonego członka $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Alice"
+            },
+            "inviteeName": {
+                "content": "$2",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--invited--unknown": {
+        "message": "Członek dodał zaproszonego członka $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-add--from-invite--other": {
+        "message": "$inviteeName$ zaakceptował(a) zaproszenie do grupy od $inviterName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Alice"
+            },
+            "inviterName": {
+                "content": "$2",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--from-invite--other-no-from": {
+        "message": "$inviteeName$ zaakceptował(a) zaproszenie do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-add--from-invite--you": {
+        "message": "Zaakceptowałeś(aś) zaproszenie od $inviterName$ do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviterName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--from-invite--you-no-from": {
+        "message": "Zaakceptowałeś(aś) zaproszenie do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-add--from-invite--from-you": {
+        "message": "$inviteeName$ zaakceptował(a) Twoje zaproszenie do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--other--other": {
+        "message": "$adderName$ dodał(a) $addeeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adderName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "addeeName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-add--other--you": {
+        "message": "Dodałeś(aś) $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--other--unknown": {
+        "message": "Członek grupy dodał $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--you--other": {
+        "message": "$memberName$ dodał(a) Cię do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-add--you--you": {
+        "message": "Dołączyłeś(aś) do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-add--you--unknown": {
+        "message": "Zostałeś(aś) dodany(a) do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-remove--other--other": {
+        "message": "$adminName$ usunął(ęła) $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-remove--other--self": {
+        "message": "$memberName$ opuścił(a) grupę.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-remove--other--you": {
+        "message": "Usunąłeś(ęłaś) $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-remove--other--unknown": {
+        "message": "Członek grupy usunął $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-remove--you--other": {
+        "message": "$adminName$ usunął(ęła) Cię.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-remove--you--you": {
+        "message": "Opuściłeś(aś) tę grupę.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-remove--you--unknown": {
+        "message": "Zostałeś(aś) usunięty(a) z grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-privilege--promote--other--other": {
+        "message": "$adminName$ mianował(a) $memberName$ administratorem.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-privilege--promote--other--you": {
+        "message": "Mianowałeś(aś) $memberName$ administratorem.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--promote--other--unknown": {
+        "message": "Administrator mianował $memberName$ administratorem.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--promote--you--other": {
+        "message": "$adminName$ mianował(a) Cię administratorem.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--promote--you--unknown": {
+        "message": "Administrator mianował Cię administratorem.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-privilege--demote--other--other": {
+        "message": "$adminName$ anulował(a) uprawnienia administratora $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--member-privilege--demote--other--you": {
+        "message": "Anulowałeś(aś) uprawnienia administratora $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--demote--other--unknown": {
+        "message": "Administrator anulował uprawnienia administratora $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--member-privilege--demote--you--other": {
+        "message": "$adminName$ anulował(a) Twoje uprawnienia administratora.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--member-privilege--demote--you--unknown": {
+        "message": "Administrator anulował Twoje uprawnienia administratora.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--pending-add--one--other--other": {
+        "message": "$memberName$ zaprosił(a) 1 osobę do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-add--one--other--you": {
+        "message": "Zaprosiłeś(aś) $inviteeName$ do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-add--one--other--unknown": {
+        "message": "Jedna osoba została zaproszona do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-add--one--you--other": {
+        "message": "$memberName$ zaprosił(a) Cię do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-add--one--you--unknown": {
+        "message": "Zostałeś(aś) zaproszony(a) do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--pending-add--many--other": {
+        "message": "$memberName$ zaprosił(a) $count$ osób(y) do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "count": {
+                "content": "$2",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-add--many--you": {
+        "message": "Zaprosiłeś(aś) $count$osób(y) do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-add--many--unknown": {
+        "message": "$count$ osób(y) zostało(y) dodanych(e) do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--decline--other": {
+        "message": "1 osoba, zaproszona przez $memberName$, odrzuciła zaproszenie do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--decline--you": {
+        "message": "$inviteeName$ odrzucił(a) Twoje zaproszenie do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--decline--from-you": {
+        "message": "Odrzuciłeś(aś) zaproszenie do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--pending-remove--decline--unknown": {
+        "message": "1 osoba odrzuciła zaproszenie do grupy.",
+        "description": "Shown in timeline or conversation preview when v2 group changes"
+    },
+    "GroupV2--pending-remove--revoke--one--other": {
+        "message": "$memberName$ anulował(a) zaproszenie do grupy dla 1 osoby.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--one--you": {
+        "message": "Anulowałeś(aś) zaproszenie do grupy dla 1 osoby.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-own--to-you": {
+        "message": "$inviterName$ anulował(a) swoje zaproszenie do grupy dla Ciebie.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviterName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-own--unknown": {
+        "message": "$inviterName$ anulował(a) swoje zaproszenie do grupy dla 1 osoby.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviterName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--one--unknown": {
+        "message": "Administrator anulował zaproszenie do grupy dla 1 osoby.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--many--other": {
+        "message": "$memberName$ anulował(a) zaproszenie do grupy dla $count$ osób.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "count": {
+                "content": "$2",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--many--you": {
+        "message": "Anulowałeś(aś) zaproszenie do grupy dla $count$ osób.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke--many--unknown": {
+        "message": "Administrator anulował zaproszenie do grupy dla $count$ osób.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--one--other": {
+        "message": "$adminName$ anulował(a) zaproszenie do grupy dla 1 osoby, zaproszonej przez $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--one--you": {
+        "message": "Anulowałeś(aś) zaproszenie do grupy dla 1 osoby zaproszonej przez $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--one--unknown": {
+        "message": "Administrator anulował zaproszenie do grupy dla 1 osoby, zaproszonej przez $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "memberName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--one--other": {
+        "message": "$adminName$ anulował(a) Twoje zaproszenie do grupy dla $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--one--you": {
+        "message": "Anulowałeś(aś) swoje zaproszenie do grupy dla $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--one--unknown": {
+        "message": "Administrator anulował Twoje zaproszenie do grupy dla $inviteeName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "inviteeName": {
+                "content": "$1",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--many--other": {
+        "message": "$adminName$ anulował(a) zaproszenie do grupy dla $count$ osób, zaproszonych przez $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Alice"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--many--you": {
+        "message": "Anulowałeś(aś) zaproszenie do grupy dla $count$ osób, zaproszonych przez $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from--many--unknown": {
+        "message": "Administrator anulował zaproszenie do grupy dla $count$ osób, zaproszonych przez $memberName$.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            },
+            "memberName": {
+                "content": "$2",
+                "example": "Bob"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--many--other": {
+        "message": "$adminName$ anulował(a) zaproszenie do grupy dla $count$ osób.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "adminName": {
+                "content": "$1",
+                "example": "Bob"
+            },
+            "count": {
+                "content": "$2",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--many--you": {
+        "message": "Anulowałeś(aś) swoje zaproszenie do grupy dla $count$ osób.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "GroupV2--pending-remove--revoke-invite-from-you--many--unknown": {
+        "message": "Administrator anulował Twoje zaproszenie do grupy dla $count$ osób.",
+        "description": "Shown in timeline or conversation preview when v2 group changes",
+        "placeholders": {
+            "count": {
+                "content": "$1",
+                "example": "5"
+            }
+        }
+    },
+    "close": {
+        "message": "Zamknij",
+        "description": "Generic close label"
+    },
+    "previous": {
+        "message": "wstecz",
+        "description": "Generic previous label"
+    },
+    "next": {
+        "message": "dalej",
+        "description": "Generic next label"
+    },
+    "CompositionArea--expand": {
+        "message": "Powiększ",
+        "description": "Aria label for expanding composition area"
+    },
+    "CompositionArea--attach-file": {
+        "message": "Dołącz plik",
+        "description": "Aria label for file attachment button in composition area"
+    },
+    "countMutedConversationsDescription": {
+        "message": "Licz wyciszone konwersacje na ikonie",
+        "description": "Description for counting muted conversations in badge setting"
     }
 }

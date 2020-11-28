@@ -11,6 +11,11 @@ const { map, isArrayBuffer, isString } = require('lodash');
 const normalizePath = require('normalize-path');
 const sanitizeFilename = require('sanitize-filename');
 const getGuid = require('uuid/v4');
+const { isPathInside } = require('../ts/util/isPathInside');
+const { isWindows } = require('../ts/OS');
+const {
+  writeWindowsZoneIdentifier,
+} = require('../ts/util/windowsZoneIdentifier');
 
 let xattr;
 try {
@@ -25,6 +30,8 @@ const PATH = 'attachments.noindex';
 const STICKER_PATH = 'stickers.noindex';
 const TEMP_PATH = 'temp';
 const DRAFT_PATH = 'drafts.noindex';
+
+const getApp = () => app || remote.app;
 
 exports.getAllAttachments = async userDataPath => {
   const dir = exports.getPath(userDataPath);
@@ -113,7 +120,7 @@ exports.createReader = root => {
 
     const absolutePath = path.join(root, relativePath);
     const normalized = path.normalize(absolutePath);
-    if (!normalized.startsWith(root)) {
+    if (!isPathInside(normalized, root)) {
       throw new Error('Invalid relative path');
     }
     const buffer = await fse.readFile(normalized);
@@ -133,7 +140,7 @@ exports.createDoesExist = root => {
 
     const absolutePath = path.join(root, relativePath);
     const normalized = path.normalize(absolutePath);
-    if (!normalized.startsWith(root)) {
+    if (!isPathInside(normalized, root)) {
       throw new Error('Invalid relative path');
     }
     try {
@@ -150,16 +157,24 @@ exports.copyIntoAttachmentsDirectory = root => {
     throw new TypeError("'root' must be a path");
   }
 
+  const userDataPath = getApp().getPath('userData');
+
   return async sourcePath => {
     if (!isString(sourcePath)) {
       throw new TypeError('sourcePath must be a string');
+    }
+
+    if (!isPathInside(sourcePath, userDataPath)) {
+      throw new Error(
+        "'sourcePath' must be relative to the user config directory"
+      );
     }
 
     const name = exports.createName();
     const relativePath = exports.getRelativePath(name);
     const absolutePath = path.join(root, relativePath);
     const normalized = path.normalize(absolutePath);
-    if (!normalized.startsWith(root)) {
+    if (!isPathInside(normalized, root)) {
       throw new Error('Invalid relative path');
     }
 
@@ -170,7 +185,7 @@ exports.copyIntoAttachmentsDirectory = root => {
 };
 
 exports.writeToDownloads = async ({ data, name }) => {
-  const appToUse = app || remote.app;
+  const appToUse = getApp();
   const downloadsPath =
     appToUse.getPath('downloads') || appToUse.getPath('home');
   const sanitized = sanitizeFilename(name);
@@ -189,7 +204,7 @@ exports.writeToDownloads = async ({ data, name }) => {
 
   const target = path.join(downloadsPath, candidateName);
   const normalized = path.normalize(target);
-  if (!normalized.startsWith(downloadsPath)) {
+  if (!isPathInside(normalized, downloadsPath)) {
     throw new Error('Invalid filename!');
   }
 
@@ -218,19 +233,26 @@ async function writeWithAttributes(target, data) {
     const attrValue = `${type};${timestamp};${appName};${guid}`;
 
     await xattr.set(target, 'com.apple.quarantine', attrValue);
+  } else if (isWindows()) {
+    // This operation may fail (see the function's comments), which is not a show-stopper.
+    try {
+      await writeWindowsZoneIdentifier(target);
+    } catch (err) {
+      console.warn('Failed to write Windows Zone.Identifier file; continuing');
+    }
   }
 }
 
 exports.openFileInDownloads = async name => {
   const shellToUse = shell || remote.shell;
-  const appToUse = app || remote.app;
+  const appToUse = getApp();
 
   const downloadsPath =
     appToUse.getPath('downloads') || appToUse.getPath('home');
   const target = path.join(downloadsPath, name);
 
   const normalized = path.normalize(target);
-  if (!normalized.startsWith(downloadsPath)) {
+  if (!isPathInside(normalized, downloadsPath)) {
     throw new Error('Invalid filename!');
   }
 
@@ -310,7 +332,7 @@ exports.createWriterForExisting = root => {
     const buffer = Buffer.from(arrayBuffer);
     const absolutePath = path.join(root, relativePath);
     const normalized = path.normalize(absolutePath);
-    if (!normalized.startsWith(root)) {
+    if (!isPathInside(normalized, root)) {
       throw new Error('Invalid relative path');
     }
 
@@ -335,7 +357,7 @@ exports.createDeleter = root => {
 
     const absolutePath = path.join(root, relativePath);
     const normalized = path.normalize(absolutePath);
-    if (!normalized.startsWith(root)) {
+    if (!isPathInside(normalized, root)) {
       throw new Error('Invalid relative path');
     }
     await fse.remove(absolutePath);
@@ -402,7 +424,7 @@ exports.getRelativePath = name => {
 exports.createAbsolutePathGetter = rootPath => relativePath => {
   const absolutePath = path.join(rootPath, relativePath);
   const normalized = path.normalize(absolutePath);
-  if (!normalized.startsWith(rootPath)) {
+  if (!isPathInside(normalized, rootPath)) {
     throw new Error('Invalid relative path');
   }
   return normalized;

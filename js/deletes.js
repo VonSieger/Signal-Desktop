@@ -9,16 +9,12 @@
 
 // eslint-disable-next-line func-names
 (function() {
-  'use strict';
-
-  const ONE_DAY = 24 * 60 * 60 * 1000;
-
   window.Whisper = window.Whisper || {};
   Whisper.Deletes = new (Backbone.Collection.extend({
     forMessage(message) {
       const matchingDeletes = this.filter({
         targetSentTimestamp: message.get('sent_at'),
-        fromId: message.getContact().get('id'),
+        fromId: message.getContactId(),
       });
 
       if (matchingDeletes.length > 0) {
@@ -31,12 +27,16 @@
     },
     async onDelete(del) {
       try {
-        // The contact the delete message came from
-        const fromContact = ConversationController.get(del.get('fromId'));
+        // The conversation the deleted message was in; we have to find it in the database
+        //   to to figure that out.
+        const targetConversation = await ConversationController.getConversationForTargetMessage(
+          del.get('fromId'),
+          del.get('targetSentTimestamp')
+        );
 
-        if (!fromContact) {
+        if (!targetConversation) {
           window.log.info(
-            'No contact for DOE',
+            'No target conversation for DOE',
             del.get('fromId'),
             del.get('targetSentTimestamp')
           );
@@ -45,7 +45,9 @@
         }
 
         // Do not await, since this can deadlock the queue
-        fromContact.queueJob(async () => {
+        targetConversation.queueJob(async () => {
+          window.log.info('Handling DOE for', del.get('targetSentTimestamp'));
+
           const messages = await window.Signal.Data.getMessagesBySentAt(
             del.get('targetSentTimestamp'),
             {
@@ -53,16 +55,9 @@
             }
           );
 
-          const targetMessage = messages.find(m => {
-            const messageContact = m.getContact();
-
-            if (!messageContact) {
-              return false;
-            }
-
-            // Find messages which are from the same contact who sent the DOE
-            return messageContact.get('id') === fromContact.get('id');
-          });
+          const targetMessage = messages.find(
+            m => del.get('fromId') === m.getContactId()
+          );
 
           if (!targetMessage) {
             window.log.info(
@@ -74,29 +69,12 @@
             return;
           }
 
-          // Make sure the server timestamps for the DOE and the matching message
-          // are less than one day apart
-          const delta = Math.abs(
-            del.get('serverTimestamp') - targetMessage.get('serverTimestamp')
-          );
-          if (delta > ONE_DAY) {
-            window.log.info('Received late DOE. Dropping.', {
-              fromId: del.get('fromId'),
-              targetSentTimestamp: del.get('targetSentTimestamp'),
-              messageServerTimestamp: message.get('serverTimestamp'),
-              deleteServerTimestamp: del.get('serverTimestamp'),
-            });
-            this.remove(del);
-
-            return;
-          }
-
           const message = MessageController.register(
             targetMessage.id,
             targetMessage
           );
 
-          await message.handleDeleteForEveryone(del);
+          await window.Signal.Util.deleteForEveryone(message, del);
 
           this.remove(del);
         });

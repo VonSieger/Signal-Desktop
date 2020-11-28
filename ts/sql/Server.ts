@@ -1,4 +1,10 @@
-// tslint:disable no-backbone-get-set-outside-model no-console no-default-export no-unnecessary-local-variable
+/* eslint-disable no-nested-ternary */
+/* eslint-disable camelcase */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { join } from 'path';
 import mkdirp from 'mkdirp';
@@ -6,11 +12,6 @@ import rimraf from 'rimraf';
 import PQueue from 'p-queue';
 import sql from '@journeyapps/sqlcipher';
 import { app, clipboard, dialog } from 'electron';
-import { redactAll } from '../../js/modules/privacy';
-import { remove as removeUserConfig } from '../../app/user_config';
-import { combineNames } from '../util/combineNames';
-
-import { LocaleMessagesType } from '../types/I18N';
 
 import pify from 'pify';
 import { v4 as generateUUID } from 'uuid';
@@ -26,6 +27,13 @@ import {
   map,
   pick,
 } from 'lodash';
+
+import { redactAll } from '../../js/modules/privacy';
+import { remove as removeUserConfig } from '../../app/user_config';
+import { combineNames } from '../util/combineNames';
+
+import { GroupV2MemberType } from '../model-types.d';
+import { LocaleMessagesType } from '../types/I18N';
 
 import {
   AttachmentDownloadJobType,
@@ -104,6 +112,7 @@ const dataInterface: ServerInterface = {
   updateConversation,
   updateConversations,
   removeConversation,
+  eraseStorageServiceStateFromConversations,
   getAllConversations,
   getAllConversationIds,
   getAllPrivateConversations,
@@ -131,6 +140,9 @@ const dataInterface: ServerInterface = {
   getOlderMessagesByConversation,
   getNewerMessagesByConversation,
   getMessageMetricsForConversation,
+  getLastConversationActivity,
+  getLastConversationPreview,
+  migrateConversationMessages,
 
   getUnprocessedCount,
   getAllUnprocessed,
@@ -206,8 +218,6 @@ async function openDatabase(filePath: string): Promise<sql.Database> {
       }
 
       resolve(instance);
-
-      return;
     };
 
     instance = new sql.Database(filePath, callback);
@@ -1329,7 +1339,6 @@ async function updateToSchemaVersion19(
   }
 }
 
-// tslint:disable-next-line max-func-body-length
 async function updateToSchemaVersion20(
   currentVersion: number,
   instance: PromisifiedSQLDatabase
@@ -1342,7 +1351,11 @@ async function updateToSchemaVersion20(
   await instance.run('BEGIN TRANSACTION;');
 
   try {
-    const migrationJobQueue = new PQueue({ concurrency: 10 });
+    const migrationJobQueue = new PQueue({
+      concurrency: 10,
+      timeout: 1000 * 60 * 5,
+      throwOnTimeout: true,
+    });
     // The triggers on the messages table slow down this migration
     // significantly, so we drop them and recreate them later.
     // Drop triggers
@@ -1438,7 +1451,6 @@ async function updateToSchemaVersion20(
     );
 
     // Update group conversations, point members at new conversation ids
-    // tslint:disable-next-line no-floating-promises
     migrationJobQueue.addAll(
       groupConverations.map(groupRow => async () => {
         const members = groupRow.members.split(/\s?\+/).filter(Boolean);
@@ -1542,6 +1554,40 @@ async function updateToSchemaVersion20(
   }
 }
 
+async function updateToSchemaVersion21(
+  currentVersion: number,
+  instance: PromisifiedSQLDatabase
+) {
+  if (currentVersion >= 21) {
+    return;
+  }
+  try {
+    await instance.run('BEGIN TRANSACTION;');
+    await instance.run(`
+      UPDATE conversations
+      SET json = json_set(
+        json,
+        '$.messageCount',
+        (SELECT count(*) FROM messages WHERE messages.conversationId = conversations.id)
+      );
+    `);
+    await instance.run(`
+      UPDATE conversations
+      SET json = json_set(
+        json,
+        '$.sentMessageCount',
+        (SELECT count(*) FROM messages WHERE messages.conversationId = conversations.id AND messages.type = 'outgoing')
+      );
+    `);
+    await instance.run('PRAGMA user_version = 21;');
+    await instance.run('COMMIT TRANSACTION;');
+    console.log('updateToSchemaVersion21: success!');
+  } catch (error) {
+    await instance.run('ROLLBACK');
+    throw error;
+  }
+}
+
 const SCHEMA_VERSIONS = [
   updateToSchemaVersion1,
   updateToSchemaVersion2,
@@ -1563,6 +1609,7 @@ const SCHEMA_VERSIONS = [
   updateToSchemaVersion18,
   updateToSchemaVersion19,
   updateToSchemaVersion20,
+  updateToSchemaVersion21,
 ];
 
 async function updateSchema(instance: PromisifiedSQLDatabase) {
@@ -1599,7 +1646,6 @@ let globalInstance: PromisifiedSQLDatabase | undefined;
 let databaseFilePath: string | undefined;
 let indexedDBPath: string | undefined;
 
-// tslint:disable-next-line max-func-body-length
 async function initialize({
   configDir,
   key,
@@ -2031,12 +2077,20 @@ async function saveConversation(
     groupId,
     id,
     members,
+    membersV2,
     name,
     profileFamilyName,
     profileName,
     type,
     uuid,
   } = data;
+
+  // prettier-ignore
+  const membersList = membersV2
+    ? membersV2.map((item: GroupV2MemberType) => item.conversationId).join(' ')
+    : members
+      ? members.join(' ')
+      : null;
 
   await instance.run(
     `INSERT INTO conversations (
@@ -2080,7 +2134,7 @@ async function saveConversation(
 
       $active_at: active_at,
       $type: type,
-      $members: members ? members.join(' ') : null,
+      $members: membersList,
       $name: name,
       $profileName: profileName,
       $profileFamilyName: profileFamilyName,
@@ -2117,12 +2171,20 @@ async function updateConversation(data: ConversationType) {
     active_at,
     type,
     members,
+    membersV2,
     name,
     profileName,
     profileFamilyName,
     e164,
     uuid,
   } = data;
+
+  // prettier-ignore
+  const membersList = membersV2
+    ? membersV2.map((item: GroupV2MemberType) => item.conversationId).join(' ')
+    : members
+      ? members.join(' ')
+      : null;
 
   await db.run(
     `UPDATE conversations SET
@@ -2148,7 +2210,7 @@ async function updateConversation(data: ConversationType) {
 
       $active_at: active_at,
       $type: type,
-      $members: members ? members.join(' ') : null,
+      $members: membersList,
       $name: name,
       $profileName: profileName,
       $profileFamilyName: profileFamilyName,
@@ -2202,6 +2264,16 @@ async function getConversationById(id: string) {
   }
 
   return jsonToObject(row.json);
+}
+
+async function eraseStorageServiceStateFromConversations() {
+  const db = getInstance();
+
+  await db.run(
+    `UPDATE conversations SET
+      json = json_remove(json, '$.storageID', '$.needsStorageServiceSync', '$.unknownFields', '$.storageProfileKey');
+    `
+  );
 }
 
 async function getAllConversations() {
@@ -2326,9 +2398,14 @@ async function searchMessagesInConversation(
   }));
 }
 
-async function getMessageCount() {
+async function getMessageCount(conversationId?: string) {
   const db = getInstance();
-  const row = await db.get('SELECT count(*) from messages;');
+  const row = conversationId
+    ? await db.get(
+        'SELECT count(*) from messages WHERE conversationId = $conversationId;',
+        { $conversationId: conversationId }
+      )
+    : await db.get('SELECT count(*) from messages;');
 
   if (!row) {
     throw new Error('getMessageCount: Unable to get count of messages');
@@ -2337,7 +2414,6 @@ async function getMessageCount() {
   return row['count(*)'];
 }
 
-// tslint:disable-next-line max-func-body-length
 async function saveMessage(
   data: MessageType,
   { forceSave }: { forceSave?: boolean } = {}
@@ -2599,12 +2675,12 @@ async function getOlderMessagesByConversation(
     limit = 100,
     receivedAt = Number.MAX_VALUE,
     messageId,
-  }: { limit?: number; receivedAt?: number; messageId?: string } = {}
+  }: {
+    limit?: number;
+    receivedAt?: number;
+    messageId?: string;
+  } = {}
 ) {
-  if (receivedAt !== Number.MAX_VALUE && !messageId) {
-    throw new Error('If receivedAt is supplied, messageId should be as well');
-  }
-
   const db = getInstance();
   let rows;
 
@@ -2697,6 +2773,50 @@ async function getNewestMessageForConversation(conversationId: string) {
 
   return row;
 }
+
+async function getLastConversationActivity(
+  conversationId: string
+): Promise<MessageType | null> {
+  const db = getInstance();
+  const row = await db.get(
+    `SELECT * FROM messages WHERE
+       conversationId = $conversationId AND
+       (type IS NULL OR type NOT IN ('profile-change', 'verified-change', 'message-history-unsynced', 'keychange')) AND
+       (json_extract(json, '$.expirationTimerUpdate.fromSync') IS NULL OR json_extract(json, '$.expirationTimerUpdate.fromSync') != 1)
+     ORDER BY received_at DESC
+     LIMIT 1;`,
+    {
+      $conversationId: conversationId,
+    }
+  );
+
+  if (!row) {
+    return null;
+  }
+
+  return jsonToObject(row.json);
+}
+async function getLastConversationPreview(
+  conversationId: string
+): Promise<MessageType | null> {
+  const db = getInstance();
+  const row = await db.get(
+    `SELECT * FROM messages WHERE
+       conversationId = $conversationId AND
+       (type IS NULL OR type NOT IN ('profile-change', 'verified-change', 'message-history-unsynced'))
+     ORDER BY received_at DESC
+     LIMIT 1;`,
+    {
+      $conversationId: conversationId,
+    }
+  );
+
+  if (!row) {
+    return null;
+  }
+
+  return jsonToObject(row.json);
+}
 async function getOldestUnreadMessageForConversation(conversationId: string) {
   const db = getInstance();
   const row = await db.get(
@@ -2756,6 +2876,25 @@ async function getMessageMetricsForConversation(conversationId: string) {
   };
 }
 getMessageMetricsForConversation.needsSerial = true;
+
+async function migrateConversationMessages(
+  obsoleteId: string,
+  currentId: string
+) {
+  const db = getInstance();
+
+  await db.run(
+    `UPDATE messages SET
+      conversationId = $currentId,
+      json = json_set(json, '$.conversationId', $currentId)
+     WHERE conversationId = $obsoleteId;`,
+    {
+      $obsoleteId: obsoleteId,
+      $currentId: currentId,
+    }
+  );
+}
+migrateConversationMessages.needsSerial = true;
 
 async function getMessagesBySentAt(sentAt: number) {
   const db = getInstance();
@@ -3562,7 +3701,7 @@ async function updateEmojiUsage(
 }
 updateEmojiUsage.needsSerial = true;
 
-async function getRecentEmojis(limit: number = 32) {
+async function getRecentEmojis(limit = 32) {
   const db = getInstance();
   const rows = await db.all(
     'SELECT * FROM emojis ORDER BY lastUsage DESC LIMIT $limit;',
@@ -3812,7 +3951,6 @@ async function removeKnownAttachments(allAttachments: Array<string>) {
     forEach(messages, message => {
       const externalFiles = getExternalFilesForMessage(message);
       forEach(externalFiles, file => {
-        // tslint:disable-next-line no-dynamic-delete
         delete lookup[file];
       });
     });
@@ -3856,7 +3994,6 @@ async function removeKnownAttachments(allAttachments: Array<string>) {
     forEach(conversations, conversation => {
       const externalFiles = getExternalFilesForConversation(conversation);
       forEach(externalFiles, file => {
-        // tslint:disable-next-line no-dynamic-delete
         delete lookup[file];
       });
     });
@@ -3904,7 +4041,6 @@ async function removeKnownStickers(allStickers: Array<string>) {
 
     const files: Array<StickerType> = map(rows, row => row.path);
     forEach(files, file => {
-      // tslint:disable-next-line no-dynamic-delete
       delete lookup[file];
     });
 
@@ -3957,7 +4093,6 @@ async function removeKnownDraftAttachments(allStickers: Array<string>) {
     forEach(conversations, conversation => {
       const externalFiles = getExternalDraftFilesForConversation(conversation);
       forEach(externalFiles, file => {
-        // tslint:disable-next-line no-dynamic-delete
         delete lookup[file];
       });
     });
