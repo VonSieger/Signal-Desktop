@@ -421,7 +421,19 @@ type WhatIsThis = typeof window.WhatIsThis;
       getLastSyncTime: () => window.storage.get('synced_at'),
       setLastSyncTime: (value: WhatIsThis) =>
         window.storage.put('synced_at', value),
-
+      getReadReceiptSetting: () => window.storage.get('read-receipt-setting'),
+      setReadReceiptSetting: (value: boolean) =>
+        window.storage.put('read-receipt-setting', value),
+      getUnidentifiedDeliveryIndicatorSetting: () =>
+        window.storage.get('unidentifiedDeliveryIndicators'),
+      setUnidentifiedDeliveryIndicatorSetting: (value: boolean) =>
+        window.storage.put('unidentifiedDeliveryIndicators', value),
+      getTypingIndicatorSetting: () => window.storage.get('typingIndicators'),
+      setTypingIndicatorSetting: (value: boolean) =>
+        window.storage.put('typingIndicators', value),
+      getLinkPreviewSetting: () => window.storage.get('linkPreviews'),
+      setLinkPreviewSetting: (value: boolean) =>
+        window.storage.put('linkPreviews', value),
       addDarkOverlay: () => {
         if ($('.dark-overlay').length) {
           return;

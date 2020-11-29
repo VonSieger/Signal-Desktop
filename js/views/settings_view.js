@@ -271,8 +271,6 @@
         ),
         generalHeader: i18n('general'),
         spellCheckDescription: i18n('spellCheckDescription'),
-        sendLinkPreviews: i18n('sendLinkPreviews'),
-        linkPreviewsDescription: i18n('linkPreviewsDescription'),
         privacySettings: i18n('privacySettings'),
         sendReadReceipts: i18n('sendReadReceipts'),
         udIndicators: i18n('udIndicators'),
